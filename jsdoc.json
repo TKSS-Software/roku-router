@@ -1,0 +1,39 @@
+{
+  "tags": {
+      "allowUnknownTags": true
+  },
+  "plugins": [
+    "plugins/markdown",
+    "./node_modules/brighterscript-jsdocs-plugin/convert-brighterscript-docs.js",
+    "./node_modules/better-docs/category"
+  ],
+  "source": {
+    "include": [
+      "dist/source",
+      "README.md"
+    ],
+    "includePattern": ".+\\.brs"
+  },
+  "templates": {
+    "referenceTitle": "TKSS roact API Docs",
+    "disableSort": false,
+    "collapse": true,
+    "search": true,
+    "better-docs": {
+      "name": "TKSS roact Documentation",
+      "title": "TKSS roact Documentation",
+      "navLinks": [
+        {
+          "label": "Github",
+          "href": "https://github.com/TKSS-Software/roact"
+        }
+      ]
+    }
+  },
+  "opts": {
+    "recurse": true,
+    "brighterscript-jsdocs-plugin": {
+        "addModule": false
+    }
+  }
+}

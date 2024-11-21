@@ -1,0 +1,26 @@
+{
+	"rootDir": "./",
+	"stagingDir": "dist",
+	"autoImportComponentScript": true,
+	"sourceMap": true,
+	"createPackage": false,
+	"emitDefinitions": true,
+	"files": [
+		"components/**/*",
+		"source/**/*",
+		"assets/**/*",
+		"manifest",
+		{
+			"src": "../src/source/roact.bs",
+			"dest": "source/roku_modules/roact/roact.bs"
+		},
+		{
+			"src": "../src/source/**/*",
+			"dest": "source/roku_modules/roact"
+		},
+		{
+			"src": "../src/components/**/*",
+			"dest": "components/roku_modules/roact"
+		}
+	]
+}

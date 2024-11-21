@@ -1,0 +1,8 @@
+import "roku_modules/promises/promises.brs"
+import "roku_modules/rodash/rodash.brs"
+
+namespace roact
+    function initialize() as dynamic
+        scene = m.top.getScene()
+    end function
+end namespace

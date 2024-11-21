@@ -1,0 +1,50 @@
+import "../source/roact.bs"
+
+sub init()
+    print "routes init"; m.top
+end sub
+
+function navigateTo(path = "" as string, context = {} as dynamic) as boolean
+    for each r in m.top.getChildren(-1, 0)
+        ' Match the target string
+        if isMatch(r.path, path)
+            ' Show the route if it matches
+            r@.show()
+        else
+            ' Hide the route if it doesn't match
+            r@.hide()
+        end if
+    end for
+
+    return true
+end function
+
+
+' Function to check if a URL matches the pattern
+function isMatch(pathPattern as String, url as String) as Boolean
+    ' Split the path pattern and the URL into their segments
+    pathSegments = pathPattern.split("/")
+    urlSegments = url.split("/")
+
+    ' If the number of segments doesn't match, it can't be a match
+    if pathSegments.Count() <> urlSegments.Count()
+        return false
+    end if
+
+    ' Iterate through each segment and compare
+    for i = 0 to pathSegments.Count() - 1
+        pathSegment = pathSegments[i]
+        urlSegment = urlSegments[i]
+
+        ' If the path segment starts with ":", it's a dynamic parameter
+        if Left(pathSegment, 1) = ":"
+            ' Skip the comparison since dynamic parameters can be any value
+        else if pathSegment <> urlSegment
+            ' If a static segment doesn't match, return false
+            return false
+        end if
+    end for
+
+    ' If all segments match, return true
+    return true
+end function

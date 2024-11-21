@@ -1,0 +1,4 @@
+
+sub init()
+    print m.top.findNode("routes")@.navigateTo("/details/movies/123456", {})
+end sub

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="Routes" extends="Group">
+    <interface>
+        <function name="navigateTo" />
+    </interface>
+    <children />
+</component>

@@ -1,0 +1,25 @@
+title=roact test project
+major_version=0
+minor_version=0
+build_version=0
+
+mm_icon_focus_fhd=pkg:/assets/images/required/icon_focus_fhd.png
+mm_icon_focus_hd=pkg:/assets/images/required/icon_focus_hd.png
+splash_screen_fhd=pkg:/assets/images/required/launch_screen_fhd.jpg
+splash_screen_hd=pkg:/assets/images/required/launch_screen_hd.png
+splash_screen_sd=pkg:/assets/images/required/launch_screen_sd.png
+
+splash_color=#121212
+splash_min_time=0
+
+ui_resolutions=fhd
+
+confirm_partner_button=1
+supports_input_launch=1
+
+bs_const=DEBUG=false;IS_COMPONENT_LIBRARY=false;ENABLE_TRANSPARENT_PROXY=false;ENABLE_RTA=false
+bsprof_data_dest=local
+bsprof_enable_mem=0
+bsprof_enable=0
+bsprof_sample_ratio=0
+rsg_version=1.2

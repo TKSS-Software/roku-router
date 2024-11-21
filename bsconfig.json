@@ -1,0 +1,12 @@
+{
+	"rootDir": "./src",
+	"autoImportComponentScript": true,
+	"files": [
+		"source/**/*",
+		"components/**/*",
+		"source/roact.bs"
+	],
+	"emitDefinitions": true,
+	"createPackage": false,
+	"stagingDir": ".tmp"
+}

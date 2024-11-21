@@ -1,0 +1,35 @@
+sub init()
+    m.componentTarget = m.top.findNode("componentTarget")
+    m.skeletonTarget = m.top.findNode("skeletonTarget")
+    hide()
+end sub
+
+sub hide(_ = invalid as dynamic)
+    if not m.top.visible then return
+
+    m.top.visible = false
+    m.top.translation = [10000, 10000]
+end sub
+
+sub show(_ = invalid as dynamic)
+    if m.top.visible then return
+
+    m.top.translation = [0, 0]
+    m.top.visible = true
+end sub
+
+sub open(context = {} as dynamic)
+    show()
+end sub
+
+sub close(_ = invalid as dynamic)
+    hide()
+    removeAllChildren(m.top.componentTarget)
+    removeAllChildren(m.top.skeletonTarget)
+end sub
+
+function removeAllChildren(target = invalid as dynamic) as boolean
+    if target = invalid then return false
+
+    return target.removeChildren(target.getChildren(-1, 0))
+end function

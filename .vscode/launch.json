@@ -1,0 +1,18 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "brightscript",
+			"request": "launch",
+			"name": "Debug Tests",
+			"stopOnEntry": false,
+			"preLaunchTask": "build-test-project",
+			"rootDir": "${workspaceFolder}/test-project/dist",
+			"injectRdbOnDeviceComponent": true,
+			"enableDebugProtocol": true,
+			"files": [
+				"**/*"
+			]
+		}
+	]
+}

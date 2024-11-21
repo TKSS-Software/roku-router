@@ -1,0 +1,6 @@
+
+namespace util
+  function getNodeById(id = "" as String) as object
+    return m.top.findNode(id)
+  end function
+end namespace

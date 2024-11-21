@@ -1,0 +1,44 @@
+
+namespace console
+  sub assert(expression = true as boolean, message = "" as dynamic)
+    if expression then print `[ASSERT]`, message
+  end sub
+
+  sub error(message = "" as dynamic)
+    console._log(1, message)
+  end sub
+
+  sub info(message = "" as dynamic)
+    console._log(3, message)
+  end sub
+
+  sub log(message = "" as dynamic)
+    console._log(5, message)
+  end sub
+
+  sub warn(message = "" as dynamic)
+    console._log(2, message)
+  end sub
+
+  sub debug(message = "" as dynamic)
+    console._log(4, message)
+  end sub
+
+  sub _log(level = 1, message = "" as dynamic)
+    if level = 1 then
+      levelInfo = "[ERROR]"
+    else if level = 2 then
+      levelInfo = "[WARN]"
+    else if level = 3 then
+      levelInfo = "[INFO]"
+    else if level = 4 then
+      levelInfo = "[DEBUG]"
+    else
+      levelInfo = "[LOG]"
+    end if
+
+    ' readableTime = `${roact.getHours().local}:${roact.paddString(roact.getMinutes().local)}:${roact.paddString(roact.getSeconds().local)}`
+    logString = `[CONSOLE]${levelInfo} | `'${readableTime} | `
+    print logString, message
+  end sub
+end namespace

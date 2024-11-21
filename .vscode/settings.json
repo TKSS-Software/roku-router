@@ -1,0 +1,64 @@
+{
+  "brightscript.format.keywordCase": "lower",
+	"brightscript.format.removeTrailingWhiteSpace": true,
+	"brightscript.format.keywordCaseOverride": {
+		"and": "upper",
+		"or": "upper",
+		"mod": "upper",
+		"not": "upper",
+		"goto": "upper",
+		"function": "lower",
+		"sub": "lower",
+		"invalid": "title",
+	},
+	"brightscript.format.typeCase": "title",
+	"brightscript.format.compositeKeywords": "split",
+	"brightscript.format.formatInteriorWhitespace": true,
+	"files.exclude": {
+    ".tmp": true,
+    ".history": true,
+    "**/node_modules": true,
+    // "out": true,
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true,
+    "/tmp/**": true,
+  },
+  "search.exclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.meteor/local": true,
+    "**/build/**": true,
+    "build/**": true,
+    "**/.history/**": true,
+    ".history/**": true,
+    ".history/**/*": true,
+    "out/**": true,
+    "**/out/**": true,
+    "/tmp/**": true,
+  },
+  "files.useExperimentalFileWatcher": true,
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.meteor/local": true,
+    "**/build/**": true,
+    "**/.history/**": true,
+    ".history/**": true,
+    "**/out/**": true,
+  },
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": "meta.function-call.brs,punctuation.decorator.brs",
+        "settings": {
+          "foreground": "#34BEB0",
+          "fontStyle": ""
+        }
+      }
+    ]
+  }
+}

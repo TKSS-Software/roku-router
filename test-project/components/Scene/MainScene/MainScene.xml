@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="MainScene" extends="Scene">
+	<script type="text/brightscript" uri="pkg:/source/roku_modules/roact/roact.bs" />
+	<interface>
+		<field id="closeApp" type="boolean" alwaysNotify="true" />
+		<field id="isReadyToStartTests" type="boolean" value="false" />
+	</interface>
+
+	<children>
+		<Routes id="routes">
+			<Route path="/" component="Login" />
+			<Route path="/details/series/:id" component="SeriesDetails" />
+			<Route path="/details/movies/:id" component="MovieDetails" />
+			<Route path="/:screenName" component="Catalog" />
+		</Routes>
+	</children>
+</component>

@@ -10,7 +10,7 @@
         <function name="_beforeScreenOpen" />
         <function name="_onScreenOpen" />
         <function name="_beforeScreenClose" />
-        <function name="updateScreen" />
+        <function name="onParamsChange" />
         <function name="onMainSceneResume" />
     </interface>
     <children>

@@ -30,15 +30,29 @@ function navigateTo(path = "" as string, context = {} as Object) as dynamic
         end if
 
         properties = {
-            context: context
             route: matchedRoute["route"]
-            routeParams: matchedRoute["params"]
-            queryParams: matchedRoute["query"]
+            routeParams: matchedRoute["routeParams"]
         }
+
         screenHash = md5(formatJson(properties))
+        properties.append({
+            context: context
+            queryParams: matchedRoute["queryParams"]
+        })
 
         if activeScreen <> invalid and activeScreen.screenHash = screenHash
-            return promises.reject({message: `Screen "${matchedRoute}" is already active`})
+            oldParams = {
+                context: context
+                route: activeScreen.route
+                routeParams: activeScreen.routeParams
+                queryParams: activeScreen.queryParams
+            }
+            activeScreen.update(properties)
+            activeScreen@.onParamsChange({
+                oldParams: oldParams
+                newParams: properties
+            })
+            return promises.resolve(activeScreen)
         end if
 
         'Check if the screen is already active
@@ -81,8 +95,8 @@ function findMatchingRoute(path as String, routes as Object) as Object
         if normalizePath(routePath) = basePath
             return { 
                 "route": routes[routePath], 
-                "params": {}, 
-                "query": queryParams 
+                "routeParams": {}, 
+                "queryParams": queryParams 
             }
         end if
     end for
@@ -91,7 +105,7 @@ function findMatchingRoute(path as String, routes as Object) as Object
     for each routePath in routes
         routeParts = normalizePath(routePath).split("/")
         pathParts = basePath.split("/")
-        
+
         if routeParts.count() = pathParts.count()
             matchedParams = {}
             isMatch = true
@@ -111,8 +125,8 @@ function findMatchingRoute(path as String, routes as Object) as Object
             if isMatch
                 return { 
                     "route": routes[routePath], 
-                    "params": matchedParams, 
-                    "query": queryParams 
+                    "routeParams": matchedParams, 
+                    "queryParams": queryParams 
                 }
             end if
         end if

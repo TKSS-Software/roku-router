@@ -27,7 +27,7 @@ function beforeScreenClose(_ = invalid as dynamic) as dynamic
     return promises.resolve(invalid)
 end function
 
-function updateScreen(context = {} as dynamic) as dynamic
+function onParamsChange(context = {} as dynamic) as dynamic
     return promises.resolve(invalid)
 end function
 

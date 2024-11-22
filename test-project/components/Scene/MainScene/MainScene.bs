@@ -13,7 +13,7 @@ sub init()
         {path: "/:screenName", component: "DefaultScreen"}
     ])
 
-    m.router@.navigateTo("/", {})
+    m.router@.navigateTo("/?firstLoad=true", {})
 end sub
 
 function onKeyEvent(key = "" as string, press = false as boolean) as boolean

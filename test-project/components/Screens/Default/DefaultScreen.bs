@@ -1,0 +1,3 @@
+function onScreenOpen(context = invalid as dynamic) as dynamic
+    return promises.resolve(invalid)
+end function

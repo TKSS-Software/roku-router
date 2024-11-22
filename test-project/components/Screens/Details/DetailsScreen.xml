@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="DetailsScreen" extends="RouterView">
+	<interface>
+		
+	</interface>
+
+	<children>
+		<Poster id="background" opacity="0.5" />
+		<LayoutGroup id="content" translation="[96, 96]" layoutDirection="horiz" itemSpacings="[40]">
+			<Poster id="poster" width="300" height="450" />
+			<LayoutGroup itemSpacings="[20]">
+				<Label id="title" wrap="true" />
+				<Label id="description" wrap="true" />
+				<Label id="rating" />
+			</LayoutGroup>
+		</LayoutGroup>
+	</children>
+</component>

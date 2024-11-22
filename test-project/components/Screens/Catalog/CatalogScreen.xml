@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="CatalogScreen" extends="RouterView">
+	<interface>
+
+	</interface>
+
+	<children>
+		<Label id="label" translation="[96, 96]" />
+		<RowList id="rowList" translation="[96, 196]" />
+	</children>
+</component>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="WelcomeScreen" extends="RouterView">
+	<children>
+		<Label id="label" text="Welcome!" translation="[96, 96]" />
+        <Button id="button1" text="Go to Shows Catalog"  translation="[96, 196]" />
+        <Button id="button2" text="Go to Movies Catalog" translation="[96, 296]" />
+	</children>
+</component>

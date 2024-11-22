@@ -3,10 +3,12 @@
 	"autoImportComponentScript": true,
 	"files": [
 		"source/**/*",
-		"components/**/*",
-		"source/roact.bs"
+		"components/**/*"
 	],
 	"emitDefinitions": true,
 	"createPackage": false,
-	"stagingDir": ".tmp"
+	"stagingDir": ".tmp",
+	"plugins": [
+        "bsc-plugin-auto-findnode"
+    ]
 }

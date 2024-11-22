@@ -1,0 +1,36 @@
+import "../../source/roku_modules/promises/promises.brs"
+
+sub init()
+end sub
+
+function _beforeScreenOpen(_ = invalid as dynamic) as dynamic
+    return beforeScreenOpen()
+end function
+
+function beforeScreenOpen(_ = invalid as dynamic) as dynamic
+    return promises.resolve(invalid)
+end function
+
+function _onScreenOpen(_ = invalid as dynamic) as dynamic
+    return onScreenOpen()
+end function
+
+function onScreenOpen(_ = invalid as dynamic) as dynamic
+    return promises.resolve(invalid)
+end function
+
+function _beforeScreenClose(_ = invalid as dynamic) as dynamic
+    return beforeScreenClose()
+end function
+
+function beforeScreenClose(_ = invalid as dynamic) as dynamic
+    return promises.resolve(invalid)
+end function
+
+function updateScreen(context = {} as dynamic) as dynamic
+    return promises.resolve(invalid)
+end function
+
+function onMainSceneResume(_ as dynamic) as dynamic
+    return promises.resolve(invalid)
+end function

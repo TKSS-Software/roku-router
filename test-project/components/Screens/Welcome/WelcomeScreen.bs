@@ -1,0 +1,38 @@
+sub init()
+    m.button1.update({
+        navigateTo: "/shows"
+    }, true)
+    m.button1.observeField("buttonSelected", "onButtonPress")
+
+    m.button2.update({
+        navigateTo: "/movies"
+    }, true)
+    m.button2.observeField("buttonSelected", "onButtonPress")
+end sub
+
+function onScreenOpen(context = invalid as dynamic) as dynamic
+    m.button1.setFocus(true)
+    return promises.resolve(invalid)
+end function
+
+function beforeScreenClose(context = invalid as dynamic) as dynamic
+    m.button1.unobserveField("buttonSelected")
+    m.button2.unobserveField("buttonSelected")
+    return promises.resolve(invalid)
+end function
+
+sub onButtonPress(event as object)
+    button = event.getROSGNode()
+    print "button: "; button
+    m.top.router@.navigateTo(button.navigateTo)
+end sub
+
+function onKeyEvent(key = "" as string, press = false as boolean) as boolean
+    if m.button1.hasFocus() and key = "down" then
+        return m.button2.setFocus(true)
+    else if m.button2.hasFocus() and key = "up" then
+        return m.button1.setFocus(true)
+    end if
+
+    return true
+end function

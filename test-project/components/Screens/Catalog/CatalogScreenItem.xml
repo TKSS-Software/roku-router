@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="CatalogScreenItem" extends="Rectangle">
+	<interface>
+        <field id="itemContent" type="node" onChange="onContentChange" />
+	</interface>
+
+	<children>
+        <LayoutGroup id="layoutGroup" vertAlignment="center">
+		    <Label id="label" horizAlign="center" color="#000000" />
+        </LayoutGroup>
+        <Poster id="poster" />
+	</children>
+</component>

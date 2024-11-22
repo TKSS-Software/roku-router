@@ -11,16 +11,15 @@
 		"assets/**/*",
 		"manifest",
 		{
-			"src": "../src/source/roact.bs",
-			"dest": "source/roku_modules/roact/roact.bs"
-		},
-		{
 			"src": "../src/source/**/*",
-			"dest": "source/roku_modules/roact"
+			"dest": "source"
 		},
 		{
 			"src": "../src/components/**/*",
-			"dest": "components/roku_modules/roact"
+			"dest": "components"
 		}
-	]
+	],
+	"plugins": [
+        "bsc-plugin-auto-findnode"
+    ]
 }

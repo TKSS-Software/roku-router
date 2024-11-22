@@ -1,4 +1,21 @@
-
 sub init()
-    print m.top.findNode("routes")@.navigateTo("/details/movies/123456", {})
+    m.top.backgroundColor = "#000000"
+    m.top.backgroundUri = ""
+
+    m.router@.addRoutes([
+        {path: "/", component: "WelcomeScreen"},
+        {path: "/shows", component: "CatalogScreen", root: true},
+        {path: "/movies", component: "CatalogScreen", root: true},
+        {path: "/details/series/:id", component: "DetailsScreen"},
+        {path: "/details/series/:id/cast", component: "CastDetailsScreen"},
+        {path: "/details/movies/:id", component: "DetailsScreen"},
+        {path: "/details/movies/:id/cast", component: "CastDetailsScreen"},
+        {path: "/:screenName", component: "DefaultScreen"}
+    ])
+
+    m.router@.navigateTo("/", {})
 end sub
+
+function onKeyEvent(key = "" as string, press = false as boolean) as boolean
+    return true
+end function

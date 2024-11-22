@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="Router" extends="Group">
+    <interface>
+        <field id="activeScreen" type="node" />
+
+        <function name="addRoutes" />
+        <function name="getRoutes" />
+        <function name="navigateTo" />
+        <function name="onMainSceneResume" />
+    </interface>
+    <children />
+</component>

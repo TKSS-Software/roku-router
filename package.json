@@ -46,7 +46,8 @@
     "typescript": "^4.8.3"
   },
   "dependencies": {
+    "bsc-plugin-auto-findnode": "^0.1.0",
     "promises": "npm:@rokucommunity/promises@^0.3.0",
-    "rodash": "npm:@tkss/rodash@^0.0.24"
+    "rodash": "npm:@tkss/rodash@^0.0.34"
   }
 }

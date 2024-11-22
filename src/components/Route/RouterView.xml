@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="RouterView" extends="Group">
+    <interface>
+        <field id="screenHash" type="string" />
+        <field id="context" type="assocArray" />
+        <field id="params" type="assocArray" />
+        <field id="query" type="assocArray" />
+        <field id="router" type="node" />
+
+        <function name="_beforeScreenOpen" />
+        <function name="_onScreenOpen" />
+        <function name="_beforeScreenClose" />
+        <function name="updateScreen" />
+        <function name="onMainSceneResume" />
+    </interface>
+    <children>
+       
+    </children>
+</component>

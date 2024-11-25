@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component name="RouterView" extends="Group">
     <interface>
-        <field id="screenHash" type="string" />
         <field id="router" type="node" />
         <field id="params" type="assocarray" />
 
         <function name="_beforeScreenOpen" />
         <function name="_onScreenOpen" />
         <function name="_beforeScreenClose" />
-        <function name="onRouteUpdate" />
+        <function name="_onRouteUpdate" />
         <function name="onMainSceneResume" />
     </interface>
     <children>

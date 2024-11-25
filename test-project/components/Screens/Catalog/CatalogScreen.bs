@@ -1,16 +1,17 @@
 import "../../../source/roku_modules/rodash/rodash.brs"
 
 sub init()
+  m.pageType = ""
     m.rowList.observeField("rowItemSelected", "onItemSelected")
 end sub
 
 sub onItemSelected(event as object)
     itemSelected = event.getRoSGNode().content.getChild(event.getData()[0]).getChild(event.getData()[1])
     contentType = "series"
-    if m.top.route.path = "/movies"then contentType = "movies"
+    if m.pageType = "movies" then contentType = "movies"
 
     path = `/details/${contentType}/${itemSelected.id}`
-    m.top.router@.navigateTo(path, {
+    m.top.router@.navigateTo(path, {}, {
         "name": itemSelected.name,
         "genre": itemSelected.genre,
         "rating": itemSelected.rating,
@@ -19,10 +20,11 @@ sub onItemSelected(event as object)
     })
 end sub
 
-function beforeScreenOpen(context = invalid as dynamic) as dynamic
+function beforeScreenOpen(params = {} as Object) as dynamic
     api = {}
     title = ""
-    if m.top.route.path = "/shows" then
+    m.pageType = rodash.getString(params,"routeConfig.pattern") = "/shows" ? "shows": "movies"
+    if m.pageType = "shows" then
         title = "Shows"
         api = {
             "status": "success",
@@ -185,7 +187,7 @@ function beforeScreenOpen(context = invalid as dynamic) as dynamic
               ]
             }
           }
-    else if m.top.route.path = "/movies" then
+    else if m.pageType = "movies" then
         title = "Movies"
         api = {
             "status": "success",

@@ -3,31 +3,31 @@ import "../../source/roku_modules/promises/promises.brs"
 sub init()
 end sub
 
-function _beforeScreenOpen(_ = invalid as dynamic) as dynamic
-    return beforeScreenOpen()
+function _beforeScreenOpen(params = {} as Object) as dynamic
+    return beforeScreenOpen(params)
 end function
 
-function beforeScreenOpen(_ = invalid as dynamic) as dynamic
+function beforeScreenOpen(params = {} as Object) as dynamic
     return promises.resolve(invalid)
 end function
 
-function _onScreenOpen(_ = invalid as dynamic) as dynamic
-    return onScreenOpen()
+function _onScreenOpen(params = {} as Object) as dynamic
+    return onScreenOpen(params)
 end function
 
-function onScreenOpen(_ = invalid as dynamic) as dynamic
+function onScreenOpen(params = {} as Object) as dynamic
     return promises.resolve(invalid)
 end function
 
-function _beforeScreenClose(_ = invalid as dynamic) as dynamic
-    return beforeScreenClose()
+function _beforeScreenClose(params = {} as Object) as dynamic
+    return beforeScreenClose(params)
 end function
 
-function beforeScreenClose(_ = invalid as dynamic) as dynamic
+function beforeScreenClose(params = {} as Object) as dynamic
     return promises.resolve(invalid)
 end function
 
-function onParamsChange(context = {} as dynamic) as dynamic
+function onRouteUpdate(oldParams = {} as Object, newParams = {} as Object) as dynamic
     return promises.resolve(invalid)
 end function
 

@@ -1,20 +1,23 @@
 import "../../../source/roku_modules/rodash/rodash.brs"
 import "../../../source/roku_modules/promises/promises.brs"
 
-function onScreenOpen(context = invalid as dynamic) as dynamic
+function onScreenOpen(params = invalid as dynamic) as dynamic
+    print source_function_name, params
+    context = rodash.getAA(params, "context")
+    print context
     textWidths = 1920 - (m.content.translation[0]*2) - m.content.itemSpacings[0] - m.poster.width
-    
+
     m.title.font = "font:MediumBoldSystemFont"
     m.title.width = textWidths
-    m.title.text = rodash.getString(m.top.context, "name")
+    m.title.text = rodash.getString(context, "name")
 
-    m.description.text = rodash.getString(m.top.context, "description")
+    m.description.text = rodash.getString(context, "description")
     m.description.width = textWidths
-    
-    m.rating.font = "font:SmallestSystemFont"
-    m.rating.text = `Rating: ${rodash.getString(m.top.context, "rating")}`
 
-    m.poster.uri = rodash.getString(m.top.context, "image").replace("/original/", `/w${m.poster.width}_and_h${m.poster.height}_multi_faces/`)
-    m.background.uri = rodash.getString(m.top.context, "image").replace("/original/", `/w1920_and_h1080_multi_faces/`)
+    m.rating.font = "font:SmallestSystemFont"
+    m.rating.text = `Rating: ${rodash.getString(context, "rating")}`
+
+    m.poster.uri = rodash.getString(context, "image").replace("/original/", `/w${m.poster.width}_and_h${m.poster.height}_multi_faces/`)
+    m.background.uri = rodash.getString(context, "image").replace("/original/", `/w1920_and_h1080_multi_faces/`)
     return promises.resolve(invalid)
 end function

@@ -8,7 +8,7 @@ function onScreenOpen(context = invalid as dynamic) as dynamic
     return promises.resolve(invalid)
 end function
 
-function onParamsChange(params = invalid as dynamic) as dynamic
+function onRouteUpdate(params = invalid as dynamic) as dynamic
     print source_function_name, params.oldParams.queryParams, params.newParams.queryParams
     return promises.resolve(invalid)
 end function
@@ -25,6 +25,6 @@ sub onButtonPress(event as object)
     else if button = 1 then
         m.top.router@.navigateTo("/movies")
     else if button = 2 then
-        m.top.router@.navigateTo("/?firstLoad=false")
+        m.top.router@.navigateTo("/?firstLoad=false", {allowReuse: true})
     end if
 end sub

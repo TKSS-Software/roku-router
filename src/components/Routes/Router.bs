@@ -46,10 +46,7 @@ function navigateTo(path = "" as string, options = {}, context = {} as Object) a
 
             if reuse then
                 activeScreen.params = params
-                activeScreen@._onRouteUpdate({
-                    oldParams: oldParams
-                    newParams: params
-                })
+                activeScreen@._onRouteUpdate(oldParams, params)
                 return promises.resolve(activeScreen)
             end if
         end if

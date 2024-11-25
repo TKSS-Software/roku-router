@@ -8,8 +8,7 @@ function onScreenOpen(context = invalid as dynamic) as dynamic
     return promises.resolve(invalid)
 end function
 
-function onRouteUpdate(params = invalid as dynamic) as dynamic
-    print source_function_name, params.oldParams.queryParams, params.newParams.queryParams
+function onRouteUpdate(oldParams = {} as Object, newParams = {} as Object) as dynamic
     return promises.resolve(invalid)
 end function
 

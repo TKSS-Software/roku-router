@@ -29,7 +29,7 @@ end function
 
 function _onRouteUpdate(oldParams = {} as Object, newParams = {} as Object) as dynamic
     print "Route is updating"
-    onRouteUpdate(oldParams, newParams)
+    return onRouteUpdate(oldParams, newParams)
 end function
 
 function onRouteUpdate(oldParams = {} as Object, newParams = {} as Object) as dynamic

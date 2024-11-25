@@ -38,14 +38,14 @@ A route is a url path/pattern that represents the screens your application displ
 sub init()
     m.router = m.top.findNode("router")
     m.router@.addRoutes([
-        {path: "/", component: "WelcomeScreen"},
-        {path: "/shows", component: "CatalogScreen", root: true},
-        {path: "/movies", component: "CatalogScreen", root: true},
-        {path: "/details/series/:id", component: "DetailsScreen"},
-        {path: "/details/series/:id/cast", component: "CastDetailsScreen"},
-        {path: "/details/movies/:id", component: "DetailsScreen"},
-        {path: "/details/movies/:id/cast", component: "CastDetailsScreen"},
-        {path: "/:screenName", component: "DefaultScreen"}
+        {pattern: "/", component: "WelcomeScreen"},
+        {pattern: "/shows", component: "CatalogScreen", root: true},
+        {pattern: "/movies", component: "CatalogScreen", root: true},
+        {pattern: "/details/series/:id", component: "DetailsScreen"},
+        {pattern: "/details/series/:id/cast", component: "CastDetailsScreen"},
+        {pattern: "/details/movies/:id", component: "DetailsScreen"},
+        {pattern: "/details/movies/:id/cast", component: "CastDetailsScreen"},
+        {pattern: "/:screenName", component: "DefaultScreen"}
     ])
 end sub
 ```

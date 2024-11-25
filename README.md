@@ -17,46 +17,38 @@ Simple Router and Stack Management system for Roku
 ropm install roku-router@npm:@tkss/roku-router
 ```
 
-## Usage Examples
-### Chunk
-#### Brightscript
-```brightscript
-roku-router_chunk(["a", "b", "c", "d"], 2)
+## Concepts
+#### Route
+A route is a url path/pattern that represents the screens your application displays to users.
+#### Url Params
+
+
+## Exampe Setup
+#### Scenegraph XML
+```XML
+<component name="MainScene" extends="Scene">
+	<children>
+		<Router id="router" />
+	</children>
+</component>
+
 ```
 #### Brighterscript
 ```brighterscript
-roku-router.chunk(["a", "b", "c", "d"], 2)
+sub init()
+    m.router = m.top.findNode("router")
+    m.router@.addRoutes([
+        {path: "/", component: "WelcomeScreen"},
+        {path: "/shows", component: "CatalogScreen", root: true},
+        {path: "/movies", component: "CatalogScreen", root: true},
+        {path: "/details/series/:id", component: "DetailsScreen"},
+        {path: "/details/series/:id/cast", component: "CastDetailsScreen"},
+        {path: "/details/movies/:id", component: "DetailsScreen"},
+        {path: "/details/movies/:id/cast", component: "CastDetailsScreen"},
+        {path: "/:screenName", component: "DefaultScreen"}
+    ])
+end sub
 ```
-Returns: `[["a", "b"], ["c", "d"]]`
-
-
-### Compact
-#### Brightscript
-```brightscript
-roku-router_compact([0, 1, false, 2, "", 3])
-```
-#### Brighterscript
-```brighterscript
-roku-router.compact([0, 1, false, 2, "", 3])
-```
-Returns: `[1, 2, 3]`
-
-
-### Shuffle & Slice
-#### Brightscript
-```brightscript
-roku-router_slice(roku-router_shuffle([1,2,3,4,5,6,7,8,9,10]), 0, 4)
-```
-
-#### Brighterscript
-```brighterscript
-roku-router.slice(roku-router.shuffle([1,2,3,4,5,6,7,8,9,10]), 0, 4)
-```
-Returns: `[8, 3, 7, 5]`
-## Brighterscript Support
-If imported into a project that leverages the Brighterscript compiler, you can use roku-router. lookups with auto-complete.
-![image](https://user-images.githubusercontent.com/2446955/110862815-30c73900-8296-11eb-8533-4ec1011d7fba.png)
-
 
 ## Development
 

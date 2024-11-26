@@ -13,6 +13,11 @@ sub init()
         {pattern: "/:screenName", component: "DefaultScreen"}
     ])
 
+    ' Read the sample data from the file. You normally wouldn't want to do this in a real app.
+    m.global.update({
+        "content": ParseJSON(ReadAsciiFile("pkg:/assets/sampleData.json")).data
+    }, true)
+
     m.router@.navigateTo("/?firstLoad=true", {})
 end sub
 

@@ -17,7 +17,7 @@ function onScreenOpen(params = invalid as dynamic) as dynamic
     m.rating.font = "font:SmallestSystemFont"
     m.rating.text = `Rating: ${rodash.getString(context, "rating")}`
 
-    m.poster.uri = rodash.getString(context, "image").replace("/original/", `/w${m.poster.width}_and_h${m.poster.height}_multi_faces/`)
-    m.background.uri = rodash.getString(context, "image").replace("/original/", `/w1920_and_h1080_multi_faces/`)
+    m.poster.uri = rodash.getString(context, "poster_path").replace("/original/", `/w${m.poster.width}_and_h${m.poster.height}_multi_faces/`)
+    m.background.uri = rodash.getString(context, "backdrop_path").replace("/original/", `/w1920_and_h1080_multi_faces/`)
     return promises.resolve(invalid)
 end function

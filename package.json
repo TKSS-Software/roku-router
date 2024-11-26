@@ -16,7 +16,8 @@
     "build": "npm run compile && ts-node ./scripts/createDist.ts",
     "compile": "npx bsc",
     "docs": "npm run build && jsdoc -c jsdoc.json -d docs -t ./node_modules/better-docs",
-    "build-test-project": "cd test-project && npx bsc"
+    "build-test-project": "cd test-project && npx bsc",
+    "createDataSet": "ts-node ./scripts/createDataSet.ts"
   },
   "author": "TKSS Software",
   "license": "MIT",
@@ -47,6 +48,8 @@
   },
   "dependencies": {
     "bsc-plugin-auto-findnode": "^0.1.0",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^2.7.0",
     "promises": "npm:@rokucommunity/promises@^0.3.0",
     "rodash": "npm:@tkss/rodash@^0.0.34"
   }

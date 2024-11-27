@@ -1,74 +1,97 @@
 import "../../source/roku_modules/promises/promises.brs"
 import "../../source/roku_modules/rodash/rodash.brs"
 
+interface RouteObject
+    path as String ' /movies/3/play?autoPlayNext=true#browseWhileWatching
+    routeConfig as Object
+    routeParams as Object ' { movieId: 3}
+    queryParams as Object ' { autoPlayNext: true }
+    hash as String ' #browseWhileWatching
+end interface
+
 sub init()
     m.routes = {}
 end sub
 
 sub addRoutes(routes = [] as Object)
     for each route in routes
-        m.routes[route.path] = route
+        m.routes[route.pattern] = route
     end for
 end sub
 
-function getRoutes(_ = invalid as dynamic) as dynamic
+function getRoutes(_ = Invalid as Dynamic) as Dynamic
     return m.routes
 end function
 
-function navigateTo(path = "" as string, context = {} as Object) as dynamic
+function navigateTo(path = "" as String, options = {}, context = {} as Object) as Dynamic
     matchedRoute = findMatchingRoute(path, m.routes)
-    if matchedRoute <> invalid then
+    if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
         activeScreen = m.top.activeScreen
 
-        'TODO - Remove this when we have a proper context object
-        if rodash.isNode(context) then
-            context = context.getFields()
-            context.delete("change")
-            context.delete("focusable")
-            context.delete("focusedChild")
-            context.delete("ready")
+        componentName = rodash.getString(matchedRoute, "routeConfig.component")
+        if rodash.isEmptyString(componentName)
+            return promises.reject({ message: `No component for route "${path}"` })
         end if
 
-        properties = {
+        newRoute = {
             context: context
-            route: matchedRoute["route"]
-            routeParams: matchedRoute["params"]
-            queryParams: matchedRoute["query"]
         }
-        screenHash = md5(formatJson(properties))
+        newRoute.append(matchedRoute)
 
-        if activeScreen <> invalid and activeScreen.screenHash = screenHash
-            return promises.reject({message: `Screen "${matchedRoute}" is already active`})
+        if activeScreen <> Invalid then
+            oldRoute = activeScreen.route
+
+            ' Reuse the screen and call onRouteUpdate if the path or hash is the same, OR if the options allow it
+            hasHash = rodash.isNonEmptyString(newRoute.hash)
+            isSamePath = rodash.isEqual(newRoute.path, oldRoute.path)
+            reuse = rodash.getBoolean(options, "allowReuse") OR hasHash OR isSamePath
+            if hasHash then
+                if NOT rodash.isEqual(newRoute.routeConfig, oldRoute.routeConfig) then reuse = false
+            else
+                if NOT rodash.isEqual(newRoute.routeParams.component, oldRoute.routeParams.component) then reuse = false
+            end if
+
+            if reuse then
+                activeScreen.route = newRoute
+                activeScreen@._onRouteUpdate(oldRoute, newRoute)
+                return promises.resolve(activeScreen)
+            end if
+        end if
+
+        screen = rodash.createNode(componentName)
+        if screen = Invalid
+            return promises.reject({ message: `Failed to create screen "${componentName}"` })
         end if
 
         'Check if the screen is already active
-        properties["router"] = m.top
-        properties["screenHash"] = screenHash
-        screen = rodash.createNode(rodash.getString(matchedRoute, "route.component"), properties)
+        screen.route = newRoute
+        screen.router = m.top
 
-        if screen = invalid
-            return promises.reject({message: `Failed to create screen "${matchedRoute["route"]["component"]}"`})
-        end if
-
-        return promises.chain(screen@._beforeScreenOpen(), screen).then(function(response as dynamic, screen as dynamic) as dynamic
-            m.top.appendChild(screen)
+        return promises.chain(screen@._beforeScreenOpen(newRoute), { screen: screen, newRoute: newRoute }).then(function(response as Dynamic, context as Dynamic) as Dynamic
+            m.top.appendChild(context.screen)
             hideScreen(m.top.activeScreen)
-            return showScreen(screen)
-        end function).catch(function(error as dynamic) as dynamic
+            return showScreen(context.screen, context.newRoute)
+        end function).catch(function(error as Dynamic) as Dynamic
             return promises.reject(error)
         end function).toPromise()
     end if
 
-    return promises.reject({message: `Route "${path}" not found`})
+    return promises.reject({ message: `Route "${path}" not found` })
 end function
 
 
 ' Helper function to find a matching route
-function findMatchingRoute(path as String, routes as Object) as Object
+function findMatchingRoute(path as String, routes as Object) as RouteObject
+    hash = getHashParam(path)
+
+    if rodash.isNonEmptyString(hash)
+        path = path.replace("#" + hash, "")
+    end if
+
     ' Separate the path from the query string
     pathParts = path.split("?")
     basePath = normalizePath(pathParts[0])
-    queryString = invalid
+    queryString = Invalid
     if pathParts.count() > 1
         queryString = pathParts[1]
     end if
@@ -79,10 +102,12 @@ function findMatchingRoute(path as String, routes as Object) as Object
     ' First check for exact matches (static paths)
     for each routePath in routes
         if normalizePath(routePath) = basePath
-            return { 
-                "route": routes[routePath], 
-                "params": {}, 
-                "query": queryParams 
+            return {
+                path: path,
+                routeConfig: routes[routePath]
+                routeParams: {}
+                queryParams: queryParams
+                hash: hash
             }
         end if
     end for
@@ -91,7 +116,7 @@ function findMatchingRoute(path as String, routes as Object) as Object
     for each routePath in routes
         routeParts = normalizePath(routePath).split("/")
         pathParts = basePath.split("/")
-        
+
         if routeParts.count() = pathParts.count()
             matchedParams = {}
             isMatch = true
@@ -109,17 +134,43 @@ function findMatchingRoute(path as String, routes as Object) as Object
             end for
 
             if isMatch
-                return { 
-                    "route": routes[routePath], 
-                    "params": matchedParams, 
-                    "query": queryParams 
+                return {
+                    path: path
+                    routeConfig: routes[routePath]
+                    routeParams: matchedParams
+                    queryParams: queryParams
+                    hash: hash
                 }
             end if
         end if
     end for
 
     ' Return invalid if no match found
-    return invalid
+    return {
+        path: path
+        routeConfig: {}
+        routeParams: matchedParams
+        queryParams: queryParams
+        hash: hash
+    }
+end function
+
+function getHashParam(url as String) as String
+    ' Check if the input URL is valid
+    if rodash.isEmptyString(url) then
+        return ""
+    end if
+
+    ' Find the position of the # character in the URL
+    hashIndex = rodash.stringIndexOf(url, "#")
+
+    ' If # is not found, return "Invalid"
+    if hashIndex = -1 then
+        return ""
+    end if
+
+    ' Extract and return the substring after the #
+    return url.mid(hashIndex + 1)
 end function
 
 ' Helper function to normalize a path
@@ -135,8 +186,8 @@ function normalizePath(path as String) as String
 end function
 
 ' Helper function to parse a query string into an associative array
-function parseQueryString(queryString as dynamic) as Object
-    if type(queryString) <> "roString" or queryString = invalid or queryString.len() = 0
+function parseQueryString(queryString as Dynamic) as Object
+    if type(queryString) <> "roString" OR queryString = Invalid OR queryString.len() = 0
         return {}
     end if
 
@@ -153,57 +204,47 @@ function parseQueryString(queryString as dynamic) as Object
     return queryParams
 end function
 
-
-function md5(value as string) as string
-    bytes = createObject("roByteArray")
-    bytes.fromAsciiString(value) ' Convert whatever we get to a string
-    ' Create the digest object for calculating the hash
-    evpDigest = createObject("roEVPDigest")
-    evpDigest.setup("md5")
-    return evpDigest.process(bytes)
-end function
-
-
-function hideScreen(screen as object) as boolean
+function hideScreen(screen as Object) as Boolean
     success = rodash.isNode(screen)
     if success then
         screen.visible = false
         screen.translation = [10000, 10000]
+        'onScreenSuspend
     end if
     return success
 end function
 
-function showScreen(screen as object) as dynamic
+function showScreen(screen as Object, params = {} as Dynamic) as Dynamic
     if rodash.isNode(screen) then
         screen.visible = true
         screen.translation = [0, 0]
         m.top.activeScreen = screen
         screen.setFocus(true)
-        return screen@._onScreenOpen()
+        return screen@._onScreenOpen(params) 'onScreenResume
     end if
 
-    return promises.reject({message: "Invalid screen"})
+    return promises.reject({ message: "Invalid screen" })
 end function
 
-function closeScreen(screen = invalid as dynamic) as dynamic
+function closeScreen(screen = Invalid as Dynamic) as Dynamic
     screen.translation = [1000000, 100000]
     screen.visible = false
 
-    return promises.onThen(screen@._beforeScreenClose(), function(response as dynamic, context as dynamic) as dynamic
+    return promises.onThen(screen@._beforeScreenClose(), function(response as Dynamic, context as Dynamic) as Dynamic
         rodash.removeNode(context.screen)
         return true
     end function, { screen: screen })
 end function
 
-function onKeyEvent(key = "" as string, press = false as boolean) as boolean
-    if not press then return true
+function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
+    if NOT press then return true
 
     if key = "back" then
         screens = rodash.getNodeChildren(m.top)
         numberOfScreens = screens.count()
         if numberOfScreens <= 1 then return false
 
-        promises.chain(closeScreen(screens.pop()), screens.peek()).then(sub(response as dynamic, screen as dynamic) as dynamic
+        promises.chain(closeScreen(screens.pop()), screens.peek()).then(sub(response as Dynamic, screen as Dynamic) as Dynamic
             showScreen(screen)
         end sub)
         return true
@@ -214,6 +255,6 @@ end function
 
 
 ' TO BE IMPLEMENTED
-function onMainSceneResume(_ as dynamic) as dynamic
-    return promises.resolve(invalid)
+function onMainSceneResume(_ as Dynamic) as Dynamic
+    return promises.resolve(Invalid)
 end function

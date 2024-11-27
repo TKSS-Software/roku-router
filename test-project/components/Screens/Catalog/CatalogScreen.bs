@@ -1,300 +1,27 @@
 import "../../../source/roku_modules/rodash/rodash.brs"
+import "../../../source/common.bs"
 
 sub init()
-    m.rowList.observeField("rowItemSelected", "onItemSelected")
+  m.pageType = ""
+  m.rowList.observeField("rowItemSelected", "onItemSelected")
 end sub
 
-sub onItemSelected(event as object)
-    itemSelected = event.getRoSGNode().content.getChild(event.getData()[0]).getChild(event.getData()[1])
-    contentType = "series"
-    if m.top.route.path = "/movies"then contentType = "movies"
-
-    path = `/details/${contentType}/${itemSelected.id}`
-    m.top.router@.navigateTo(path, {
-        "name": itemSelected.name,
-        "genre": itemSelected.genre,
-        "rating": itemSelected.rating,
-        "image": itemSelected.image,
-        "description": itemSelected.description
-    })
-end sub
-
-function beforeScreenOpen(context = invalid as dynamic) as dynamic
-    api = {}
+function beforeScreenOpen(params = {} as Object) as dynamic
+    api = {data: {carousels: []}}
     title = ""
-    if m.top.route.path = "/shows" then
+    m.pageType = rodash.getString(params,"routeConfig.pattern") = "/shows" ? "shows": "movies"
+    if m.pageType = "shows" then
         title = "Shows"
-        api = {
-            "status": "success",
-            "data": {
-              "carousels": [
-                {
-                  "title": "Trending Now",
-                  "items": [
-                    {
-                      "id": "1",
-                      "name": "Breaking Bad",
-                      "genre": "Crime, Drama",
-                      "rating": "9.5",
-                      "image": "https://www.themoviedb.org/t/p/original/ggFHVNu6YYI5L9pCfOacjizRGt.jpg",
-                      "description": "A high school chemistry teacher turned methamphetamine producer navigates the criminal underworld."
-                    },
-                    {
-                      "id": "2",
-                      "name": "Stranger Things",
-                      "genre": "Sci-Fi, Thriller",
-                      "rating": "8.7",
-                      "image": "https://www.themoviedb.org/t/p/original/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg",
-                      "description": "A group of kids uncover supernatural forces and secret experiments in their small town."
-                    },
-                    {
-                      "id": "3",
-                      "name": "The Crown",
-                      "genre": "Drama, History",
-                      "rating": "8.6",
-                      "image": "https://www.themoviedb.org/t/p/original/ltz5rK6E4mw3dA8kK8vZL0Wxr9u.jpg",
-                      "description": "The story of Queen Elizabeth II's reign and the events that shaped the 20th century."
-                    },
-                    {
-                      "id": "4",
-                      "name": "The Mandalorian",
-                      "genre": "Sci-Fi, Adventure",
-                      "rating": "8.8",
-                      "image": "https://www.themoviedb.org/t/p/original/sWgBv7LV2PRoQgkxwlibdGXKz1S.jpg",
-                      "description": "A lone bounty hunter navigates the galaxy, protecting a mysterious child."
-                    },
-                    {
-                      "id": "5",
-                      "name": "Game of Thrones",
-                      "genre": "Fantasy, Drama",
-                      "rating": "9.3",
-                      "image": "https://www.themoviedb.org/t/p/original/u3bZgnGQ9T01sWNhyveQz0wH0Hl.jpg",
-                      "description": "Noble families vie for control of the Iron Throne while an ancient enemy awakens."
-                    },
-                    {
-                      "id": "6",
-                      "name": "Chernobyl",
-                      "genre": "Drama, History",
-                      "rating": "9.4",
-                      "image": "https://www.themoviedb.org/t/p/original/hlLXt2tOPT6RRnjiUmoxyG1LTFi.jpg",
-                      "description": "A dramatization of the events surrounding the 1986 nuclear disaster in Ukraine."
-                    },
-                    {
-                      "id": "7",
-                      "name": "The Witcher",
-                      "genre": "Fantasy, Adventure",
-                      "rating": "8.2",
-                      "image": "https://www.themoviedb.org/t/p/original/zrPpUlehQaBf8YX2NrVrKK8IEpf.jpg",
-                      "description": "A monster hunter struggles to find his place in a world where people are more wicked than beasts."
-                    },
-                    {
-                      "id": "8",
-                      "name": "Money Heist",
-                      "genre": "Crime, Drama",
-                      "rating": "8.3",
-                      "image": "https://www.themoviedb.org/t/p/original/fuVuDYrs8sxvEolnYr0wCSvtyTi.jpg",
-                      "description": "A criminal mastermind recruits a group to pull off the perfect heist on the Royal Mint of Spain."
-                    },
-                    {
-                      "id": "9",
-                      "name": "Westworld",
-                      "genre": "Sci-Fi, Thriller",
-                      "rating": "8.6",
-                      "image": "https://www.themoviedb.org/t/p/original/y55oBgf6bVMI7sFNXwJDrSIxPQt.jpg",
-                      "description": "A futuristic theme park's android hosts begin to develop self-awareness."
-                    },
-                    {
-                      "id": "10",
-                      "name": "The Boys",
-                      "genre": "Action, Comedy",
-                      "rating": "8.7",
-                      "image": "https://www.themoviedb.org/t/p/original/mY7SeH4HFFxW1hiI6cWuwCRKptN.jpg",
-                      "description": "A group of vigilantes set out to take down corrupt superheroes who abuse their powers."
-                    }
-                  ]
-                },
-                {
-                  "title": "Top Rated",
-                  "items": [
-                    {
-                      "id": "11",
-                      "name": "House of the Dragon",
-                      "genre": "Fantasy, Drama",
-                      "rating": "8.5",
-                      "image": "https://www.themoviedb.org/t/p/original/1X4h40fcB4WWUmIBK0auT4zRBAV.jpg",
-                      "description": "A prequel to Game of Thrones, following the history of House Targaryen."
-                    },
-                    {
-                      "id": "12",
-                      "name": "The Umbrella Academy",
-                      "genre": "Action, Comedy",
-                      "rating": "8.0",
-                      "image": "https://www.themoviedb.org/t/p/original/scZlQQYnDVlnpxFTxaIv2g0BWnL.jpg",
-                      "description": "A dysfunctional family of superheroes reunites to solve the mystery of their father's death."
-                    },
-                    {
-                      "id": "13",
-                      "name": "Fargo",
-                      "genre": "Crime, Drama",
-                      "rating": "8.9",
-                      "image": "https://www.themoviedb.org/t/p/original/dlsUAYp9nEpJGDbdnBbjp0g8JN4.jpg",
-                      "description": "A series inspired by the Coen brothers' film, featuring crime stories with dark humor."
-                    },
-                    {
-                      "id": "14",
-                      "name": "The Office",
-                      "genre": "Comedy",
-                      "rating": "8.9",
-                      "image": "https://www.themoviedb.org/t/p/original/9weSAOmPqUXeqoQQGzt7eqclByh.jpg",
-                      "description": "A mockumentary on the daily lives of employees in a paper company."
-                    },
-                    {
-                      "id": "15",
-                      "name": "Sherlock",
-                      "genre": "Crime, Mystery",
-                      "rating": "9.1",
-                      "image": "https://www.themoviedb.org/t/p/original/f9zGxLHGyQB10cMDZNY5ZcGKhZi.jpg",
-                      "description": "A modern adaptation of Sherlock Holmes' adventures with Dr. Watson."
-                    },
-                    {
-                      "id": "16",
-                      "name": "Black Mirror",
-                      "genre": "Sci-Fi, Thriller",
-                      "rating": "8.8",
-                      "image": "https://www.themoviedb.org/t/p/original/pXeuSWSKgWUnhRFHZ4TjAUU8lbE.jpg",
-                      "description": "An anthology series exploring a twisted, high-tech multiverse."
-                    },
-                    {
-                      "id": "17",
-                      "name": "Peaky Blinders",
-                      "genre": "Crime, Drama",
-                      "rating": "8.8",
-                      "image": "https://www.themoviedb.org/t/p/original/bf1Fr5eNOITZjx7VGgCYy5pl5dY.jpg",
-                      "description": "A gangster family in 1900s England rises to power in Birmingham."
-                    },
-                    {
-                      "id": "18",
-                      "name": "Lost",
-                      "genre": "Adventure, Drama",
-                      "rating": "8.4",
-                      "image": "https://www.themoviedb.org/t/p/original/ogD9p3uIdSuDImYfyXWOKw4eClg.jpg",
-                      "description": "Survivors of a plane crash try to survive on a mysterious island."
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-    else if m.top.route.path = "/movies" then
+        genres = ["Action & Adventure", "Animation", "Comedy", "Crime", "Drama", "Horror", "Sci-Fi & Fantasy"]
+        for each genre in genres
+          api.data.carousels.push(util.getCarouselByGenre(genre, "series"))
+        end for
+    else if m.pageType = "movies" then
         title = "Movies"
-        api = {
-            "status": "success",
-            "data": {
-              "carousels": [
-                {
-                  "title": "Trending Now",
-                  "items": [
-                    {
-                      "id": "1",
-                      "name": "Inception",
-                      "genre": "Sci-Fi, Action",
-                      "rating": "8.8",
-                      "image": "https://www.themoviedb.org/t/p/original/qmDpIHrmpJINaRKAfWQfftjCdyi.jpg",
-                      "description": "A skilled thief leads a team to plant an idea into a target's subconscious."
-                    },
-                    {
-                      "id": "2",
-                      "name": "The Dark Knight",
-                      "genre": "Action, Crime",
-                      "rating": "9.0",
-                      "image": "https://www.themoviedb.org/t/p/original/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
-                      "description": "Batman faces the Joker, a criminal mastermind bent on chaos."
-                    },
-                    {
-                      "id": "3",
-                      "name": "Dune",
-                      "genre": "Sci-Fi, Adventure",
-                      "rating": "8.1",
-                      "image": "https://www.themoviedb.org/t/p/original/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
-                      "description": "A noble family becomes embroiled in a war for control over a desert planet's valuable spice."
-                    },
-                    {
-                      "id": "4",
-                      "name": "No Time to Die",
-                      "genre": "Action, Adventure",
-                      "rating": "7.4",
-                      "image": "https://www.themoviedb.org/t/p/original/iUgygt3fscRoKWCV1d0C7FbM9TP.jpg",
-                      "description": "James Bond comes out of retirement to face a mysterious villain armed with dangerous technology."
-                    },
-                    {
-                      "id": "5",
-                      "name": "The Godfather",
-                      "genre": "Crime, Drama",
-                      "rating": "9.2",
-                      "image": "https://www.themoviedb.org/t/p/original/iVZ3JAcAjmguGPnRNfWFOtLHOuY.jpg",
-                      "description": "The aging patriarch of a crime family transfers control to his reluctant son."
-                    },
-                    {
-                      "id": "6",
-                      "name": "Schindler's List",
-                      "genre": "Biography, History",
-                      "rating": "9.0",
-                      "image": "https://www.themoviedb.org/t/p/original/sF1U4EUQS8YHUYjNl3pMGNIQyr0.jpg",
-                      "description": "A businessman saves the lives of hundreds of Jewish refugees during World War II."
-                    },
-                    {
-                      "id": "7",
-                      "name": "The Matrix",
-                      "genre": "Sci-Fi, Action",
-                      "rating": "8.7",
-                      "image": "https://www.themoviedb.org/t/p/original/vkmBV03NnC2RZQZCsTGkPgsJErt.jpg",
-                      "description": "A computer hacker learns the truth about reality and joins a rebellion against its controllers."
-                    },
-                    {
-                      "id": "8",
-                      "name": "Parasite",
-                      "genre": "Thriller, Drama",
-                      "rating": "8.6",
-                      "image": "https://www.themoviedb.org/t/p/original/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
-                      "description": "A poor family schemes to become employed by a wealthy family and infiltrate their household."
-                    },
-                    {
-                      "id": "9",
-                      "name": "Interstellar",
-                      "genre": "Sci-Fi, Adventure",
-                      "rating": 8.6,
-                      "image": "https://www.themoviedb.org/t/p/original/rAiYTfKGqDCRIIqoNMq8FlNU6KF.jpg",
-                      "description": "A group of explorers travel through a wormhole in space to ensure humanity's survival."
-                    },
-                    {
-                      "id": "10",
-                      "name": "Joker",
-                      "genre": "Drama, Crime",
-                      "rating": "8.4",
-                      "image": "https://www.themoviedb.org/t/p/original/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg",
-                      "description": "A mentally troubled comedian descends into madness and becomes the criminal mastermind known as the Joker."
-                    },
-                    {
-                      "id": "11",
-                      "name": "Avengers: Endgame",
-                      "genre": "Action, Sci-Fi",
-                      "rating": "8.4",
-                      "image": "https://www.themoviedb.org/t/p/original/ulzhLuWrPK07P1YkdWQLZnQh1JL.jpg",
-                      "description": "The Avengers assemble one final time to undo Thanos' destruction and restore balance to the universe."
-                    },
-                    {
-                      "id": "12",
-                      "name": "Pulp Fiction",
-                      "genre": "Crime, Drama",
-                      "rating": "8.9,"
-                      "image": "https://www.themoviedb.org/t/p/original/pdADSXdrIi3RnvR1zyxFMr3z5Rk.jpg",
-                      "description": "The lives of two mob hitmen, a boxer, and a gangster's wife intertwine in this iconic crime film."
-                    }
-                  ]
-                }
-              ]
-            }
-          }          
+        genres = ["Action", "Comedy", "Drama", "Horror", "Sci-Fi"]
+        for each genre in genres
+          api.data.carousels.push(util.getCarouselByGenre(genre, "movie"))
+        end for
     end if
 
     m.label.text = title
@@ -302,6 +29,7 @@ function beforeScreenOpen(context = invalid as dynamic) as dynamic
     rowListContent = rodash.createNode("ContentNode")
     if rodash.isNonEmptyAA(api) then
         for each carousel in api["data"]["carousels"]
+          if rodash.isNonEmptyArray(carousel["items"]) then
             row = rodash.createNode("ContentNode", {
                 "title": carousel["title"],
             })
@@ -310,11 +38,13 @@ function beforeScreenOpen(context = invalid as dynamic) as dynamic
                 row.appendChild(content)
             end for
             rowListContent.appendChild(row)
+          end if
         end for
     end if
     m.rowList.itemComponentName = "CatalogScreenItem"
-    m.rowList.itemSize = [1800, 380]
+    m.rowList.itemSize = [1800, 440]
     m.rowList.rowItemSize = [[220, 330]]
+    m.rowList.rowLabelOffset = [0, 20]
     m.rowList.showRowLabel = [true]
     m.rowList.numRows = 3
     m.rowList.rowItemSpacing = [20, 20]
@@ -323,7 +53,23 @@ function beforeScreenOpen(context = invalid as dynamic) as dynamic
     return promises.resolve(invalid)
 end function
 
+sub onItemSelected(event as object)
+  itemSelected = event.getRoSGNode().content.getChild(event.getData()[0]).getChild(event.getData()[1])
+  contentType = "series"
+  if m.pageType = "movies" then contentType = "movie"
+
+  path = `/details/${contentType}/${itemSelected.id}`
+  m.top.router@.navigateTo(path, {}, {
+      "name": itemSelected.name,
+      "genres": itemSelected.genres,
+      "rating": itemSelected.rating,
+      "poster_path": itemSelected.poster_path,
+      "backdrop_path": itemSelected.backdrop_path,
+      "description": itemSelected.description
+  })
+end sub
+
 function onScreenOpen(context = invalid as dynamic) as dynamic
-    m.rowList.setFocus(true)
-    return promises.resolve(invalid)
+  m.rowList.setFocus(true)
+  return promises.resolve(invalid)
 end function

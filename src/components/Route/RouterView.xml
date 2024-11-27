@@ -4,7 +4,6 @@
         <field id="router" type="node" />
         <field id="params" type="assocarray" />
 
-        <field id="loading" type="boolean" value="false" />
 
         <function name="_beforeScreenOpen" />
         <function name="_onScreenOpen" />

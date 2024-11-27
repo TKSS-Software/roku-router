@@ -2,7 +2,7 @@
 <component name="RouterView" extends="Group">
     <interface>
         <field id="router" type="node" />
-        <field id="params" type="assocarray" />
+        <field id="route" type="assocarray" />
 
         <function name="_beforeScreenOpen" />
         <function name="_onScreenOpen" />

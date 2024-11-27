@@ -1,6 +1,14 @@
 import "../../source/roku_modules/promises/promises.brs"
 import "../../source/roku_modules/rodash/rodash.brs"
 
+interface RouteObject
+    path as String ' /movies/3/play?autoPlayNext=true#browseWhileWatching
+    routeConfig as Object
+    routeParams as Object ' { movieId: 3}
+    queryParams as Object ' { autoPlayNext: true }
+    hash as String ' #browseWhileWatching
+end interface
+
 sub init()
     m.routes = {}
 end sub
@@ -17,35 +25,35 @@ end function
 
 function navigateTo(path = "" as String, options = {}, context = {} as Object) as Dynamic
     matchedRoute = findMatchingRoute(path, m.routes)
-    if matchedRoute <> Invalid then
-        activeScreen = m.top.activeScreen
 
+    if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
+        activeScreen = m.top.activeScreen
         componentName = rodash.getString(matchedRoute, "routeConfig.component")
         if rodash.isEmptyString(componentName)
             return promises.reject({ message: `No component for route "${path}"` })
         end if
 
-        params = {
+        newRoute = {
             context: context
         }
-        params.append(matchedRoute)
+        newRoute.append(matchedRoute)
 
         if activeScreen <> Invalid then
-            oldParams = activeScreen.params
+            oldRoute = activeScreen.route
 
-            ' Reuse the screen and call onParamsChange if the hash is the same OR if the options allow it
-            hasHash = rodash.isNonEmptyString(params.hash)
-            isSamePath = rodash.isEqual(params.path, oldParams.path)
+            ' Reuse the screen and call onRouteUpdate if the path or hash is the same, OR if the options allow it
+            hasHash = rodash.isNonEmptyString(newRoute.hash)
+            isSamePath = rodash.isEqual(newRoute.path, oldRoute.path)
             reuse = rodash.getBoolean(options, "allowReuse") OR hasHash OR isSamePath
             if hasHash then
-                if NOT rodash.isEqual(params.routeConfig, oldParams.routeConfig) then reuse = false
+                if NOT rodash.isEqual(newRoute.routeConfig, oldRoute.routeConfig) then reuse = false
             else
-                if NOT rodash.isEqual(params.routeParams.component, oldParams.routeParams.component) then reuse = false
+                if NOT rodash.isEqual(newRoute.routeParams.component, oldRoute.routeParams.component) then reuse = false
             end if
 
             if reuse then
-                activeScreen.params = params
-                activeScreen@._onRouteUpdate(oldParams, params)
+                activeScreen.route = newRoute
+                activeScreen@._onRouteUpdate(oldRoute, newRoute)
                 return promises.resolve(activeScreen)
             end if
         end if
@@ -55,14 +63,13 @@ function navigateTo(path = "" as String, options = {}, context = {} as Object) a
             return promises.reject({ message: `Failed to create screen "${componentName}"` })
         end if
 
-        'Check if the screen is already active
-        screen.params = params
+        screen.route = newRoute
         screen.router = m.top
 
-        return promises.chain(screen@._beforeScreenOpen(params), { screen: screen, params: params }).then(function(response as Dynamic, context as Dynamic) as Dynamic
+        return promises.chain(screen@._beforeScreenOpen(newRoute), { screen: screen, newRoute: newRoute }).then(function(response as Dynamic, context as Dynamic) as Dynamic
             m.top.appendChild(context.screen)
-            hideScreen(m.top.activeScreen, true)
-            return showScreen(context.screen, context.params)
+            hideScreen(m.top.activeScreen)
+            return showScreen(context.screen, context.newRoute)
         end function).catch(function(error as Dynamic) as Dynamic
             return promises.reject(error)
         end function).toPromise()
@@ -73,7 +80,7 @@ end function
 
 
 ' Helper function to find a matching route
-function findMatchingRoute(path as String, routes as Object) as Object
+function findMatchingRoute(path as String, routes as Object) as RouteObject
     hash = getHashParam(path)
 
     if rodash.isNonEmptyString(hash)
@@ -95,11 +102,11 @@ function findMatchingRoute(path as String, routes as Object) as Object
     for each routePath in routes
         if normalizePath(routePath) = basePath
             return {
-                "path": path,
-                "routeConfig": routes[routePath],
-                "routeParams": {},
-                "queryParams": queryParams,
-                "hash": hash
+                path: path,
+                routeConfig: routes[routePath]
+                routeParams: {}
+                queryParams: queryParams
+                hash: hash
             }
         end if
     end for
@@ -127,18 +134,24 @@ function findMatchingRoute(path as String, routes as Object) as Object
 
             if isMatch
                 return {
-                    "path": path,
-                    "routeConfig": routes[routePath],
-                    "routeParams": matchedParams,
-                    "queryParams": queryParams
-                    "hash": hash
+                    path: path
+                    routeConfig: routes[routePath]
+                    routeParams: matchedParams
+                    queryParams: queryParams
+                    hash: hash
                 }
             end if
         end if
     end for
 
-    ' Return invalid if no match found
-    return Invalid
+    ' Return Route with empty routeConfig if no match found
+    return {
+        path: path
+        routeConfig: {}
+        routeParams: matchedParams
+        queryParams: queryParams
+        hash: hash
+    }
 end function
 
 function getHashParam(url as String) as String

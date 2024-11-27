@@ -37,21 +37,17 @@ function onRouteUpdate(oldParams = {} as Object, newParams = {} as Object) as Dy
 end function
 
 function _onScreenResume(_ as Dynamic) as Dynamic
-    print source_function_name
     return onScreenResume(_)
 end function
 
 function _onScreenSuspend(_ as Dynamic) as Dynamic
-    print source_function_name
     return onScreenSuspend(_)
 end function
 
 function onScreenResume(_ as Dynamic) as Dynamic
-    print source_function_name
     return promises.resolve(Invalid)
 end function
 
 function onScreenSuspend(_ as Dynamic) as Dynamic
-    print source_function_name
     return promises.resolve(Invalid)
 end function

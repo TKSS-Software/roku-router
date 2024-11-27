@@ -25,9 +25,9 @@ end function
 
 function navigateTo(path = "" as String, options = {}, context = {} as Object) as Dynamic
     matchedRoute = findMatchingRoute(path, m.routes)
+
     if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
         activeScreen = m.top.activeScreen
-
         componentName = rodash.getString(matchedRoute, "routeConfig.component")
         if rodash.isEmptyString(componentName)
             return promises.reject({ message: `No component for route "${path}"` })
@@ -63,7 +63,6 @@ function navigateTo(path = "" as String, options = {}, context = {} as Object) a
             return promises.reject({ message: `Failed to create screen "${componentName}"` })
         end if
 
-        'Check if the screen is already active
         screen.route = newRoute
         screen.router = m.top
 
@@ -145,7 +144,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
         end if
     end for
 
-    ' Return invalid if no match found
+    ' Return Route with empty routeConfig if no match found
     return {
         path: path
         routeConfig: {}
@@ -187,7 +186,7 @@ end function
 
 ' Helper function to parse a query string into an associative array
 function parseQueryString(queryString as Dynamic) as Object
-    if type(queryString) <> "roString" OR queryString = Invalid OR queryString.len() = 0
+    if NOT rodash.isNonEmptyString(queryString)
         return {}
     end if
 
@@ -204,23 +203,31 @@ function parseQueryString(queryString as Dynamic) as Object
     return queryParams
 end function
 
-function hideScreen(screen as Object) as Boolean
+function hideScreen(screen as Object, onSuspend = false as Boolean) as Boolean
     success = rodash.isNode(screen)
     if success then
         screen.visible = false
         screen.translation = [10000, 10000]
-        'onScreenSuspend
+
+        if onSuspend then
+            screen@._onScreenSuspend()
+        end if
     end if
     return success
 end function
 
-function showScreen(screen as Object, params = {} as Dynamic) as Dynamic
+function showScreen(screen as Object, params = {} as Dynamic, onResume = false as Boolean) as Dynamic
+    print source_function_name, params, onResume
     if rodash.isNode(screen) then
         screen.visible = true
         screen.translation = [0, 0]
         m.top.activeScreen = screen
         screen.setFocus(true)
-        return screen@._onScreenOpen(params) 'onScreenResume
+
+        if onResume then
+            return screen@._onScreenResume(params)
+        end if
+        return screen@._onScreenOpen(params)
     end if
 
     return promises.reject({ message: "Invalid screen" })
@@ -231,7 +238,10 @@ function closeScreen(screen = Invalid as Dynamic) as Dynamic
     screen.visible = false
 
     return promises.onThen(screen@._beforeScreenClose(), function(response as Dynamic, context as Dynamic) as Dynamic
-        rodash.removeNode(context.screen)
+        if hideScreen(context.screen) then
+            rodash.removeNode(context.screen)
+        end if
+
         return true
     end function, { screen: screen })
 end function
@@ -245,16 +255,10 @@ function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
         if numberOfScreens <= 1 then return false
 
         promises.chain(closeScreen(screens.pop()), screens.peek()).then(sub(response as Dynamic, screen as Dynamic) as Dynamic
-            showScreen(screen)
+            showScreen(screen, {}, true)
         end sub)
         return true
     end if
 
     return false
-end function
-
-
-' TO BE IMPLEMENTED
-function onMainSceneResume(_ as Dynamic) as Dynamic
-    return promises.resolve(Invalid)
 end function

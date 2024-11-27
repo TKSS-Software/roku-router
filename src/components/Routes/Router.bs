@@ -11,18 +11,18 @@ sub addRoutes(routes = [] as Object)
     end for
 end sub
 
-function getRoutes(_ = invalid as dynamic) as dynamic
+function getRoutes(_ = Invalid as Dynamic) as Dynamic
     return m.routes
 end function
 
-function navigateTo(path = "" as string, options = {}, context = {} as Object) as dynamic
+function navigateTo(path = "" as String, options = {}, context = {} as Object) as Dynamic
     matchedRoute = findMatchingRoute(path, m.routes)
-    if matchedRoute <> invalid then
+    if matchedRoute <> Invalid then
         activeScreen = m.top.activeScreen
 
         componentName = rodash.getString(matchedRoute, "routeConfig.component")
         if rodash.isEmptyString(componentName)
-            return promises.reject({message: `No component for route "${path}"`})
+            return promises.reject({ message: `No component for route "${path}"` })
         end if
 
         params = {
@@ -30,17 +30,17 @@ function navigateTo(path = "" as string, options = {}, context = {} as Object) a
         }
         params.append(matchedRoute)
 
-        if activeScreen <> invalid then
+        if activeScreen <> Invalid then
             oldParams = activeScreen.params
 
             ' Reuse the screen and call onParamsChange if the hash is the same OR if the options allow it
             hasHash = rodash.isNonEmptyString(params.hash)
             isSamePath = rodash.isEqual(params.path, oldParams.path)
-            reuse = rodash.getBoolean(options, "allowReuse") or hasHash or isSamePath
+            reuse = rodash.getBoolean(options, "allowReuse") OR hasHash OR isSamePath
             if hasHash then
-                if not rodash.isEqual(params.routeConfig, oldParams.routeConfig) then reuse = false
+                if NOT rodash.isEqual(params.routeConfig, oldParams.routeConfig) then reuse = false
             else
-                if not rodash.isEqual(params.routeParams.component, oldParams.routeParams.component) then reuse = false
+                if NOT rodash.isEqual(params.routeParams.component, oldParams.routeParams.component) then reuse = false
             end if
 
             if reuse then
@@ -51,24 +51,24 @@ function navigateTo(path = "" as string, options = {}, context = {} as Object) a
         end if
 
         screen = rodash.createNode(componentName)
-        if screen = invalid
-            return promises.reject({message: `Failed to create screen "${componentName}"`})
+        if screen = Invalid
+            return promises.reject({ message: `Failed to create screen "${componentName}"` })
         end if
 
-         'Check if the screen is already active
-         screen.params = params
-         screen.router = m.top
+        'Check if the screen is already active
+        screen.params = params
+        screen.router = m.top
 
-        return promises.chain(screen@._beforeScreenOpen(params), {screen:screen, params:params}).then(function(response as dynamic, context as dynamic) as dynamic
+        return promises.chain(screen@._beforeScreenOpen(params), { screen: screen, params: params }).then(function(response as Dynamic, context as Dynamic) as Dynamic
             m.top.appendChild(context.screen)
             hideScreen(m.top.activeScreen)
             return showScreen(context.screen, context.params)
-        end function).catch(function(error as dynamic) as dynamic
+        end function).catch(function(error as Dynamic) as Dynamic
             return promises.reject(error)
         end function).toPromise()
     end if
 
-    return promises.reject({message: `Route "${path}" not found`})
+    return promises.reject({ message: `Route "${path}" not found` })
 end function
 
 
@@ -83,7 +83,7 @@ function findMatchingRoute(path as String, routes as Object) as Object
     ' Separate the path from the query string
     pathParts = path.split("?")
     basePath = normalizePath(pathParts[0])
-    queryString = invalid
+    queryString = Invalid
     if pathParts.count() > 1
         queryString = pathParts[1]
     end if
@@ -126,7 +126,7 @@ function findMatchingRoute(path as String, routes as Object) as Object
             end for
 
             if isMatch
-                return { 
+                return {
                     "path": path,
                     "routeConfig": routes[routePath],
                     "routeParams": matchedParams,
@@ -138,7 +138,7 @@ function findMatchingRoute(path as String, routes as Object) as Object
     end for
 
     ' Return invalid if no match found
-    return invalid
+    return Invalid
 end function
 
 function getHashParam(url as String) as String
@@ -149,7 +149,7 @@ function getHashParam(url as String) as String
 
     ' Find the position of the # character in the URL
     hashIndex = rodash.stringIndexOf(url, "#")
-    
+
     ' If # is not found, return "Invalid"
     if hashIndex = -1 then
         return ""
@@ -172,8 +172,8 @@ function normalizePath(path as String) as String
 end function
 
 ' Helper function to parse a query string into an associative array
-function parseQueryString(queryString as dynamic) as Object
-    if type(queryString) <> "roString" or queryString = invalid or queryString.len() = 0
+function parseQueryString(queryString as Dynamic) as Object
+    if type(queryString) <> "roString" OR queryString = Invalid OR queryString.len() = 0
         return {}
     end if
 
@@ -190,7 +190,7 @@ function parseQueryString(queryString as dynamic) as Object
     return queryParams
 end function
 
-function hideScreen(screen as object) as boolean
+function hideScreen(screen as Object) as Boolean
     success = rodash.isNode(screen)
     if success then
         screen.visible = false
@@ -200,7 +200,7 @@ function hideScreen(screen as object) as boolean
     return success
 end function
 
-function showScreen(screen as object, params = {} as dynamic) as dynamic
+function showScreen(screen as Object, params = {} as Dynamic) as Dynamic
     if rodash.isNode(screen) then
         screen.visible = true
         screen.translation = [0, 0]
@@ -209,28 +209,28 @@ function showScreen(screen as object, params = {} as dynamic) as dynamic
         return screen@._onScreenOpen(params) 'onScreenResume
     end if
 
-    return promises.reject({message: "Invalid screen"})
+    return promises.reject({ message: "Invalid screen" })
 end function
 
-function closeScreen(screen = invalid as dynamic) as dynamic
+function closeScreen(screen = Invalid as Dynamic) as Dynamic
     screen.translation = [1000000, 100000]
     screen.visible = false
 
-    return promises.onThen(screen@._beforeScreenClose(), function(response as dynamic, context as dynamic) as dynamic
+    return promises.onThen(screen@._beforeScreenClose(), function(response as Dynamic, context as Dynamic) as Dynamic
         rodash.removeNode(context.screen)
         return true
     end function, { screen: screen })
 end function
 
-function onKeyEvent(key = "" as string, press = false as boolean) as boolean
-    if not press then return true
+function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
+    if NOT press then return true
 
     if key = "back" then
         screens = rodash.getNodeChildren(m.top)
         numberOfScreens = screens.count()
         if numberOfScreens <= 1 then return false
 
-        promises.chain(closeScreen(screens.pop()), screens.peek()).then(sub(response as dynamic, screen as dynamic) as dynamic
+        promises.chain(closeScreen(screens.pop()), screens.peek()).then(sub(response as Dynamic, screen as Dynamic) as Dynamic
             showScreen(screen)
         end sub)
         return true
@@ -241,6 +241,6 @@ end function
 
 
 ' TO BE IMPLEMENTED
-function onMainSceneResume(_ as dynamic) as dynamic
-    return promises.resolve(invalid)
+function onMainSceneResume(_ as Dynamic) as Dynamic
+    return promises.resolve(Invalid)
 end function

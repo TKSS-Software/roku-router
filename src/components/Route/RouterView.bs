@@ -3,39 +3,39 @@ import "../../source/roku_modules/promises/promises.brs"
 sub init()
 end sub
 
-function _beforeScreenOpen(params = {} as Object) as dynamic
+function _beforeScreenOpen(params = {} as Object) as Dynamic
     return beforeScreenOpen(params)
 end function
 
-function beforeScreenOpen(params = {} as Object) as dynamic
-    return promises.resolve(invalid)
+function beforeScreenOpen(params = {} as Object) as Dynamic
+    return promises.resolve(Invalid)
 end function
 
-function _onScreenOpen(params = {} as Object) as dynamic
+function _onScreenOpen(params = {} as Object) as Dynamic
     return onScreenOpen(params)
 end function
 
-function onScreenOpen(params = {} as Object) as dynamic
-    return promises.resolve(invalid)
+function onScreenOpen(params = {} as Object) as Dynamic
+    return promises.resolve(Invalid)
 end function
 
-function _beforeScreenClose(params = {} as Object) as dynamic
+function _beforeScreenClose(params = {} as Object) as Dynamic
     return beforeScreenClose(params)
 end function
 
-function beforeScreenClose(params = {} as Object) as dynamic
-    return promises.resolve(invalid)
+function beforeScreenClose(params = {} as Object) as Dynamic
+    return promises.resolve(Invalid)
 end function
 
-function _onRouteUpdate(oldParams = {} as Object, newParams = {} as Object) as dynamic
+function _onRouteUpdate(oldParams = {} as Object, newParams = {} as Object) as Dynamic
     print "Route is updating", oldParams, newParams
     return onRouteUpdate(oldParams, newParams)
 end function
 
-function onRouteUpdate(oldParams = {} as Object, newParams = {} as Object) as dynamic
-    return promises.resolve(invalid)
+function onRouteUpdate(oldParams = {} as Object, newParams = {} as Object) as Dynamic
+    return promises.resolve(Invalid)
 end function
 
-function onMainSceneResume(_ as dynamic) as dynamic
-    return promises.resolve(invalid)
+function onMainSceneResume(_ as Dynamic) as Dynamic
+    return promises.resolve(Invalid)
 end function

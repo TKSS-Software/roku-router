@@ -59,14 +59,7 @@ sub onItemSelected(event as Object)
   if m.pageType = "movies" then contentType = "movie"
 
   path = `/details/${contentType}/${itemSelected.id}`
-  m.top.router@.navigateTo(path, {}, {
-    "name": itemSelected.name,
-    "genres": itemSelected.genres,
-    "rating": itemSelected.rating,
-    "poster_path": itemSelected.poster_path,
-    "backdrop_path": itemSelected.backdrop_path,
-    "description": itemSelected.description
-  })
+  m.top.router@.navigateTo(path)
 end sub
 
 function onScreenOpen(context = Invalid as Dynamic) as Dynamic

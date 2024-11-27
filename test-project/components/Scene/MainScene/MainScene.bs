@@ -3,12 +3,12 @@ sub init()
     m.top.backgroundUri = ""
 
     m.router@.addRoutes([
-        {pattern: "/", component: "WelcomeScreen", root: true},
-        {pattern: "/shows", component: "CatalogScreen", root: true},
-        {pattern: "/movies", component: "CatalogScreen", root: true},
-        {pattern: "/details/:type/:id", component: "DetailsScreen"},
-        {pattern: "/details/:type/:id/cast", component: "CastDetailsScreen"},
-        {pattern: "/:screenName", component: "DefaultScreen"}
+        { pattern: "/", component: "WelcomeScreen", root: true },
+        { pattern: "/shows", component: "CatalogScreen", root: true },
+        { pattern: "/movies", component: "CatalogScreen", root: true },
+        { pattern: "/details/:type/:id", component: "DetailsScreen" },
+        { pattern: "/details/:type/:id/cast", component: "CastDetailsScreen" },
+        { pattern: "/:screenName", component: "DefaultScreen" }
     ])
 
     ' Read the sample data from the file. You normally wouldn't want to do this in a real app.
@@ -19,6 +19,6 @@ sub init()
     m.router@.navigateTo("/?firstLoad=true", {})
 end sub
 
-function onKeyEvent(key = "" as string, press = false as boolean) as boolean
+function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
     return true
 end function

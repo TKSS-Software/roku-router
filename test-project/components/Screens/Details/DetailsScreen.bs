@@ -9,37 +9,34 @@ end sub
 sub onItemSelected(event as Object)
     itemSelected = event.getRoSGNode().content.getChild(event.getData()[0]).getChild(event.getData()[1])
     path = `/details/${m.pageType}/${itemSelected.id}`
-    m.top.router@.navigateTo(path, {}, {
-        "name": itemSelected.name,
-        "genres": itemSelected.genres,
-        "rating": itemSelected.rating,
-        "poster_path": itemSelected.poster_path,
-        "backdrop_path": itemSelected.backdrop_path,
-        "description": itemSelected.description
-    })
+    m.top.router@.navigateTo(path)
 end sub
 
 function beforeScreenOpen(params = Invalid as Dynamic) as Dynamic
-    print params.routeParams.type
+    print params.routeParams
     m.pageType = params.routeParams.type
-    context = rodash.getAA(params, "context")
+
+    content = util.getContentById(params.routeParams.id)
+
+    print "content", content
+
     textWidths = 1920 - (m.content.translation[0] * 2) - m.topSection.itemSpacings[0] - m.poster.width
 
     m.title.font = "font:MediumBoldSystemFont"
     m.title.width = textWidths
-    m.title.text = rodash.getString(context, "name")
+    m.title.text = rodash.getString(content, "name")
 
-    m.description.text = rodash.getString(context, "description")
+    m.description.text = rodash.getString(content, "description")
     m.description.width = textWidths
 
     m.rating.font = "font:SmallestSystemFont"
-    m.rating.text = `Rating: ${rodash.getString(context, "rating")}`
+    m.rating.text = `Rating: ${rodash.get(content, "vote_average")}`
 
-    m.poster.uri = rodash.getString(context, "poster_path").replace("/original/", `/w${m.poster.width}_and_h${m.poster.height}_multi_faces/`)
-    m.background.uri = rodash.getString(context, "backdrop_path").replace("/original/", `/w1920_and_h1080_multi_faces/`)
+    m.poster.uri = rodash.getString(content, "poster_path").replace("/original/", `/w${m.poster.width}_and_h${m.poster.height}_multi_faces/`)
+    m.background.uri = rodash.getString(content, "backdrop_path").replace("/original/", `/w1920_and_h1080_multi_faces/`)
 
     api = { data: { carousels: [] } }
-    api.data.carousels.push(util.getRelatedCarousel(context, m.pageType))
+    api.data.carousels.push(util.getRelatedCarousel(content, m.pageType))
 
     rowListContent = rodash.createNode("ContentNode")
     if rodash.isNonEmptyAA(api) then
@@ -72,7 +69,7 @@ function onScreenOpen(params = Invalid as Dynamic) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function onScreenResume(context = Invalid as Dynamic) as Dynamic
+function onScreenResume(content = Invalid as Dynamic) as Dynamic
     m.rowList.setFocus(true)
     return promises.resolve(Invalid)
 end function

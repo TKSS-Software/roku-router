@@ -21,12 +21,12 @@ const getContent = (url = "" as string, pageNumber = 0 as number) => {
     return fetch(url, {
         method: 'GET',
         headers: {
-          'Authorization': "Bearer "+ API_READ_TOKEN
+            'Authorization': "Bearer " + API_READ_TOKEN
         }
-      })
-    .then((res: { json: () => any; }) => {
-        return res.json();
     })
+        .then((res: { json: () => any; }) => {
+            return res.json();
+        })
 }
 
 function addTypeAndSetDatesToUTC(data = [] as any, type = "" as string) {
@@ -34,6 +34,7 @@ function addTypeAndSetDatesToUTC(data = [] as any, type = "" as string) {
         let time = new Date(item.release_date).toUTCString()
         item.type = type;
         item.release_date = Date.parse(time);
+        item.id = item.id.toString();
     });
 }
 
@@ -67,6 +68,8 @@ getContent(MOVIES_GENRES_API_URL).then((moviesGenres: any) => {
                     ...tvShows
                 ];
 
+                content = _.uniqBy(content, 'id');
+
                 content.forEach((item: TMBDContent) => {
                     if (item.backdrop_path !== null) {
                         item.backdrop_path = IMAGE_BASE_URL + 'original' + item.backdrop_path;
@@ -88,7 +91,7 @@ getContent(MOVIES_GENRES_API_URL).then((moviesGenres: any) => {
                     data: content
                 }
                 var fs = require('fs');
-                fs.writeFile(path.resolve(__dirname, "../test-project/assets/sampleData.json"), JSON.stringify(contentPayload, null, 4), function(err: any) {
+                fs.writeFile(path.resolve(__dirname, "../test-project/assets/sampleData.json"), JSON.stringify(contentPayload, null, 4), function (err: any) {
                     if (err) {
                         console.log(err);
                     }
@@ -109,6 +112,6 @@ type TMBDContent = {
     overview: string;
     vote_average: number;
     vote_count: number;
-    release_date: string|number;
+    release_date: string | number;
     type: string;
 }

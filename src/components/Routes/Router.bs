@@ -54,6 +54,7 @@ function navigateTo(path = "" as String, options = {}, context = {} as Object) a
             if reuse then
                 activeScreen.route = newRoute
                 activeScreen@._onRouteUpdate(oldRoute, newRoute)
+                updateDebugInfo()
                 return promises.resolve(activeScreen)
             end if
         end if
@@ -67,7 +68,7 @@ function navigateTo(path = "" as String, options = {}, context = {} as Object) a
         screen.router = m.top
 
         return promises.chain(screen@._beforeScreenOpen(newRoute), { screen: screen, newRoute: newRoute }).then(function(response as Dynamic, context as Dynamic) as Dynamic
-            m.top.appendChild(context.screen)
+            m.target.appendChild(context.screen)
             hideScreen(m.top.activeScreen)
             return showScreen(context.screen, context.newRoute)
         end function).catch(function(error as Dynamic) as Dynamic
@@ -224,6 +225,8 @@ function showScreen(screen as Object, params = {} as Dynamic, onResume = false a
         m.top.activeScreen = screen
         screen.setFocus(true)
 
+        updateDebugInfo()
+
         if onResume then
             return screen@._onScreenResume(params)
         end if
@@ -250,7 +253,7 @@ function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
     if NOT press then return true
 
     if key = "back" then
-        screens = rodash.getNodeChildren(m.top)
+        screens = rodash.getNodeChildren(m.target)
         numberOfScreens = screens.count()
         if numberOfScreens <= 1 then return false
 
@@ -262,3 +265,8 @@ function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
 
     return false
 end function
+
+
+sub updateDebugInfo()
+    m.activeRouteLabel.text = "Active Route: " + rodash.toString(m.top.activeScreen.route)
+end sub

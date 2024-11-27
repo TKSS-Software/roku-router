@@ -7,5 +7,11 @@
         <function name="getRoutes" />
         <function name="navigateTo" />
     </interface>
-    <children />
+    <children>
+        <Group id="target" />
+        <Rectangle width="740" height="440" color="#000000C0" id="debug" translation="[1180, 840]">
+            <Label translation="[20,20]" wrap="true" width="700" id="activeRouteLabel"
+                font="font:SmallestSystemFont" />
+        </Rectangle>
+    </children>
 </component>

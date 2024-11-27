@@ -41,7 +41,7 @@ function navigateTo(path = "" as String, options = {}, context = {} as Object) a
         if activeScreen <> Invalid then
             oldRoute = activeScreen.route
 
-            ' Reuse the screen and call onRouteUpdate if the hash is the same OR if the options allow it
+            ' Reuse the screen and call onRouteUpdate if the path or hash is the same, OR if the options allow it
             hasHash = rodash.isNonEmptyString(newRoute.hash)
             isSamePath = rodash.isEqual(newRoute.path, oldRoute.path)
             reuse = rodash.getBoolean(options, "allowReuse") OR hasHash OR isSamePath

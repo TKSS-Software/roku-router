@@ -1,6 +1,6 @@
 sub init()
     m.buttonGroup.observeField("buttonSelected", "onButtonPress")
-    m.buttonGroup.buttons = ["Go to Shows Catalog", "Go to Movies Catalog", "Test Params Change"]
+    m.buttonGroup.buttons = ["Go to Shows Catalog", "Go to Movies Catalog", "Test Params Change", "Test Hash Change"]
 end sub
 
 function onScreenOpen(context = invalid as dynamic) as dynamic
@@ -25,5 +25,7 @@ sub onButtonPress(event as object)
         m.top.router@.navigateTo("/movies")
     else if button = 2 then
         m.top.router@.navigateTo("/?firstLoad=false", {allowReuse: true})
+    else if button = 3 then
+        m.top.router@.navigateTo("/#hello")
     end if
 end sub

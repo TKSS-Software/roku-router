@@ -16,11 +16,7 @@ function getRoutes(_ = invalid as dynamic) as dynamic
 end function
 
 function navigateTo(path = "" as string, options = {}, context = {} as Object) as dynamic
-    print source_function_name, path, options, context
-
     matchedRoute = findMatchingRoute(path, m.routes)
-    print "Matched route: "; matchedRoute
-
     if matchedRoute <> invalid then
         activeScreen = m.top.activeScreen
 
@@ -31,18 +27,21 @@ function navigateTo(path = "" as string, options = {}, context = {} as Object) a
 
         params = {
             context: context
-            routeConfig: matchedRoute["routeConfig"]
-            routeParams: matchedRoute["routeParams"]
-            queryParams: matchedRoute["queryParams"]
-            hash: matchedRoute["hash"]
         }
+        params.append(matchedRoute)
 
         if activeScreen <> invalid then
             oldParams = activeScreen.params
 
             ' Reuse the screen and call onParamsChange if the hash is the same OR if the options allow it
-            reuse = rodash.getBoolean(options, "allowReuse") or not rodash.isEqual(params.hash, oldParams.hash)
-            if not rodash.isEqual(params.routeConfig, oldParams.routeConfig) then reuse = false
+            hasHash = rodash.isNonEmptyString(params.hash)
+            isSamePath = rodash.isEqual(params.path, oldParams.path)
+            reuse = rodash.getBoolean(options, "allowReuse") or hasHash or isSamePath
+            if hasHash then
+                if not rodash.isEqual(params.routeConfig, oldParams.routeConfig) then reuse = false
+            else
+                if not rodash.isEqual(params.routeParams.component, oldParams.routeParams.component) then reuse = false
+            end if
 
             if reuse then
                 activeScreen.params = params
@@ -75,6 +74,12 @@ end function
 
 ' Helper function to find a matching route
 function findMatchingRoute(path as String, routes as Object) as Object
+    hash = getHashParam(path)
+
+    if rodash.isNonEmptyString(hash)
+        path = path.replace("#" + hash, "")
+    end if
+
     ' Separate the path from the query string
     pathParts = path.split("?")
     basePath = normalizePath(pathParts[0])
@@ -89,11 +94,12 @@ function findMatchingRoute(path as String, routes as Object) as Object
     ' First check for exact matches (static paths)
     for each routePath in routes
         if normalizePath(routePath) = basePath
-            return { 
+            return {
+                "path": path,
                 "routeConfig": routes[routePath],
                 "routeParams": {},
                 "queryParams": queryParams,
-                "hash": ""
+                "hash": hash
             }
         end if
     end for
@@ -121,10 +127,11 @@ function findMatchingRoute(path as String, routes as Object) as Object
 
             if isMatch
                 return { 
-                    "routeConfig": routes[routePath], 
-                    "routeParams": matchedParams, 
-                    "queryParams": queryParams 
-                    "hash": getHashParam(path)
+                    "path": path,
+                    "routeConfig": routes[routePath],
+                    "routeParams": matchedParams,
+                    "queryParams": queryParams
+                    "hash": hash
                 }
             end if
         end if
@@ -141,15 +148,15 @@ function getHashParam(url as String) as String
     end if
 
     ' Find the position of the # character in the URL
-    hashIndex = rodash.stringIncludes(url, "#")
-
+    hashIndex = rodash.stringIndexOf(url, "#")
+    
     ' If # is not found, return "Invalid"
-    if hashIndex = 0 then
+    if hashIndex = -1 then
         return ""
     end if
 
     ' Extract and return the substring after the #
-    return mid(url, hashIndex + 1)
+    return url.mid(hashIndex + 1)
 end function
 
 ' Helper function to normalize a path

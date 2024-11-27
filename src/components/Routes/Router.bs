@@ -3,10 +3,16 @@ import "../../source/roku_modules/rodash/rodash.brs"
 
 interface RouteObject
     path as String ' /movies/3/play?autoPlayNext=true#browseWhileWatching
-    routeConfig as Object
+    routeConfig as RouteConfig
     routeParams as Object ' { movieId: 3}
     queryParams as Object ' { autoPlayNext: true }
     hash as String ' #browseWhileWatching
+end interface
+
+interface RouteConfig
+    path as String ' /movies/3/play?autoPlayNext=true#browseWhileWatching
+    component as String ' "MovieDetailsScreen"
+    optional root as Boolean ' true
 end interface
 
 sub init()
@@ -27,6 +33,8 @@ function navigateTo(path = "" as String, options = {}, context = {} as Object) a
     matchedRoute = findMatchingRoute(path, m.routes)
 
     if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
+        isRoot = rodash.getBoolean(matchedRoute.routeConfig, "root")
+
         activeScreen = m.top.activeScreen
         componentName = rodash.getString(matchedRoute, "routeConfig.component")
         if rodash.isEmptyString(componentName)

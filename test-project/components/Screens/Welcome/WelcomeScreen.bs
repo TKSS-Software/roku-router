@@ -3,28 +3,28 @@ sub init()
     m.buttonGroup.buttons = ["Go to Shows Catalog", "Go to Movies Catalog", "Test Params Change", "Test Hash Change"]
 end sub
 
-function onScreenOpen(context = invalid as dynamic) as dynamic
+function onScreenOpen(context = Invalid as Dynamic) as Dynamic
     m.buttonGroup.setFocus(true)
-    return promises.resolve(invalid)
+    return promises.resolve(Invalid)
 end function
 
-function onRouteUpdate(oldParams = {} as Object, newParams = {} as Object) as dynamic
-    return promises.resolve(invalid)
+function onRouteUpdate(oldParams = {} as Object, newParams = {} as Object) as Dynamic
+    return promises.resolve(Invalid)
 end function
 
-function beforeScreenClose(context = invalid as dynamic) as dynamic
+function beforeScreenClose(context = Invalid as Dynamic) as Dynamic
     m.buttonGroup.unobserveField("buttonSelected")
-    return promises.resolve(invalid)
+    return promises.resolve(Invalid)
 end function
 
-sub onButtonPress(event as object)
+sub onButtonPress(event as Object)
     button = event.getData()
     if button = 0 then
         m.top.router@.navigateTo("/shows")
     else if button = 1 then
         m.top.router@.navigateTo("/movies")
     else if button = 2 then
-        m.top.router@.navigateTo("/?firstLoad=false", {allowReuse: true})
+        m.top.router@.navigateTo("/?firstLoad=false", { allowReuse: true })
     else if button = 3 then
         m.top.router@.navigateTo("/#hello")
     end if

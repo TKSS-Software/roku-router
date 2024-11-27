@@ -1,75 +1,74 @@
-import "../../../source/roku_modules/rodash/rodash.brs"
-import "../../../source/common.bs"
+import "pkg:/source/common.bs"
 
 sub init()
   m.pageType = ""
   m.rowList.observeField("rowItemSelected", "onItemSelected")
 end sub
 
-function beforeScreenOpen(params = {} as Object) as dynamic
-    api = {data: {carousels: []}}
-    title = ""
-    m.pageType = rodash.getString(params,"routeConfig.pattern") = "/shows" ? "shows": "movies"
-    if m.pageType = "shows" then
-        title = "Shows"
-        genres = ["Action & Adventure", "Animation", "Comedy", "Crime", "Drama", "Horror", "Sci-Fi & Fantasy"]
-        for each genre in genres
-          api.data.carousels.push(util.getCarouselByGenre(genre, "series"))
-        end for
-    else if m.pageType = "movies" then
-        title = "Movies"
-        genres = ["Action", "Comedy", "Drama", "Horror", "Sci-Fi"]
-        for each genre in genres
-          api.data.carousels.push(util.getCarouselByGenre(genre, "movie"))
-        end for
-    end if
+function beforeScreenOpen(params = {} as Object) as Dynamic
+  api = { data: { carousels: [] } }
+  title = ""
+  m.pageType = rodash.getString(params, "routeConfig.pattern") = "/shows" ? "shows": "movies"
+  if m.pageType = "shows" then
+    title = "Shows"
+    genres = ["Action & Adventure", "Animation", "Comedy", "Crime", "Drama", "Horror", "Sci-Fi & Fantasy"]
+    for each genre in genres
+      api.data.carousels.push(util.getCarouselByGenre(genre, "series"))
+    end for
+  else if m.pageType = "movies" then
+    title = "Movies"
+    genres = ["Action", "Comedy", "Drama", "Horror", "Sci-Fi"]
+    for each genre in genres
+      api.data.carousels.push(util.getCarouselByGenre(genre, "movie"))
+    end for
+  end if
 
-    m.label.text = title
+  m.label.text = title
 
-    rowListContent = rodash.createNode("ContentNode")
-    if rodash.isNonEmptyAA(api) then
-        for each carousel in api["data"]["carousels"]
-          if rodash.isNonEmptyArray(carousel["items"]) then
-            row = rodash.createNode("ContentNode", {
-                "title": carousel["title"],
-            })
-            for each item in carousel["items"]
-                content = rodash.createNode("ContentNode", item)
-                row.appendChild(content)
-            end for
-            rowListContent.appendChild(row)
-          end if
+  rowListContent = rodash.createNode("ContentNode")
+  if rodash.isNonEmptyAA(api) then
+    for each carousel in api["data"]["carousels"]
+      if rodash.isNonEmptyArray(carousel["items"]) then
+        row = rodash.createNode("ContentNode", {
+          "title": carousel["title"],
+        })
+        for each item in carousel["items"]
+          content = rodash.createNode("ContentNode", item)
+          row.appendChild(content)
         end for
-    end if
-    m.rowList.itemComponentName = "CatalogScreenItem"
-    m.rowList.itemSize = [1800, 440]
-    m.rowList.rowItemSize = [[220, 330]]
-    m.rowList.rowLabelOffset = [0, 20]
-    m.rowList.showRowLabel = [true]
-    m.rowList.numRows = 3
-    m.rowList.rowItemSpacing = [20, 20]
-    m.rowList.content = rowListContent
+        rowListContent.appendChild(row)
+      end if
+    end for
+  end if
+  m.rowList.itemComponentName = "CatalogScreenItem"
+  m.rowList.itemSize = [1800, 440]
+  m.rowList.rowItemSize = [[220, 330]]
+  m.rowList.rowLabelOffset = [0, 20]
+  m.rowList.showRowLabel = [true]
+  m.rowList.numRows = 3
+  m.rowList.rowItemSpacing = [20, 20]
+  m.rowList.content = rowListContent
 
-    return promises.resolve(invalid)
+  return promises.resolve(Invalid)
 end function
 
-sub onItemSelected(event as object)
+sub onItemSelected(event as Object)
   itemSelected = event.getRoSGNode().content.getChild(event.getData()[0]).getChild(event.getData()[1])
   contentType = "series"
   if m.pageType = "movies" then contentType = "movie"
 
   path = `/details/${contentType}/${itemSelected.id}`
   m.top.router@.navigateTo(path, {}, {
-      "name": itemSelected.name,
-      "genres": itemSelected.genres,
-      "rating": itemSelected.rating,
-      "poster_path": itemSelected.poster_path,
-      "backdrop_path": itemSelected.backdrop_path,
-      "description": itemSelected.description
+    "name": itemSelected.name,
+    "genres": itemSelected.genres,
+    "rating": itemSelected.rating,
+    "poster_path": itemSelected.poster_path,
+    "backdrop_path": itemSelected.backdrop_path,
+    "description": itemSelected.description
   })
 end sub
 
-function onScreenOpen(context = invalid as dynamic) as dynamic
+function onScreenOpen(context = Invalid as Dynamic) as Dynamic
   m.rowList.setFocus(true)
-  return promises.resolve(invalid)
+  return promises.resolve(Invalid)
 end function

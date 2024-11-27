@@ -1,12 +1,10 @@
-import "../../../source/roku_modules/rodash/rodash.brs"
-import "../../../source/roku_modules/promises/promises.brs"
-import "../../../source/common.bs"
+import "pkg:/source/common.bs"
 
 sub init()
     m.rowList.observeField("rowItemSelected", "onItemSelected")
 end sub
 
-sub onItemSelected(event as object)
+sub onItemSelected(event as Object)
     itemSelected = event.getRoSGNode().content.getChild(event.getData()[0]).getChild(event.getData()[1])
     path = `/details/${m.pageType}/${itemSelected.id}`
     m.top.router@.navigateTo(path, {}, {
@@ -17,13 +15,13 @@ sub onItemSelected(event as object)
         "backdrop_path": itemSelected.backdrop_path,
         "description": itemSelected.description
     })
-  end sub
+end sub
 
-function beforeScreenOpen(params = invalid as dynamic) as dynamic
+function beforeScreenOpen(params = Invalid as Dynamic) as Dynamic
     print params.routeParams.type
     m.pageType = params.routeParams.type
     context = rodash.getAA(params, "context")
-    textWidths = 1920 - (m.content.translation[0]*2) - m.topSection.itemSpacings[0] - m.poster.width
+    textWidths = 1920 - (m.content.translation[0] * 2) - m.topSection.itemSpacings[0] - m.poster.width
 
     m.title.font = "font:MediumBoldSystemFont"
     m.title.width = textWidths
@@ -38,22 +36,22 @@ function beforeScreenOpen(params = invalid as dynamic) as dynamic
     m.poster.uri = rodash.getString(context, "poster_path").replace("/original/", `/w${m.poster.width}_and_h${m.poster.height}_multi_faces/`)
     m.background.uri = rodash.getString(context, "backdrop_path").replace("/original/", `/w1920_and_h1080_multi_faces/`)
 
-    api = {data: {carousels: []}}
+    api = { data: { carousels: [] } }
     api.data.carousels.push(util.getRelatedCarousel(context, m.pageType))
 
     rowListContent = rodash.createNode("ContentNode")
     if rodash.isNonEmptyAA(api) then
         for each carousel in api["data"]["carousels"]
-          if rodash.isNonEmptyArray(carousel["items"]) then
-            row = rodash.createNode("ContentNode", {
-                "title": carousel["title"],
-            })
-            for each item in carousel["items"]
-                content = rodash.createNode("ContentNode", item)
-                row.appendChild(content)
-            end for
-            rowListContent.appendChild(row)
-          end if
+            if rodash.isNonEmptyArray(carousel["items"]) then
+                row = rodash.createNode("ContentNode", {
+                    "title": carousel["title"],
+                })
+                for each item in carousel["items"]
+                    content = rodash.createNode("ContentNode", item)
+                    row.appendChild(content)
+                end for
+                rowListContent.appendChild(row)
+            end if
         end for
     end if
     m.rowList.itemComponentName = "CatalogScreenItem"
@@ -64,10 +62,10 @@ function beforeScreenOpen(params = invalid as dynamic) as dynamic
     m.rowList.numRows = 3
     m.rowList.rowItemSpacing = [20, 20]
     m.rowList.content = rowListContent
-    return promises.resolve(invalid)
+    return promises.resolve(Invalid)
 end function
 
-function onScreenOpen(params = invalid as dynamic) as dynamic
+function onScreenOpen(params = Invalid as Dynamic) as Dynamic
     m.rowList.setFocus(true)
-    return promises.resolve(invalid)
+    return promises.resolve(Invalid)
 end function

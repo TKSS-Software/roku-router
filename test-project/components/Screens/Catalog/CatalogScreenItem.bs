@@ -2,12 +2,12 @@ sub init()
     m.top.color = "#FFFFFF"
 end sub
 
-sub onContentChange(event as object)
+sub onContentChange(event as Object)
     m.poster.width = m.top.width
     m.poster.height = m.top.height
     m.poster.uri = event.getData().poster_path.replace("/original/", `/w${m.top.width}_and_h${m.top.height}_face/`)
     m.label.text = event.getData().name
     m.label.width = m.top.width
     m.label.wrap = true
-    m.layoutGroup.translation=`[0, ${m.top.height/2}]`
+    m.layoutGroup.translation = `[0, ${m.top.height / 2}]`
 end sub

@@ -60,14 +60,14 @@ namespace util
 
   function getShowsByGenre(genre as String) as Object
     m.tempGenre = genre
-    return filter(m.global.content, function(o)
+    return rodash.filter(m.global.content, function(o)
       return o.type = "series" AND rodash.indexOf(o.genres, m.tempGenre) <> -1
     end function)
   end function
 
   function getMoviesByGenre(genre as String) as Object
     m.tempGenre = genre
-    return filter(m.global.content, function(o)
+    return rodash.filter(m.global.content, function(o)
       return o.type = "movie" AND rodash.indexOf(o.genres, m.tempGenre) <> -1
     end function)
   end function
@@ -79,26 +79,4 @@ namespace util
     end function)
   end function
 
-  function filter(sourceArray as Object, predicate as Function) as Object
-    ' Validate inputs
-    if type(sourceArray) <> "roArray" OR type(predicate) <> "Function"
-      print "Error: Invalid arguments. sourceArray must be an array and predicate must be a function."
-      return Invalid
-    end if
-
-    ' Create a new array to hold filtered results
-    filteredArray = []
-
-    ' Iterate through the source array
-    for each item in sourceArray
-      ' Apply the predicate function to each item
-      if predicate(item)
-        ' Add item to filteredArray if predicate returns true
-        filteredArray.push(item)
-      end if
-    end for
-
-    ' Return the new filtered array
-    return filteredArray
-  end function
 end namespace

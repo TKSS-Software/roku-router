@@ -6,10 +6,8 @@ sub init()
         {pattern: "/", component: "WelcomeScreen", root: true},
         {pattern: "/shows", component: "CatalogScreen", root: true},
         {pattern: "/movies", component: "CatalogScreen", root: true},
-        {pattern: "/details/series/:id", component: "DetailsScreen"},
-        {pattern: "/details/series/:id/cast", component: "CastDetailsScreen"},
-        {pattern: "/details/movies/:id", component: "DetailsScreen"},
-        {pattern: "/details/movies/:id/cast", component: "CastDetailsScreen"},
+        {pattern: "/details/:type/:id", component: "DetailsScreen"},
+        {pattern: "/details/:type/:id/cast", component: "CastDetailsScreen"},
         {pattern: "/:screenName", component: "DefaultScreen"}
     ])
 

@@ -1,54 +1,10 @@
 import "../../../source/roku_modules/rodash/rodash.brs"
+import "../../../source/common.bs"
 
 sub init()
   m.pageType = ""
-    m.rowList.observeField("rowItemSelected", "onItemSelected")
+  m.rowList.observeField("rowItemSelected", "onItemSelected")
 end sub
-
-sub onItemSelected(event as object)
-    itemSelected = event.getRoSGNode().content.getChild(event.getData()[0]).getChild(event.getData()[1])
-    contentType = "series"
-    if m.pageType = "movies" then contentType = "movies"
-
-    path = `/details/${contentType}/${itemSelected.id}`
-    m.top.router@.navigateTo(path, {}, {
-        "name": itemSelected.name,
-        "genres": itemSelected.genres,
-        "rating": itemSelected.rating,
-        "poster_path": itemSelected.poster_path,
-        "backdrop_path": itemSelected.backdrop_path,
-        "description": itemSelected.description
-    })
-end sub
-
-function getContentByGenre(genre as string, content as object) as Object
-    m.tempGenre = genre
-    return filter(content, function(o)
-        return rodash.indexOf(o.genres, m.tempGenre) <> -1
-    end function)
-end function
-
-function getCarouselByGenre(genre as string, content as object) as Object
-  returnObject = {
-    "title": genre,
-    "items": []
-  }
-
-  filteredContent = getContentByGenre(genre, content)
-  for each item in filteredContent
-    returnObject.items.push({
-      "id": item.id,
-      "name": item.name,
-      "genres": item.genres,
-      "rating": rodash.toString(item.vote_average),
-      "poster_path": item.poster_path,
-      "backdrop_path": item.backdrop_path,
-      "description": item.overview
-    })
-  end for
-
-  return returnObject
-end function
 
 function beforeScreenOpen(params = {} as Object) as dynamic
     api = {data: {carousels: []}}
@@ -56,23 +12,15 @@ function beforeScreenOpen(params = {} as Object) as dynamic
     m.pageType = rodash.getString(params,"routeConfig.pattern") = "/shows" ? "shows": "movies"
     if m.pageType = "shows" then
         title = "Shows"
-        shows = filter(m.global.content, function(o)
-          return o.type = "series"
-        end function)
-
         genres = ["Action & Adventure", "Animation", "Comedy", "Crime", "Drama", "Horror", "Sci-Fi & Fantasy"]
         for each genre in genres
-          api.data.carousels.push(getCarouselByGenre(genre, shows))
+          api.data.carousels.push(util.getCarouselByGenre(genre, "series"))
         end for
     else if m.pageType = "movies" then
         title = "Movies"
-        movies = filter(m.global.content, function(o)
-          return o.type = "movie"
-        end function)
-
         genres = ["Action", "Comedy", "Drama", "Horror", "Sci-Fi"]
         for each genre in genres
-          api.data.carousels.push(getCarouselByGenre(genre, movies))
+          api.data.carousels.push(util.getCarouselByGenre(genre, "movie"))
         end for
     end if
 
@@ -94,8 +42,9 @@ function beforeScreenOpen(params = {} as Object) as dynamic
         end for
     end if
     m.rowList.itemComponentName = "CatalogScreenItem"
-    m.rowList.itemSize = [1800, 380]
+    m.rowList.itemSize = [1800, 440]
     m.rowList.rowItemSize = [[220, 330]]
+    m.rowList.rowLabelOffset = [0, 20]
     m.rowList.showRowLabel = [true]
     m.rowList.numRows = 3
     m.rowList.rowItemSpacing = [20, 20]
@@ -104,30 +53,23 @@ function beforeScreenOpen(params = {} as Object) as dynamic
     return promises.resolve(invalid)
 end function
 
-function filter(sourceArray as Object, predicate as Function) as Object
-  ' Validate inputs
-  if type(sourceArray) <> "roArray" or type(predicate) <> "Function"
-      print "Error: Invalid arguments. sourceArray must be an array and predicate must be a function."
-      return invalid
-  end if
+sub onItemSelected(event as object)
+  itemSelected = event.getRoSGNode().content.getChild(event.getData()[0]).getChild(event.getData()[1])
+  contentType = "series"
+  if m.pageType = "movies" then contentType = "movie"
 
-  ' Create a new array to hold filtered results
-  filteredArray = []
-
-  ' Iterate through the source array
-  for each item in sourceArray
-      ' Apply the predicate function to each item
-      if predicate(item)
-          ' Add item to filteredArray if predicate returns true
-          filteredArray.push(item)
-      end if
-  end for
-
-  ' Return the new filtered array
-  return filteredArray
-end function
+  path = `/details/${contentType}/${itemSelected.id}`
+  m.top.router@.navigateTo(path, {}, {
+      "name": itemSelected.name,
+      "genres": itemSelected.genres,
+      "rating": itemSelected.rating,
+      "poster_path": itemSelected.poster_path,
+      "backdrop_path": itemSelected.backdrop_path,
+      "description": itemSelected.description
+  })
+end sub
 
 function onScreenOpen(context = invalid as dynamic) as dynamic
-    m.rowList.setFocus(true)
-    return promises.resolve(invalid)
+  m.rowList.setFocus(true)
+  return promises.resolve(invalid)
 end function

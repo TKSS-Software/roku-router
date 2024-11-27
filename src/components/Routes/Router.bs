@@ -16,11 +16,7 @@ function getRoutes(_ = invalid as dynamic) as dynamic
 end function
 
 function navigateTo(path = "" as string, options = {}, context = {} as Object) as dynamic
-    print source_function_name, path, options, context
-
     matchedRoute = findMatchingRoute(path, m.routes)
-    print "Matched route: "; matchedRoute
-
     if matchedRoute <> invalid then
         activeScreen = m.top.activeScreen
 
@@ -31,18 +27,16 @@ function navigateTo(path = "" as string, options = {}, context = {} as Object) a
 
         params = {
             context: context
-            routeConfig: matchedRoute["routeConfig"]
-            routeParams: matchedRoute["routeParams"]
-            queryParams: matchedRoute["queryParams"]
-            hash: matchedRoute["hash"]
         }
+        params.append(matchedRoute)
 
         if activeScreen <> invalid then
             oldParams = activeScreen.params
 
             ' Reuse the screen and call onParamsChange if the hash is the same OR if the options allow it
             hasHash = rodash.isNonEmptyString(params.hash)
-            reuse = rodash.getBoolean(options, "allowReuse") or hasHash
+            isSamePath = rodash.isEqual(params.path, oldParams.path)
+            reuse = rodash.getBoolean(options, "allowReuse") or hasHash or isSamePath
             if hasHash then
                 if not rodash.isEqual(params.routeConfig, oldParams.routeConfig) then reuse = false
             else
@@ -100,7 +94,8 @@ function findMatchingRoute(path as String, routes as Object) as Object
     ' First check for exact matches (static paths)
     for each routePath in routes
         if normalizePath(routePath) = basePath
-            return { 
+            return {
+                "path": path,
                 "routeConfig": routes[routePath],
                 "routeParams": {},
                 "queryParams": queryParams,
@@ -132,9 +127,10 @@ function findMatchingRoute(path as String, routes as Object) as Object
 
             if isMatch
                 return { 
-                    "routeConfig": routes[routePath], 
-                    "routeParams": matchedParams, 
-                    "queryParams": queryParams 
+                    "path": path,
+                    "routeConfig": routes[routePath],
+                    "routeParams": matchedParams,
+                    "queryParams": queryParams
                     "hash": hash
                 }
             end if

@@ -2,6 +2,8 @@ import fetch from 'node-fetch';
 import path from "path";
 import dotenv from "dotenv";
 import { get } from 'http';
+import _ from 'lodash';
+
 console.log(__dirname);
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
@@ -73,11 +75,11 @@ getContent(MOVIES_GENRES_API_URL).then((moviesGenres: any) => {
                     }
                     item.poster_path = IMAGE_BASE_URL + 'original' + item.poster_path;
 
-                    if (item["title"] !== null) {
+                    if (_.isEmpty(item["name"]) && !_.isEmpty(item["title"])) {
                         item["name"] = item["title"];
                         delete item["title"];
                     }
-                    if (item["original_title"] !== null) {
+                    if (_.isEmpty(item["original_name"]) && !_.isEmpty(item["original_title"])) {
                         item["original_name"] = item["original_title"];
                         delete item["original_title"];
                     }

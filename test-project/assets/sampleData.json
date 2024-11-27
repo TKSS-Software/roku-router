@@ -2044,57 +2044,235 @@
         },
         {
             "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/iPHsjvbFyGbeCEDC7u8Ib8U1zS6.jpg",
+            "backdrop_path": "https://image.tmdb.org/t/p/original/59vDC1BuEQvti24OMr0ZvtAK6R1.jpg",
             "genre_ids": [
-                35,
-                18,
-                10749,
-                878
+                14,
+                12,
+                16,
+                10751
             ],
-            "id": 947891,
+            "id": 10191,
             "original_language": "en",
-            "overview": "An 18th birthday mushroom trip brings free-spirited Elliott face-to-face with her wisecracking 39-year-old self. But when Elliott’s \"old ass\" starts handing out warnings about what her younger self should and shouldn't do, Elliott realizes she has to rethink everything about family, love, and what's becoming a transformative summer.",
-            "popularity": 262.513,
-            "poster_path": "https://image.tmdb.org/t/p/original/yUs4Sw9AyTg2sA1qWBkNpD2mGSj.jpg",
-            "release_date": 1726185600000,
+            "overview": "As the son of a Viking leader on the cusp of manhood, shy Hiccup Horrendous Haddock III faces a rite of passage: he must kill a dragon to prove his warrior mettle. But after downing a feared dragon, he realizes that he no longer wants to destroy it, and instead befriends the beast – which he names Toothless – much to the chagrin of his warrior father.",
+            "popularity": 260.301,
+            "poster_path": "https://image.tmdb.org/t/p/original/92olhXYaIX6lvB8jwFz4OSfPaKq.jpg",
+            "release_date": 1268870400000,
             "video": false,
-            "vote_average": 6.752,
-            "vote_count": 141,
+            "vote_average": 7.8,
+            "vote_count": 12974,
             "type": "movie",
             "genres": [
-                "Comedy",
-                "Drama",
-                "Romance",
-                "Science Fiction"
+                "Fantasy",
+                "Adventure",
+                "Animation",
+                "Family"
             ],
-            "name": "My Old Ass",
-            "original_name": "My Old Ass"
+            "name": "How to Train Your Dragon",
+            "original_name": "How to Train Your Dragon"
         },
         {
             "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/qYvOcinXcnebhmCxYeivurh91T1.jpg",
+            "backdrop_path": "https://image.tmdb.org/t/p/original/nxxCPRGTzxUH8SFMrIsvMmdxHti.jpg",
+            "genre_ids": [
+                35,
+                14,
+                10751
+            ],
+            "id": 639720,
+            "original_language": "en",
+            "overview": "After discovering she can see everyone's imaginary friends, a girl embarks on a magical adventure to reconnect forgotten imaginary friends with their kids.",
+            "popularity": 259.137,
+            "poster_path": "https://image.tmdb.org/t/p/original/xbKFv4KF3sVYuWKllLlwWDmuZP7.jpg",
+            "release_date": 1715126400000,
+            "video": false,
+            "vote_average": 7.276,
+            "vote_count": 1024,
+            "type": "movie",
+            "genres": [
+                "Comedy",
+                "Fantasy",
+                "Family"
+            ],
+            "name": "IF",
+            "original_name": "IF"
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/kMZIMqEXO5MFd5Y1Ha2jZZF4pvF.jpg",
             "genre_ids": [
                 27,
-                878,
-                53
+                9648
             ],
-            "id": 827931,
+            "id": 882598,
             "original_language": "en",
-            "overview": "A teen in 2024 accidentally time-travels to 2003, days before a masked killer murders her sister. Can she change the past without destroying the future?",
-            "popularity": 209.045,
-            "poster_path": "https://image.tmdb.org/t/p/original/gzMFMmpJHOmOFKsAhSDac62Dyg2.jpg",
-            "release_date": 1730160000000,
+            "overview": "After witnessing a bizarre, traumatic incident involving a patient, Dr. Rose Cotter starts experiencing frightening occurrences that she can't explain.",
+            "popularity": 254.641,
+            "poster_path": "https://image.tmdb.org/t/p/original/aPqcQwu4VGEewPhagWNncDbJ9Xp.jpg",
+            "release_date": 1663891200000,
             "video": false,
-            "vote_average": 5.6,
-            "vote_count": 319,
+            "vote_average": 6.665,
+            "vote_count": 3241,
             "type": "movie",
             "genres": [
                 "Horror",
-                "Science Fiction",
+                "Mystery"
+            ],
+            "name": "Smile",
+            "original_name": "Smile"
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/UZtS6vV5soeeWQtWbcuAobzYeG.jpg",
+            "genre_ids": [
+                28,
+                35,
+                80
+            ],
+            "id": 616446,
+            "original_language": "en",
+            "overview": "A reformed criminal's attempt at going straight is derailed when he reunites with his sanity-testing twin brother on a road trip for the score of a lifetime. Dodging bullets, the law, and an overbearing mother along the way, they must heal their severed family bond before they end up killing each other.",
+            "popularity": 253.621,
+            "poster_path": "https://image.tmdb.org/t/p/original/Akweo95FGyDpucYVT81h0SbX8Ky.jpg",
+            "release_date": 1728518400000,
+            "video": false,
+            "vote_average": 6.1,
+            "vote_count": 188,
+            "type": "movie",
+            "genres": [
+                "Action",
+                "Comedy",
+                "Crime"
+            ],
+            "name": "Brothers",
+            "original_name": "Brothers"
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/vhbXuEonV3wc8k48qhucWrx49Fv.jpg",
+            "genre_ids": [
+                16,
+                35,
+                10751,
+                14
+            ],
+            "id": 269509,
+            "original_language": "en",
+            "overview": "An American family moves in to the Canterville Chase, a London mansion that has been haunted by ghost Sir Simon De Canterville for 300 years.",
+            "popularity": 253.218,
+            "poster_path": "https://image.tmdb.org/t/p/original/dFu8oHN805ZRzpQZNOjkiLzMbep.jpg",
+            "release_date": 1695340800000,
+            "video": false,
+            "vote_average": 6.208,
+            "vote_count": 24,
+            "type": "movie",
+            "genres": [
+                "Animation",
+                "Comedy",
+                "Family",
+                "Fantasy"
+            ],
+            "name": "The Canterville Ghost",
+            "original_name": "The Canterville Ghost"
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/7aPrv2HFssWcOtpig5G3HEVk3uS.jpg",
+            "genre_ids": [
+                53,
+                28
+            ],
+            "id": 718821,
+            "original_language": "en",
+            "overview": "As storm season intensifies, the paths of former storm chaser Kate Carter and reckless social-media superstar Tyler Owens collide when terrifying phenomena never seen before are unleashed. The pair and their competing teams find themselves squarely in the paths of multiple storm systems converging over central Oklahoma in the fight of their lives.",
+            "popularity": 253.145,
+            "poster_path": "https://image.tmdb.org/t/p/original/pjnD08FlMAIXsfOLKQbvmO0f0MD.jpg",
+            "release_date": 1720569600000,
+            "video": false,
+            "vote_average": 6.933,
+            "vote_count": 1845,
+            "type": "movie",
+            "genres": [
+                "Thriller",
+                "Action"
+            ],
+            "name": "Twisters",
+            "original_name": "Twisters"
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/1fL2S8LKxCVE9KoPRBXeagmBtex.jpg",
+            "genre_ids": [
+                27,
+                53
+            ],
+            "id": 1114513,
+            "original_language": "en",
+            "overview": "When an American family is invited to spend the weekend at the idyllic country estate of a charming British family they befriended on vacation, what begins as a dream holiday soon warps into a snarled psychological nightmare.",
+            "popularity": 250.145,
+            "poster_path": "https://image.tmdb.org/t/p/original/fDtkrO2OAF8LKQTdzYmu1Y7lCLB.jpg",
+            "release_date": 1726012800000,
+            "video": false,
+            "vote_average": 7.346,
+            "vote_count": 949,
+            "type": "movie",
+            "genres": [
+                "Horror",
                 "Thriller"
             ],
-            "name": "Time Cut",
-            "original_name": "Time Cut"
+            "name": "Speak No Evil",
+            "original_name": "Speak No Evil"
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/7ks7A3mAO7twDOvBVE4cR8LaIM8.jpg",
+            "genre_ids": [
+                16,
+                28,
+                18
+            ],
+            "id": 1104844,
+            "original_language": "ja",
+            "overview": "\"That's a hassle.\" That was second-year high schooler Nagi Seishirou's favorite phrase as he lived his dull life. Until Mikage Reo, a classmate who dreamed of winning the World Cup, discovered Nagi's hidden skill, inspiring him to play soccer and share his outstanding talent. One day, Nagi Seishiro receives an invitation to the mysterious Blue Lock Project. What awaits him there is an encounter with the finest strikers assembled from across the country. Nagi's dream of becoming the best, alongside Mikage Reo, will take this prodigy to a world he's never known.",
+            "popularity": 249.115,
+            "poster_path": "https://image.tmdb.org/t/p/original/ae434jM5NG2kKX1rRkG5giMhpPI.jpg",
+            "release_date": 1713484800000,
+            "video": false,
+            "vote_average": 7.25,
+            "vote_count": 100,
+            "type": "movie",
+            "genres": [
+                "Animation",
+                "Action",
+                "Drama"
+            ],
+            "name": "BLUE LOCK THE MOVIE -EPISODE NAGI-",
+            "original_name": "劇場版ブルーロック -EPISODE 凪-"
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/liuBLPXvisMRo5w2JEKHXceWq5u.jpg",
+            "genre_ids": [
+                28,
+                80,
+                18
+            ],
+            "id": 1171640,
+            "original_language": "fr",
+            "overview": "When a notorious gang of bikers recruits her brother for a heist, a former motocross champion must face her deepest fears to keep her family safe.",
+            "popularity": 248.667,
+            "poster_path": "https://image.tmdb.org/t/p/original/bx92hl70NUhojjO3eV6LqKllj4L.jpg",
+            "release_date": 1731974400000,
+            "video": false,
+            "vote_average": 6.3,
+            "vote_count": 34,
+            "type": "movie",
+            "genres": [
+                "Action",
+                "Crime",
+                "Drama"
+            ],
+            "name": "GTMAX",
+            "original_name": "GTMAX"
         },
         {
             "adult": false,
@@ -2112,7 +2290,7 @@
             "release_date": 1716336000000,
             "video": false,
             "vote_average": 7.5,
-            "vote_count": 3450,
+            "vote_count": 3451,
             "type": "movie",
             "genres": [
                 "Action",
@@ -2121,62 +2299,6 @@
             ],
             "name": "Furiosa: A Mad Max Saga",
             "original_name": "Furiosa: A Mad Max Saga"
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/m2teNSCH7sxkuXHossRJXhxPKeT.jpg",
-            "genre_ids": [
-                28,
-                12,
-                35,
-                10751,
-                878
-            ],
-            "id": 939243,
-            "original_language": "en",
-            "overview": "Sonic, Knuckles, and Tails reunite against a powerful new adversary, Shadow, a mysterious villain with powers unlike anything they have faced before. With their abilities outmatched in every way, Team Sonic must seek out an unlikely alliance in hopes of stopping Shadow and protecting the planet.",
-            "popularity": 310.743,
-            "poster_path": "https://image.tmdb.org/t/p/original/psBkoP6zqEZhsDXfP387n3zmZVx.jpg",
-            "release_date": 1734566400000,
-            "video": false,
-            "vote_average": 0,
-            "vote_count": 0,
-            "type": "movie",
-            "genres": [
-                "Action",
-                "Adventure",
-                "Comedy",
-                "Family",
-                "Science Fiction"
-            ],
-            "name": "Sonic the Hedgehog 3",
-            "original_name": "Sonic the Hedgehog 3"
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/6XjMwQTvnICBz6TguiDKkDVHvgS.jpg",
-            "genre_ids": [
-                27,
-                878,
-                53
-            ],
-            "id": 762441,
-            "original_language": "en",
-            "overview": "As New York City is invaded by alien creatures who hunt by sound, a woman named Sam fights to survive with her cat.",
-            "popularity": 232.891,
-            "poster_path": "https://image.tmdb.org/t/p/original/hU42CRk14JuPEdqZG3AWmagiPAP.jpg",
-            "release_date": 1719360000000,
-            "video": false,
-            "vote_average": 6.8,
-            "vote_count": 2134,
-            "type": "movie",
-            "genres": [
-                "Horror",
-                "Science Fiction",
-                "Thriller"
-            ],
-            "name": "A Quiet Place: Day One",
-            "original_name": "A Quiet Place: Day One"
         },
         {
             "adult": false,
@@ -2210,6 +2332,32 @@
         },
         {
             "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/2h6qOO1fdlv3MtZKFOSobu1No9K.jpg",
+            "genre_ids": [
+                16,
+                12,
+                35
+            ],
+            "id": 945013,
+            "original_language": "en",
+            "overview": "11-year-old Alfonso, heir of Don Quixote, and his three imaginary and musical rabbits, are joined by Pancho and Victoria to save their beloved town of La Mancha from a huge storm, caused by an evil corporation who wants to own the land. Along the way, Alfonso discovers the power of friendship and falls in love.",
+            "popularity": 244.429,
+            "poster_path": "https://image.tmdb.org/t/p/original/j2s89bkf3kIp6QLLqyMrwdoSXrV.jpg",
+            "release_date": 1709769600000,
+            "video": true,
+            "vote_average": 7,
+            "vote_count": 11,
+            "type": "movie",
+            "genres": [
+                "Animation",
+                "Adventure",
+                "Comedy"
+            ],
+            "name": "Storm Crashers",
+            "original_name": "Giants of La Mancha"
+        },
+        {
+            "adult": false,
             "backdrop_path": "https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg",
             "genre_ids": [
                 878,
@@ -2223,7 +2371,7 @@
             "release_date": 1708992000000,
             "video": false,
             "vote_average": 8.153,
-            "vote_count": 5623,
+            "vote_count": 5624,
             "type": "movie",
             "genres": [
                 "Science Fiction",
@@ -2234,339 +2382,177 @@
         },
         {
             "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/7ks7A3mAO7twDOvBVE4cR8LaIM8.jpg",
+            "backdrop_path": "https://image.tmdb.org/t/p/original/l8OyAXEp5FKZWmDhqJMbiwAEvz.jpg",
             "genre_ids": [
-                16,
-                28,
+                27,
                 18
             ],
-            "id": 1104844,
-            "original_language": "ja",
-            "overview": "\"That's a hassle.\" That was second-year high schooler Nagi Seishirou's favorite phrase as he lived his dull life. Until Mikage Reo, a classmate who dreamed of winning the World Cup, discovered Nagi's hidden skill, inspiring him to play soccer and share his outstanding talent. One day, Nagi Seishiro receives an invitation to the mysterious Blue Lock Project. What awaits him there is an encounter with the finest strikers assembled from across the country. Nagi's dream of becoming the best, alongside Mikage Reo, will take this prodigy to a world he's never known.",
-            "popularity": 249.115,
-            "poster_path": "https://image.tmdb.org/t/p/original/ae434jM5NG2kKX1rRkG5giMhpPI.jpg",
-            "release_date": 1713484800000,
+            "id": 814889,
+            "original_language": "en",
+            "overview": "As an evil takes over the world beyond their front doorstep, the only protection for a mother and her twin sons is their house and their family’s protective bond.",
+            "popularity": 242.077,
+            "poster_path": "https://image.tmdb.org/t/p/original/3EpZ2ksjijmdr8BhISP03PYzNFW.jpg",
+            "release_date": 1726617600000,
             "video": false,
-            "vote_average": 7.25,
-            "vote_count": 100,
+            "vote_average": 6.304,
+            "vote_count": 227,
             "type": "movie",
             "genres": [
-                "Animation",
-                "Action",
+                "Horror",
                 "Drama"
             ],
-            "name": "BLUE LOCK THE MOVIE -EPISODE NAGI-",
-            "original_name": "劇場版ブルーロック -EPISODE 凪-"
+            "name": "Never Let Go",
+            "original_name": "Never Let Go"
         },
         {
             "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/cgH0j8T5NG5VBzok8erdP8mq0SI.jpg",
+            "backdrop_path": "https://image.tmdb.org/t/p/original/co7oxvpWxgd6FZU24DnljDDHYQA.jpg",
             "genre_ids": [
-                10749,
-                35
-            ],
-            "id": 1290486,
-            "original_language": "en",
-            "overview": "To save her parents' small-town nightclub, a Broadway dancer stages an all-male, Christmas-themed revue — and meets a guy with all the right moves.",
-            "popularity": 389.316,
-            "poster_path": "https://image.tmdb.org/t/p/original/4t80WORFWqDYf4BRwV2jrXNHJdN.jpg",
-            "release_date": 1732060800000,
-            "video": false,
-            "vote_average": 5.8,
-            "vote_count": 65,
-            "type": "movie",
-            "genres": [
-                "Romance",
-                "Comedy"
-            ],
-            "name": "The Merry Gentlemen",
-            "original_name": "The Merry Gentlemen"
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/dzY2ZYyPRbXcw8UOupHK3V5VQYk.jpg",
-            "genre_ids": [
-                10749
-            ],
-            "id": 259872,
-            "original_language": "nl",
-            "overview": "Real-life young couple Wim and Floor spend an afternoon in the sunwashed rooms of a crumbling home in Belgium. In a unique twist, this artistic erotic documentary is edited in nearly real-time. In the slowness, we get the build, the sweetness, and the sexiness. Forget about fingersnapping fast editing. Slow is where it’s at.",
-            "popularity": 264.814,
-            "poster_path": "https://image.tmdb.org/t/p/original/uCkANtG6ezb7hjRKVudY3PUcbvn.jpg",
-            "release_date": 1266537600000,
-            "video": false,
-            "vote_average": 6.6,
-            "vote_count": 21,
-            "type": "movie",
-            "genres": [
-                "Romance"
-            ],
-            "name": "Skin. Like. Sun.",
-            "original_name": "Des jours plus belles que la nuit"
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/5O0mkQGfOQM4OktFOCep9YmXK79.jpg",
-            "genre_ids": [
-                28,
                 878,
                 53,
-                35,
                 27
             ],
-            "id": 995803,
+            "id": 1064028,
             "original_language": "en",
-            "overview": "In 2045 convicted criminals are given the opportunity to compete on the world's #1 televised sporting event, Arena Wars. They must survive 7 rooms and 7 of the most vicious killers in the country. If they win, they regain their freedom.",
-            "popularity": 387.918,
-            "poster_path": "https://image.tmdb.org/t/p/original/4dRtXjk1rcsZlaMJpBn6Nh9cTfO.jpg",
-            "release_date": 1719273600000,
+            "overview": "With his wife out sick, a struggling father brings home a lifelike AI, only to have his self-aware new help want everything her new family has to offer... Like the affection of her owner and she'll kill to get it.",
+            "popularity": 238.418,
+            "poster_path": "https://image.tmdb.org/t/p/original/gBenxR01Uy0Ev9RTIw6dVBPoyQU.jpg",
+            "release_date": 1723680000000,
             "video": false,
-            "vote_average": 5.6,
-            "vote_count": 11,
+            "vote_average": 6.733,
+            "vote_count": 268,
+            "type": "movie",
+            "genres": [
+                "Science Fiction",
+                "Thriller",
+                "Horror"
+            ],
+            "name": "Subservience",
+            "original_name": "Subservience"
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/hziiv14OpD73u9gAak4XDDfBKa2.jpg",
+            "genre_ids": [
+                12,
+                14
+            ],
+            "id": 671,
+            "original_language": "en",
+            "overview": "Harry Potter has lived under the stairs at his aunt and uncle's house his whole life. But on his 11th birthday, he learns he's a powerful wizard—with a place waiting for him at the Hogwarts School of Witchcraft and Wizardry. As he learns to harness his newfound powers with the help of the school's kindly headmaster, Harry uncovers the truth about his parents' deaths—and about the villain who's to blame.",
+            "popularity": 236.385,
+            "poster_path": "https://image.tmdb.org/t/p/original/wuMc08IPKEatf9rnMNXvIDxqP4W.jpg",
+            "release_date": 1005868800000,
+            "video": false,
+            "vote_average": 7.9,
+            "vote_count": 27409,
+            "type": "movie",
+            "genres": [
+                "Adventure",
+                "Fantasy"
+            ],
+            "name": "Harry Potter and the Philosopher's Stone",
+            "original_name": "Harry Potter and the Philosopher's Stone"
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/6XjMwQTvnICBz6TguiDKkDVHvgS.jpg",
+            "genre_ids": [
+                27,
+                878,
+                53
+            ],
+            "id": 762441,
+            "original_language": "en",
+            "overview": "As New York City is invaded by alien creatures who hunt by sound, a woman named Sam fights to survive with her cat.",
+            "popularity": 232.891,
+            "poster_path": "https://image.tmdb.org/t/p/original/hU42CRk14JuPEdqZG3AWmagiPAP.jpg",
+            "release_date": 1719360000000,
+            "video": false,
+            "vote_average": 6.8,
+            "vote_count": 2135,
+            "type": "movie",
+            "genres": [
+                "Horror",
+                "Science Fiction",
+                "Thriller"
+            ],
+            "name": "A Quiet Place: Day One",
+            "original_name": "A Quiet Place: Day One"
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/jgySLjw9ZDKbnGf0VlhlHT7iHSi.jpg",
+            "genre_ids": [
+                9648,
+                53
+            ],
+            "id": 936245,
+            "original_language": "ko",
+            "overview": "Seong-jin, a conductor and Su-yeon, a cellist, are about to get married soon. But Su-yeon suddenly disappears, leaving just a farewell video. Mi-joo, who substitutes for Su-yeon as cellist, comes into Seong-jin’s life. They start to get closer and have a secret relationship. But as their relationship grows deeper, they can’t shake the feeling that someone is watching them. As the secrets reveal itself, the desires are unveiled.",
+            "popularity": 231.439,
+            "poster_path": "https://image.tmdb.org/t/p/original/uuvMqwHvvEFPVk4j3gRE65hA19P.jpg",
+            "release_date": 1732060800000,
+            "video": false,
+            "vote_average": 0,
+            "vote_count": 0,
+            "type": "movie",
+            "genres": [
+                "Mystery",
+                "Thriller"
+            ],
+            "name": "Hidden Face",
+            "original_name": "히든페이스"
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/4XM8DUTQb3lhLemJC51Jx4a2EuA.jpg",
+            "genre_ids": [
+                28,
+                80,
+                53
+            ],
+            "id": 385687,
+            "original_language": "en",
+            "overview": "Over many missions and against impossible odds, Dom Toretto and his family have outsmarted, out-nerved and outdriven every foe in their path. Now, they confront the most lethal opponent they've ever faced: A terrifying threat emerging from the shadows of the past who's fueled by blood revenge, and who is determined to shatter this family and destroy everything—and everyone—that Dom loves, forever.",
+            "popularity": 231.429,
+            "poster_path": "https://image.tmdb.org/t/p/original/fiVW06jE7z9YnO4trhaMEdclSiC.jpg",
+            "release_date": 1684281600000,
+            "video": false,
+            "vote_average": 7.083,
+            "vote_count": 5567,
             "type": "movie",
             "genres": [
                 "Action",
-                "Science Fiction",
-                "Thriller",
-                "Comedy",
-                "Horror"
+                "Crime",
+                "Thriller"
             ],
-            "name": "Arena Wars",
-            "original_name": "Arena Wars"
+            "name": "Fast X",
+            "original_name": "Fast X"
         },
         {
             "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/tmvbyMIv56hc03Mtgusj2koFWKj.jpg",
+            "backdrop_path": "https://image.tmdb.org/t/p/original/cRdA9xjHBbobw4LJFsQ3j1CgpVq.jpg",
             "genre_ids": [
                 27,
                 53
             ],
-            "id": 1138194,
+            "id": 663712,
             "original_language": "en",
-            "overview": "Two young missionaries are forced to prove their faith when they knock on the wrong door and are greeted by a diabolical Mr. Reed, becoming ensnared in his deadly game of cat-and-mouse.",
-            "popularity": 360.275,
-            "poster_path": "https://image.tmdb.org/t/p/original/5HJqjCTcaE1TFwnNh3Dn21be2es.jpg",
-            "release_date": 1730332800000,
+            "overview": "A year after the Miles County massacre, Art the Clown is resurrected by a sinister entity. Art returns home, where he must hunt down and destroy teenage Sienna and her younger brother Jonathan on Halloween. As the body count rises, the siblings fight to stay alive while uncovering the true nature of Art's evil intent.",
+            "popularity": 231.389,
+            "poster_path": "https://image.tmdb.org/t/p/original/8gLhu8UFPZfH2Hv11JhTZkb9CVl.jpg",
+            "release_date": 1665014400000,
             "video": false,
-            "vote_average": 7.1,
-            "vote_count": 71,
+            "vote_average": 6.8,
+            "vote_count": 2063,
             "type": "movie",
             "genres": [
                 "Horror",
                 "Thriller"
             ],
-            "name": "Heretic",
-            "original_name": "Heretic"
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/tl3WVdgrDQK70tSVHMAd59XxR3j.jpg",
-            "genre_ids": [
-                10749,
-                35
-            ],
-            "id": 1290287,
-            "original_language": "en",
-            "overview": "When a young widow's magic scarf brings a dashing snowman to life, can he help her rediscover romance, laughter and holiday cheer before he melts away?",
-            "popularity": 194.447,
-            "poster_path": "https://image.tmdb.org/t/p/original/uxn8xD43cHrTxiS9qXjAkezRyGt.jpg",
-            "release_date": 1731369600000,
-            "video": false,
-            "vote_average": 6.4,
-            "vote_count": 111,
-            "type": "movie",
-            "genres": [
-                "Romance",
-                "Comedy"
-            ],
-            "name": "Hot Frosty",
-            "original_name": "Hot Frosty"
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/3C3LTPEdkH0la3LMbCEgMXzMHlh.jpg",
-            "genre_ids": [
-                80,
-                53,
-                28
-            ],
-            "id": 1047373,
-            "original_language": "en",
-            "overview": "While working a case as an interpreter, a hearing-impaired police detective must confront a group of criminals trying to eliminate a deaf murder witness in her apartment building.",
-            "popularity": 211.154,
-            "poster_path": "https://image.tmdb.org/t/p/original/j736cRzBtEPCm0nHnpRN1prqiqj.jpg",
-            "release_date": 1727913600000,
-            "video": false,
-            "vote_average": 6.5,
-            "vote_count": 63,
-            "type": "movie",
-            "genres": [
-                "Crime",
-                "Thriller",
-                "Action"
-            ],
-            "name": "The Silent Hour",
-            "original_name": "The Silent Hour"
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/zQKFPx03M9RKfEcRETXR2HoUZn1.jpg",
-            "genre_ids": [
-                10749
-            ],
-            "id": 587727,
-            "original_language": "ko",
-            "overview": "Mincheol and Suhee go to greet Minchul father (grandmother) before marriage. Dae - sik welcomes her daughter - in - law, Su - hee. But before marriage, Minchol and Suhee are separated by the difference in personality. Soon-hee, who was only preparing for marriage, is soon to live.",
-            "popularity": 276.839,
-            "poster_path": "https://image.tmdb.org/t/p/original/f6PfAXtFEkJRcBtOjbzOgz8qqSK.jpg",
-            "release_date": 1552003200000,
-            "video": false,
-            "vote_average": 7.423,
-            "vote_count": 13,
-            "type": "movie",
-            "genres": [
-                "Romance"
-            ],
-            "name": "Busty Girlfriend",
-            "original_name": "가슴 큰 여자친구"
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/sy0vo1cmpKqwPRiMUiJ45jyLsX7.jpg",
-            "genre_ids": [
-                10751,
-                35,
-                14
-            ],
-            "id": 8871,
-            "original_language": "en",
-            "overview": "The Grinch decides to rob Whoville of Christmas - but a dash of kindness from little Cindy Lou Who and her family may be enough to melt his heart...",
-            "popularity": 227.81,
-            "poster_path": "https://image.tmdb.org/t/p/original/AmUs3hximCKa90sHuIRr5Bz8ci5.jpg",
-            "release_date": 974419200000,
-            "video": false,
-            "vote_average": 6.762,
-            "vote_count": 7369,
-            "type": "movie",
-            "genres": [
-                "Family",
-                "Comedy",
-                "Fantasy"
-            ],
-            "name": "How the Grinch Stole Christmas",
-            "original_name": "How the Grinch Stole Christmas"
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/qwK9soQmmJ7kRdjLZVXblw3g7AQ.jpg",
-            "genre_ids": [
-                28,
-                12,
-                53,
-                80
-            ],
-            "id": 7451,
-            "original_language": "en",
-            "overview": "Xander Cage is your standard adrenaline junkie with no fear and a lousy attitude. When the US Government \"recruits\" him to go on a mission, he's not exactly thrilled. His mission: to gather information on an organization that may just be planning the destruction of the world, led by the nihilistic Yorgi.",
-            "popularity": 204.433,
-            "poster_path": "https://image.tmdb.org/t/p/original/xeEw3eLeSFmJgXZzmF2Efww0q3s.jpg",
-            "release_date": 1028851200000,
-            "video": false,
-            "vote_average": 5.938,
-            "vote_count": 4255,
-            "type": "movie",
-            "genres": [
-                "Action",
-                "Adventure",
-                "Thriller",
-                "Crime"
-            ],
-            "name": "xXx",
-            "original_name": "xXx"
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/cya84OrwjilxzuM2CWOEYYiIylM.jpg",
-            "genre_ids": [
-                16,
-                18,
-                35,
-                10749
-            ],
-            "id": 820530,
-            "original_language": "ja",
-            "overview": "Takato Saijo has reigned as the idol industry's \"Most Huggable\" for five years, that is, until freshman actor Azumaya. Takato was always considered brusque while Azumaya's smile is winning over admirers by comparison. The whole fiasco drives Takuto to over indulge in alcohol and his actions catch the attention of the last person he wants to see. To his surprise, Azumaya uses this new info to blackmail Takuto for physical affection.",
-            "popularity": 210.554,
-            "poster_path": "https://image.tmdb.org/t/p/original/bow6kX2YPoeyb9ZNwqbFxp5eqKr.jpg",
-            "release_date": 1633737600000,
-            "video": false,
-            "vote_average": 7.5,
-            "vote_count": 15,
-            "type": "movie",
-            "genres": [
-                "Animation",
-                "Drama",
-                "Comedy",
-                "Romance"
-            ],
-            "name": "Dakaichi: I'm Being Harassed by the Sexiest Man of the Year—The Movie: In Spain",
-            "original_name": "劇場版 抱かれたい男1位に脅されています。～スペイン編～"
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/4mN2sHsGBR7NEQaUU34S6VAnj97.jpg",
-            "genre_ids": [
-                28,
-                53,
-                80
-            ],
-            "id": 1147710,
-            "original_language": "ko",
-            "overview": "Pilots Tae-in and Gyu-sik are set to fly to Gimpo. Under the guidance of flight attendant Ok-soon, passengers are busy boarding. However, shortly after takeoff, a homemade bomb explodes, turning the cabin into chaos.",
-            "popularity": 203.212,
-            "poster_path": "https://image.tmdb.org/t/p/original/68jNkFi61MQjrJEqj2up5wZ4w5R.jpg",
-            "release_date": 1718928000000,
-            "video": false,
-            "vote_average": 6.207,
-            "vote_count": 75,
-            "type": "movie",
-            "genres": [
-                "Action",
-                "Thriller",
-                "Crime"
-            ],
-            "name": "Hijack 1971",
-            "original_name": "하이재킹"
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/h9YlRHAZWOWtGonllmj6JJg1FrE.jpg",
-            "genre_ids": [
-                28,
-                12,
-                16,
-                10751,
-                14
-            ],
-            "id": 588648,
-            "original_language": "zh",
-            "overview": "Set in Han Imperial China, the plot follows the adventures of enslaved girl Ping with ancient dragon Long Danzi. Dragons had been banished from the kingdom. Ping, an orphan, finds one of the last remaining dragon eggs. Palace guards force Ping to run away in order to return the dragon egg to the ocean and save all dragons from extinction. Ping discovers that she is a true Dragonkeeper.",
-            "popularity": 212.345,
-            "poster_path": "https://image.tmdb.org/t/p/original/ggZGnJLzO3BTu7ysuuIzou3Oex5.jpg",
-            "release_date": 1712793600000,
-            "video": false,
-            "vote_average": 7.545,
-            "vote_count": 144,
-            "type": "movie",
-            "genres": [
-                "Action",
-                "Adventure",
-                "Animation",
-                "Family",
-                "Fantasy"
-            ],
-            "name": "Dragonkeeper",
-            "original_name": "Dragonkeeper"
+            "name": "Terrifier 2",
+            "original_name": "Terrifier 2"
         },
         {
             "adult": false,
@@ -2581,10 +2567,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "FROM",
             "overview": "Unravel the mystery of a nightmarish town in middle America that traps all those who enter. As the unwilling residents fight to keep a sense of normalcy and search for a way out, they must also survive the threats of the surrounding forest – including the terrifying creatures that come out when the sun goes down.",
             "popularity": 2644.592,
             "poster_path": "https://image.tmdb.org/t/p/original/cjXLrg4R7FRPFafvuQ3SSznQOd9.jpg",
             "first_air_date": "2022-02-20",
+            "name": "FROM",
             "vote_average": 8.2,
             "vote_count": 1491,
             "type": "series",
@@ -2606,10 +2594,12 @@
                 "DE"
             ],
             "original_language": "de",
+            "original_name": "Tagesschau",
             "overview": "German daily news program, the oldest still existing program on German television.",
             "popularity": 2540.615,
             "poster_path": "https://image.tmdb.org/t/p/original/7dFZJ2ZJJdcmkp05B9NWlqTJ5tq.jpg",
             "first_air_date": "1952-12-26",
+            "name": "Tagesschau",
             "vote_average": 6.671,
             "vote_count": 213,
             "type": "series",
@@ -2630,10 +2620,12 @@
                 "FR"
             ],
             "original_language": "fr",
+            "original_name": "Ici tout commence",
             "overview": "This television drama series is centered around the prestigious culinary school of renowned chef Auguste Armand. The show follows the lives of students and staff as they navigate the challenges and pressures of the culinary world—delving into their personal and professional lives, revealing secrets, rivalries, and complex relationships.",
             "popularity": 2387.172,
             "poster_path": "https://image.tmdb.org/t/p/original/yuTHx38jpogXovMhqNatvozigMJ.jpg",
             "first_air_date": "2020-11-02",
+            "name": "Ici tout commence",
             "vote_average": 6.653,
             "vote_count": 62,
             "type": "series",
@@ -2654,10 +2646,12 @@
                 "US"
             ],
             "original_language": "es",
+            "original_name": "Los 50",
             "overview": "Fifty TV stars are single handedly picked by a mysterious, masked Lion to participate in a competition like no other. Living together in an exotic country mansion and competing against each other in a relentless and unpredictable game, the stars must face challenges posed by the game master while making alliances and developing strategies to avoid elimination.",
             "popularity": 2381.934,
             "poster_path": "https://image.tmdb.org/t/p/original/5u4lYLk0kDf6XTUIENhXkaUV2jQ.jpg",
             "first_air_date": "2023-07-18",
+            "name": "Los 50",
             "vote_average": 7.6,
             "vote_count": 20,
             "type": "series",
@@ -2679,10 +2673,12 @@
                 "BR"
             ],
             "original_language": "pt",
+            "original_name": "Volta por Cima",
             "overview": "",
             "popularity": 2327.73,
             "poster_path": "https://image.tmdb.org/t/p/original/nyN8R0P1Hqwq7ksJz4O2BIAUd4W.jpg",
             "first_air_date": "2024-09-30",
+            "name": "Volta por Cima",
             "vote_average": 5,
             "vote_count": 5,
             "type": "series",
@@ -2705,10 +2701,12 @@
                 "BR"
             ],
             "original_language": "pt",
+            "original_name": "Garota do Momento",
             "overview": "",
             "popularity": 2299.382,
             "poster_path": "https://image.tmdb.org/t/p/original/jFSkjQSZ5Td52igalpoTQRuHtk.jpg",
             "first_air_date": "2024-11-04",
+            "name": "Garota do Momento",
             "vote_average": 10,
             "vote_count": 1,
             "type": "series",
@@ -2730,10 +2728,12 @@
                 "NL"
             ],
             "original_language": "nl",
+            "original_name": "Sinterklaasjournaal",
             "overview": "",
             "popularity": 2292.45,
             "poster_path": "https://image.tmdb.org/t/p/original/thOkUNMen2b4KJKeH2k02jNCcI2.jpg",
             "first_air_date": "2001-01-01",
+            "name": "Sinterklaasjournaal",
             "vote_average": 7.667,
             "vote_count": 3,
             "type": "series",
@@ -2755,10 +2755,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "TMZ",
             "overview": "Based on the popular gossip website, this entertainment newsmagazine delivers daily updates on Hollywood's rich, beautiful and screwed-up. The program often shows highlights of the day's staff meeting during which reporters pitch ideas for stories to air that day.",
             "popularity": 2274.71,
             "poster_path": "https://image.tmdb.org/t/p/original/ifFpUG51DJaQxwnZ35VwoGRFGGv.jpg",
             "first_air_date": "2007-09-10",
+            "name": "TMZ",
             "vote_average": 2.75,
             "vote_count": 8,
             "type": "series",
@@ -2784,10 +2786,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Papás por Conveniencia",
             "overview": "Tino, a single father who faces great challenges in raising his two children, finds out one day that he is also the father of two rebellious teenagers, children of Aidé, a former high school classmate who has become an important businesswoman. For Tino, this news becomes an opportunity to take on the role of father of the children he never knew he had. Thus, he begins to work at Aidé's company, but everything gets complicated when Tino and his family move into Aidé's house to integrate into her new life. The house becomes a battlefield, both of their children have problems adapting, and love resurfaces between Tino and Aidé and a torrid romance begins. But building this new life for Aidé, Tino and their children will not be easy; they will have to face serious obstacles, always supported by the strength of their love and that of their children.",
             "popularity": 2237.967,
             "poster_path": "https://image.tmdb.org/t/p/original/y7yIu9PKx2WTphhYgbBq9C1RNzV.jpg",
             "first_air_date": "2024-10-21",
+            "name": "Papás por Conveniencia",
             "vote_average": 8.308,
             "vote_count": 13,
             "type": "series",
@@ -2811,10 +2815,12 @@
                 "NO"
             ],
             "original_language": "no",
+            "original_name": "Alle mot alle",
             "overview": "",
             "popularity": 2237.836,
             "poster_path": "https://image.tmdb.org/t/p/original/qmOYqF2ezHT1leCE91Mdm6tu3Vl.jpg",
             "first_air_date": "2020-08-31",
+            "name": "Alle mot alle",
             "vote_average": 8,
             "vote_count": 1,
             "type": "series",
@@ -2834,10 +2840,12 @@
                 "ZA"
             ],
             "original_language": "af",
+            "original_name": "Kelders van Geheime",
             "overview": "Kelders van Geheime (Cellars of Secrets) is a South African, Afrikaans-language telenovela based on the wheeling's and dealings of the community that lives on Soebatskloof (a wine farm in the Cape). The series focuses on three families: the Abrahams, Syster and Marais households. These families will have to stand together, agree (or agree to disagree), and work together to earn their bread and butter – and a glass of wine.",
             "popularity": 2148.993,
             "poster_path": "https://image.tmdb.org/t/p/original/vf1I0G5jICTstI1EXxb9Oqq80TU.jpg",
             "first_air_date": "2024-05-06",
+            "name": "Kelders van Geheime",
             "vote_average": 6.375,
             "vote_count": 8,
             "type": "series",
@@ -2857,10 +2865,12 @@
                 "ZA"
             ],
             "original_language": "en",
+            "original_name": "Ready Steady Cook South Africa",
             "overview": "In Ready Steady Cook, two teams - a Red Tomato and a Green Pepper - compete in a Red Kitchen and a Green Kitchen, together with a South African chef on each side and paired with enthusiastic home cooks, as they are challenged creatively with a mystery bag of ingredients in a 20-minute cook-off.",
             "popularity": 2126.16,
             "poster_path": "https://image.tmdb.org/t/p/original/30xX4IMbgnMbQwo76xM4BOSokZO.jpg",
             "first_air_date": "2024-03-18",
+            "name": "Ready Steady Cook South Africa",
             "vote_average": 2.1,
             "vote_count": 4,
             "type": "series",
@@ -2878,10 +2888,12 @@
                 "GB"
             ],
             "original_language": "en",
+            "original_name": "Strictly Come Dancing: It Takes Two",
             "overview": "The companion show to the popular BBC One programme Strictly Come Dancing which features interviews and training footage of the couples competing in the main Saturday night show, opinions from the judges on the previous Saturday show and the training footage for the next, and interviews with celebrities who have been watching the show.",
             "popularity": 2077.67,
             "poster_path": "https://image.tmdb.org/t/p/original/1UOKLsJ3bopZHg6ntRfmO4C5Gcm.jpg",
             "first_air_date": "2004-10-25",
+            "name": "Strictly Come Dancing: It Takes Two",
             "vote_average": 3.8,
             "vote_count": 5,
             "type": "series",
@@ -2900,10 +2912,12 @@
                 "SY"
             ],
             "original_language": "ar",
+            "original_name": "العميل",
             "overview": "A police captain infiltrates a notorious gang, only to find himself going deeper down the rabbit hole.",
             "popularity": 2051.345,
             "poster_path": "https://image.tmdb.org/t/p/original/qUtgaa43jTELs0Tdw55aIukt9yn.jpg",
             "first_air_date": "2024-08-18",
+            "name": "The Agent",
             "vote_average": 1.75,
             "vote_count": 2,
             "type": "series",
@@ -2926,10 +2940,12 @@
                 "BR"
             ],
             "original_language": "pt",
+            "original_name": "Mania de Você",
             "overview": "The story begins with the ambiguous relationship between friends Viola and Luma, who seem predestined to literally enter each other's lives. Born on the same day, in very different situations, they meet years later, united by coincidences that go beyond their birthday. From humble origins, Viola moves with her boyfriend Mavi to Angra dos Reis, where Luma lives a luxurious life and dates Rudá, who ends up meeting Viola by chance. Thus begins the duo's journey, which goes from a passion for recipes to an obsession with the same man, from the immediate connection to the point of starting to live their friend’s reality, 10 years later. A journey divided between complicity and rivalry, which includes them in a love quadrangle and is impacted by a series of circumstances, twists and surprises, such as the secret surrounding a murder.",
             "popularity": 2032.956,
             "poster_path": "https://image.tmdb.org/t/p/original/xq1X6H8pupwx0jeZpu4Piq0V5uL.jpg",
             "first_air_date": "2024-09-09",
+            "name": "Crazy About You",
             "vote_average": 5.5,
             "vote_count": 2,
             "type": "series",
@@ -2951,10 +2967,12 @@
                 "ES"
             ],
             "original_language": "es",
+            "original_name": "Gran Hermano",
             "overview": "Gran Hermano is a reality television series broadcast in Spain on Telecinco and La Siete produced by Endemol. It is part of the Big Brother franchise first developed in the Netherlands. As of February 2012, 19 editions of the show have aired.",
             "popularity": 2032.79,
             "poster_path": "https://image.tmdb.org/t/p/original/gQ0Emh2LT047Fip2HWye3NkrkQB.jpg",
             "first_air_date": "2000-04-23",
+            "name": "Gran Hermano",
             "vote_average": 4.25,
             "vote_count": 10,
             "type": "series",
@@ -2977,10 +2995,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Arcane",
             "overview": "Amid the stark discord of twin cities Piltover and Zaun, two sisters fight on rival sides of a war between magic technologies and clashing convictions.",
             "popularity": 1964.981,
             "poster_path": "https://image.tmdb.org/t/p/original/abf8tHznhSvl9BAElD2cQeRr7do.jpg",
             "first_air_date": "2021-11-06",
+            "name": "Arcane",
             "vote_average": 8.8,
             "vote_count": 4355,
             "type": "series",
@@ -3003,10 +3023,12 @@
                 "PT"
             ],
             "original_language": "pt",
+            "original_name": "A Promessa",
             "overview": "",
             "popularity": 1894.291,
             "poster_path": "https://image.tmdb.org/t/p/original/uptgxt2apx5wwWItQzqL0HwhjZC.jpg",
             "first_air_date": "2024-06-18",
+            "name": "A Promessa",
             "vote_average": 4.75,
             "vote_count": 4,
             "type": "series",
@@ -3027,10 +3049,12 @@
                 "CZ"
             ],
             "original_language": "cs",
+            "original_name": "Ulice",
             "overview": "Ulice is a Czech soap opera produced and broadcast by Nova. In the Czech language Ulice means street.\n\nThe show describes the lives of the Farský, Jordán, Boháč, Nikl, and Liška families and many other people that live in Prague. Their daily battle against real problems of living in a modern world like divorce, love, betrayal and illness or disease. Ulice often shows crime.",
             "popularity": 1861.976,
             "poster_path": "https://image.tmdb.org/t/p/original/gFEHva8Csx18hMGJJZ6gi4sFSKR.jpg",
             "first_air_date": "2005-09-05",
+            "name": "Ulice",
             "vote_average": 3.727,
             "vote_count": 22,
             "type": "series",
@@ -3049,10 +3073,12 @@
                 "CZ"
             ],
             "original_language": "cs",
+            "original_name": "Stardance XIII ...kolem dokola",
             "overview": "",
             "popularity": 1826.506,
             "poster_path": "https://image.tmdb.org/t/p/original/iJPk8DSr2NVpfeFxembWxROqQNW.jpg",
             "first_air_date": "2024-10-14",
+            "name": "Stardance XIII ...kolem dokola",
             "vote_average": 8,
             "vote_count": 2,
             "type": "series",
@@ -3071,10 +3097,12 @@
                 "IN"
             ],
             "original_language": "hi",
+            "original_name": "श्रीमद् रामायण",
             "overview": "Shrimad Ramayan is an ambitious television series that brings to life the timeless epic, the Ramayan, with a deep commitment to authenticity, cultural reverence and a contemporary sensibility.",
             "popularity": 1821.271,
             "poster_path": "https://image.tmdb.org/t/p/original/aCDK83ykQYnQGFOTfiLjnoqXv1b.jpg",
             "first_air_date": "2024-01-22",
+            "name": "Shrimad Ramayan",
             "vote_average": 7.8,
             "vote_count": 4,
             "type": "series",
@@ -3096,10 +3124,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Silo",
             "overview": "In a ruined and toxic future, thousands live in a giant silo deep underground. After its sheriff breaks a cardinal rule and residents die mysteriously, engineer Juliette starts to uncover shocking secrets and the truth about the silo.",
             "popularity": 1804.139,
             "poster_path": "https://image.tmdb.org/t/p/original/tlliQuCupf8fpTH7RAor3aKMGy.jpg",
             "first_air_date": "2023-05-04",
+            "name": "Silo",
             "vote_average": 8.2,
             "vote_count": 1046,
             "type": "series",
@@ -3121,10 +3151,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Yellowstone",
             "overview": "Follow the violent world of the Dutton family, who controls the largest contiguous ranch in the United States. Led by their patriarch John Dutton, the family defends their property against constant attack by land developers, an Indian reservation, and America’s first National Park.",
             "popularity": 1778.763,
             "poster_path": "https://image.tmdb.org/t/p/original/s4QRRYc1V2e68Qy9Wel9MI8fhRP.jpg",
             "first_air_date": "2018-06-20",
+            "name": "Yellowstone",
             "vote_average": 8.218,
             "vote_count": 2385,
             "type": "series",
@@ -3147,10 +3179,12 @@
                 "HK"
             ],
             "original_language": "cn",
+            "original_name": "愛·回家之開心速遞",
             "overview": "Hung Sue Gan starting from the bottom, established his own logistics company, which is now running smoothly. His only concern now are his three daughters. His eldest daughter has immigrated overseas. His second daughter Hung Yeuk Shui has reached the marriageable age, but has no hopes for marriage anytime soon. She is constantly bickering with her younger sister Hung Sum Yue, who is an honour student, over trivial matters, causing their father to not know whether to laugh or cry. Hung Sue Yan, Hung Sue Gan's brother, moves in with the family, temporarily ending his life as a nomadic photographer. He joins Hung Yeuk Shui's company and encounters Ko Pak Fei, the director of an online shop. The two appear to be former lovers, making for lots of laughter. Since Hung Sue Yan moved in, a series of strange events have occurred in the family. Upon investigation, the source is traced to Lung Ging Fung, a promising young man who is the son of department store mogul Lung Gam Wai.",
             "popularity": 1774.437,
             "poster_path": "https://image.tmdb.org/t/p/original/lgD4j9gUGmMckZpWWRJjorWqGVT.jpg",
             "first_air_date": "2017-02-06",
+            "name": "Come Home Love: Lo and Behold",
             "vote_average": 5.256,
             "vote_count": 39,
             "type": "series",
@@ -3172,10 +3206,12 @@
                 "ZA"
             ],
             "original_language": "af",
+            "original_name": "Binnelanders",
             "overview": "A South African Afrikaans soap opera. It is set in and around the fictional private hospital, Binneland Kliniek, in Pretoria, and the storyline follows the trials, trauma and tribulations of the staff and patients of the hospital.",
             "popularity": 1767.177,
             "poster_path": "https://image.tmdb.org/t/p/original/3bzECfllho8PphdYujLUIuhncJD.jpg",
             "first_air_date": "2005-10-13",
+            "name": "Binnelanders",
             "vote_average": 5.5,
             "vote_count": 71,
             "type": "series",
@@ -3197,10 +3233,12 @@
                 "PE"
             ],
             "original_language": "es",
+            "original_name": "Pituca Sin Lucas",
             "overview": "",
             "popularity": 1745.835,
             "poster_path": "https://image.tmdb.org/t/p/original/cjqJqODyUbul2GZL7ti2B5SVv7I.jpg",
             "first_air_date": "2024-05-06",
+            "name": "Pituca Sin Lucas",
             "vote_average": 8.5,
             "vote_count": 2,
             "type": "series",
@@ -3223,10 +3261,12 @@
                 "PH"
             ],
             "original_language": "tl",
+            "original_name": "Lavender Fields",
             "overview": "Jasmin loved her idyllic life in her mountain town, but a brush with a criminal empire took it all away. Now she's out for revenge with a new identity.",
             "popularity": 1714.44,
             "poster_path": "https://image.tmdb.org/t/p/original/lphvsr062SlxWM6XegsV2dLGaiE.jpg",
             "first_air_date": "2024-09-02",
+            "name": "Lavender Fields",
             "vote_average": 0,
             "vote_count": 0,
             "type": "series",
@@ -3248,10 +3288,12 @@
                 "DE"
             ],
             "original_language": "de",
+            "original_name": "Sturm der Liebe",
             "overview": "These are the stories of relationships taking place in the fictional five-star hotel Fürstenhof, located in Feldkirchen-Westerham near Rosenheim with the plot revolving around members of the family room area, the hotel owners, and employees.",
             "popularity": 1597.086,
             "poster_path": "https://image.tmdb.org/t/p/original/jfFNydakwvbeACEwSd2Gh8UWtba.jpg",
             "first_air_date": "2005-09-26",
+            "name": "Sturm der Liebe",
             "vote_average": 5.726,
             "vote_count": 31,
             "type": "series",
@@ -3272,10 +3314,12 @@
                 "ZA"
             ],
             "original_language": "af",
+            "original_name": "Suidooster",
             "overview": "Suidooster is a South African television soap opera produced by Suidooster Films which revolves around a matriarch, her family, friends and the people of Suidooster, a small shopping and business centre in the fictional Cape Town suburb of Ruiterbosch.",
             "popularity": 1589.197,
             "poster_path": "https://image.tmdb.org/t/p/original/naCgSiacvV685kait6fBvhVhdce.jpg",
             "first_air_date": "2015-11-16",
+            "name": "Suidooster",
             "vote_average": 7.563,
             "vote_count": 16,
             "type": "series",
@@ -3296,10 +3340,12 @@
                 "FR"
             ],
             "original_language": "fr",
+            "original_name": "Demain nous appartient",
             "overview": "The story revolves around the people of Sète, France. Their lives are punctuated by family rivalries, romance and scenes from daily life, but also by plots involving police investigations, secrets and betrayals.",
             "popularity": 1579.466,
             "poster_path": "https://image.tmdb.org/t/p/original/zMWldNZF0wS3L5XkDVFHxYhclcL.jpg",
             "first_air_date": "2017-07-17",
+            "name": "Tomorrow Is Ours",
             "vote_average": 6.2,
             "vote_count": 61,
             "type": "series",
@@ -3320,10 +3366,12 @@
                 "NL"
             ],
             "original_language": "nl",
+            "original_name": "De Bondgenoten",
             "overview": "",
             "popularity": 1519.864,
             "poster_path": "https://image.tmdb.org/t/p/original/wsipinibYxrZhpkQ6MKxIMgL0hv.jpg",
             "first_air_date": "2023-10-22",
+            "name": "De Bondgenoten",
             "vote_average": 6.684,
             "vote_count": 19,
             "type": "series",
@@ -3345,10 +3393,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Dune: Prophecy",
             "overview": "Ten thousand years before the ascension of Paul Atreides, sisters Valya and Tula Harkonnen establish the fabled sect and female order that would become known as the Bene Gesserit to control the future of humankind.",
             "popularity": 1479.594,
             "poster_path": "https://image.tmdb.org/t/p/original/5B8Cxz8ZZXp3w2WmmdKTXpkS24e.jpg",
             "first_air_date": "2024-11-17",
+            "name": "Dune: Prophecy",
             "vote_average": 8.3,
             "vote_count": 68,
             "type": "series",
@@ -3370,10 +3420,12 @@
                 "ES"
             ],
             "original_language": "es",
+            "original_name": "Sueños de libertad",
             "overview": "",
             "popularity": 1471.778,
             "poster_path": "https://image.tmdb.org/t/p/original/k0uSCsavcoGviQK9rfyH2srRjhZ.jpg",
             "first_air_date": "2024-02-25",
+            "name": "Sueños de libertad",
             "vote_average": 6.357,
             "vote_count": 14,
             "type": "series",
@@ -3395,10 +3447,12 @@
                 "JP"
             ],
             "original_language": "ja",
+            "original_name": "おむすび",
             "overview": "A Heisei youth graffiti drama, in which the heroine Yoneda Yui (Hashimoto Kanna), born in the first year of the Heisei era, connects people's hearts to the future as a nutritionist. Always cherishing her individuality, she sometimes struggles, but powerfully and joyfully pushes through the turbulent Heisei and Reiwa eras.",
             "popularity": 1458.848,
             "poster_path": "https://image.tmdb.org/t/p/original/tK855sva67LB7opmPW4JHn1c5VI.jpg",
             "first_air_date": "2024-09-30",
+            "name": "Omusubi",
             "vote_average": 0,
             "vote_count": 0,
             "type": "series",
@@ -3421,10 +3475,12 @@
                 "ES"
             ],
             "original_language": "es",
+            "original_name": "Regreso a Las Sabinas",
             "overview": "Gracia and Paloma return to Las Sabinas to look after their father, Emilio. Gracia reunites with her childhood sweetheart, Miguel, who is now engaged to Esther. Paloma takes over the family's land and clashes with landowner Paca Utrera, who shares a terrible secret with Emilio and has a nefarious plan for the village. Young Óscar is found dead under strange circumstances. Manuela must investigate the murder with the help of Óscar's brother, Álex, who is a priest.",
             "popularity": 1444.972,
             "poster_path": "https://image.tmdb.org/t/p/original/xMMH3r8gJtWVe1841BtHGjDooUm.jpg",
             "first_air_date": "2024-10-11",
+            "name": "Return to Las Sabinas",
             "vote_average": 6.7,
             "vote_count": 3,
             "type": "series",
@@ -3447,10 +3503,12 @@
                 "KR"
             ],
             "original_language": "ko",
+            "original_name": "결혼하자 맹꽁아!",
             "overview": "A delightful family drama that asks the true meaning of 'happiness' by showing various aspects of marriage such as divorce, remarriage, and single life, and brings about empathy and laughter from all generations.\n\nMaeng Gong Hee is a contract designer at Jayce Fashion. Having inherited her strong mother's spirit and her former detective father's athletic ability, she is a rare wild woman these days who has the guts to survive even if she were to be stranded on a deserted island.\n\nGu Dan Soo is the grandson of Jayce Fashion Chairman Hwang Ik Seon and born to a wealthy father and a poor mother. Dan Soo, who was living as a free spirit in a foreign country, comes to Korea according to his grandmother's plan to make a successor to the chairman out of him and he reunites with childhood friend Maeng Gong Hee once again.",
             "popularity": 1433.804,
             "poster_path": "https://image.tmdb.org/t/p/original/lp7uJ6tZ9k8m7kW75hIAOUafXr4.jpg",
             "first_air_date": "2024-10-07",
+            "name": "My Merry Marriage",
             "vote_average": 3,
             "vote_count": 1,
             "type": "series",
@@ -3474,10 +3532,12 @@
                 "ES"
             ],
             "original_language": "es",
+            "original_name": "La promesa",
             "overview": "In 1913 Spain, a woman gets a job at the palace of La Promesa as a reward for saving the marquesses' son - but nobody knows that she has her own plans, which involve avenging her mother's death and finding her missing brother.",
             "popularity": 1393.963,
             "poster_path": "https://image.tmdb.org/t/p/original/y656ZhHU2Hh3bmC5vBtMa2vKpUM.jpg",
             "first_air_date": "2023-01-12",
+            "name": "La promesa",
             "vote_average": 7.4,
             "vote_count": 31,
             "type": "series",
@@ -3499,10 +3559,12 @@
                 "FR"
             ],
             "original_language": "fr",
+            "original_name": "Un si grand soleil",
             "overview": "Claire is surprised when she gets arrested for the murder of her childhood friend after she returns to Montpellier.",
             "popularity": 1390.336,
             "poster_path": "https://image.tmdb.org/t/p/original/t6jVlbPMtZOJoAOfeoR4yQmnjXM.jpg",
             "first_air_date": "2018-08-27",
+            "name": "Chronicles of the Sun",
             "vote_average": 6.8,
             "vote_count": 112,
             "type": "series",
@@ -3522,10 +3584,12 @@
                 "PT"
             ],
             "original_language": "pt",
+            "original_name": "Cacau",
             "overview": "Cacau is an engaging saga of family secrets, clandestine loves and sacrifices, all sweetened by the irresistible taste of chocolate and the magic of cocoa plantations.",
             "popularity": 1347.935,
             "poster_path": "https://image.tmdb.org/t/p/original/nNCFBKZ68fmr008moWSzLdu2mUP.jpg",
             "first_air_date": "2024-01-15",
+            "name": "Cacau",
             "vote_average": 5.3,
             "vote_count": 18,
             "type": "series",
@@ -3546,10 +3610,12 @@
                 "SK"
             ],
             "original_language": "sk",
+            "original_name": "Mama na prenájom",
             "overview": "Abandoned by his wife, Martin is lying to his daughter not to be upset. But as Hanka grows, these lies become unbearable. Martin meets Nada unexpectedly, asked her to be a rent-a-mother and all lives are completely changed.",
             "popularity": 1340.591,
             "poster_path": "https://image.tmdb.org/t/p/original/fH7PP2Rkdlo414IHvZABBHhtoqd.jpg",
             "first_air_date": "2023-01-09",
+            "name": "Mom for rent",
             "vote_average": 5.5,
             "vote_count": 32,
             "type": "series",
@@ -3570,10 +3636,12 @@
                 "DE"
             ],
             "original_language": "de",
+            "original_name": "Die Spreewaldklinik",
             "overview": "",
             "popularity": 1337.715,
             "poster_path": "https://image.tmdb.org/t/p/original/9M5b0dSMIvtIntBCb7MCv9JTwEc.jpg",
             "first_air_date": "2024-08-29",
+            "name": "Die Spreewaldklinik",
             "vote_average": 5,
             "vote_count": 1,
             "type": "series",
@@ -3593,10 +3661,12 @@
                 "PT"
             ],
             "original_language": "pt",
+            "original_name": "Senhora do Mar",
             "overview": "On her birthday, Joana's joy turns to despair when her abusive husband discovers her pregnancy and attempts to harm her. Fleeing the city, she finds refuge on a boat with criminals, but realizing the danger, she sees land beyond so leaps into the water and swims to Terceira Island, leaving her life behind. Exhausted on the shore, she encounters Chico, a lost child, during a religious ceremony. Joana arrives with the child, inadvertently becoming mistaken for a saint 'Our Lady of the Sea', revered by the island's faithful.",
             "popularity": 1321.041,
             "poster_path": "https://image.tmdb.org/t/p/original/wy4tkwuoWMGEa5Wi8dCvLVuxBzt.jpg",
             "first_air_date": "2024-02-05",
+            "name": "Lady of the sea",
             "vote_average": 6.7,
             "vote_count": 10,
             "type": "series",
@@ -3619,10 +3689,12 @@
                 "PH"
             ],
             "original_language": "tl",
+            "original_name": "Pulang Araw",
             "overview": "Red Sun is a family drama that tells stories of courage, sacrifice, and hardships that every Filipino family has. These stories were inspired by the tales of the unsung heroes who defied the odds of World War II and the Japanese occupation of the Philippines.",
             "popularity": 1315.413,
             "poster_path": "https://image.tmdb.org/t/p/original/2zbaRzgieKiHYkTGztQUzrAYbgb.jpg",
             "first_air_date": "2024-07-29",
+            "name": "Pulang Araw",
             "vote_average": 7,
             "vote_count": 21,
             "type": "series",
@@ -3643,10 +3715,12 @@
                 "SK"
             ],
             "original_language": "sk",
+            "original_name": "Farma",
             "overview": "Serbian version of the reality series The Farm.",
             "popularity": 1297.312,
             "poster_path": "https://image.tmdb.org/t/p/original/xuscOJcoS9vMAKFgdiaDtypFg3y.jpg",
             "first_air_date": "2011-07-24",
+            "name": "Farma",
             "vote_average": 4.9,
             "vote_count": 7,
             "type": "series",
@@ -3665,10 +3739,12 @@
                 "FR"
             ],
             "original_language": "fr",
+            "original_name": "Plus belle la vie, encore plus belle",
             "overview": "",
             "popularity": 1296.63,
             "poster_path": "https://image.tmdb.org/t/p/original/5js5JCtxfiYF2MdNn0zGyCwyg8L.jpg",
             "first_air_date": "2024-01-08",
+            "name": "Plus belle la vie, encore plus belle",
             "vote_average": 5.1,
             "vote_count": 10,
             "type": "series",
@@ -3689,10 +3765,12 @@
                 "FR"
             ],
             "original_language": "fr",
+            "original_name": "Star Academy",
             "overview": "Star Academy is a French reality television show produced by the Dutch company Endemol. It consists of a contest of young singers. It spawned an equally successful show in Quebec called Star Académie. It is broadcast on TF1. At the end of each season, selected contestants would go on tour around France, Morocco, Switzerland, Belgium, Tunisia, and other French-speaking countries.",
             "popularity": 1264.274,
             "poster_path": "https://image.tmdb.org/t/p/original/26qS8VmB7PgtkkBuA0J20nmTish.jpg",
             "first_air_date": "2001-10-20",
+            "name": "Star Academy",
             "vote_average": 6.4,
             "vote_count": 12,
             "type": "series",
@@ -3714,10 +3792,12 @@
                 "JP"
             ],
             "original_language": "ja",
+            "original_name": "ブルーロック",
             "overview": "After a disastrous defeat at the 2018 World Cup, Japan's team struggles to regroup. But what's missing? An absolute Ace Striker, who can guide them to the win. The Japan Football Union is hell-bent on creating a striker who hungers for goals and thirsts for victory, and who can be the decisive instrument in turning around a losing match...and to do so, they've gathered 300 of Japan's best and brightest youth players. Who will emerge to lead the team...and will they be able to out-muscle and out-ego everyone who stands in their way?",
             "popularity": 1148.16,
             "poster_path": "https://image.tmdb.org/t/p/original/fT9W86KFA9Khy2hIbkfClI8IYDH.jpg",
             "first_air_date": "2022-10-09",
+            "name": "BLUE LOCK",
             "vote_average": 8.076,
             "vote_count": 304,
             "type": "series",
@@ -3741,10 +3821,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "CSI: Crime Scene Investigation",
             "overview": "A Las Vegas team of forensic investigators are trained to solve criminal cases by scouring the crime scene, collecting irrefutable evidence and finding the missing pieces that solve the mystery.",
             "popularity": 1131.665,
             "poster_path": "https://image.tmdb.org/t/p/original/i5hmoRjHNWady4AtAGICTUXknKH.jpg",
             "first_air_date": "2000-10-06",
+            "name": "CSI: Crime Scene Investigation",
             "vote_average": 7.621,
             "vote_count": 1236,
             "type": "series",
@@ -3768,10 +3850,12 @@
                 "GB"
             ],
             "original_language": "en",
+            "original_name": "The Day of the Jackal",
             "overview": "An unrivalled and highly elusive lone assassin, the Jackal, makes his living carrying out hits for the highest fee. But following his latest kill, he meets his match in a tenacious British intelligence officer who starts to track down the Jackal in a thrilling cat-and-mouse chase across Europe, leaving destruction in its wake.",
             "popularity": 1115.086,
             "poster_path": "https://image.tmdb.org/t/p/original/4hSnGq014MGdxCOMWBwyvKoDjrF.jpg",
             "first_air_date": "2024-11-07",
+            "name": "The Day of the Jackal",
             "vote_average": 7.9,
             "vote_count": 65,
             "type": "series",
@@ -3797,10 +3881,12 @@
                 "VE"
             ],
             "original_language": "es",
+            "original_name": "LA MUJER DE MI VIDA",
             "overview": "The series revolves around Ricardo Oribe (Iván Sánchez), a physically unattractive but successful businessman, dedicated to his family and in love with his beautiful wife Daniela (Angélica Celaya), a young aspiring actress. Ricardo's life takes a turn when his best friend Emilio (Mauricio Islas) betrays him and tries to kill him in order to take over his company and the family he never had. Despite being presumed dead by his family and friends, Ricardo is still alive, but suffering from amnesia. After a course of 15 years, Ricardo goes through several physical changes and recovers his memory.",
             "popularity": 1106.833,
             "poster_path": "https://image.tmdb.org/t/p/original/4Qksv87C57O0IWA8sT2KwxZ4fXh.jpg",
             "first_air_date": "2024-10-08",
+            "name": "La mujer de mi vida",
             "vote_average": 0,
             "vote_count": 0,
             "type": "series",
@@ -3823,10 +3909,12 @@
                 "MX"
             ],
             "original_language": "es",
+            "original_name": "Como agua para chocolate",
             "overview": "Tita de la Garza and Pedro Muzquiz are two souls in love who cannot be together due to deep-rooted family customs, which will force Tita to navigate with magical tints and flavors between the destiny dictated by her family and the fight for her love, while we accompany her in her greatest refuge: the kitchen.",
             "popularity": 1072.644,
             "poster_path": "https://image.tmdb.org/t/p/original/1fjYLxulA4ufILSHpG2aESqhGcz.jpg",
             "first_air_date": "2024-11-03",
+            "name": "Like Water for Chocolate",
             "vote_average": 8.2,
             "vote_count": 79,
             "type": "series",
@@ -3847,10 +3935,12 @@
                 "DE"
             ],
             "original_language": "de",
+            "original_name": "Hallo Hessen",
             "overview": "",
             "popularity": 1071.552,
             "poster_path": "https://image.tmdb.org/t/p/original/zRGme9GL0H5RmwzxKYzoXafcRDp.jpg",
             "first_air_date": "2012-01-30",
+            "name": "Hallo Hessen",
             "vote_average": 0,
             "vote_count": 0,
             "type": "series",
@@ -3873,10 +3963,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Cobra Kai",
             "overview": "This Karate Kid sequel series picks up 30 years after the events of the 1984 All Valley Karate Tournament and finds Johnny Lawrence on the hunt for redemption by reopening the infamous Cobra Kai karate dojo. This reignites his old rivalry with the successful Daniel LaRusso, who has been working to maintain the balance in his life without mentor Mr. Miyagi.",
             "popularity": 1064.908,
             "poster_path": "https://image.tmdb.org/t/p/original/6GDW4EsgsXlYrL1ASb5eCHQK4er.jpg",
             "first_air_date": "2018-05-02",
+            "name": "Cobra Kai",
             "vote_average": 8.2,
             "vote_count": 6309,
             "type": "series",
@@ -3899,10 +3991,12 @@
                 "CN"
             ],
             "original_language": "zh",
+            "original_name": "叶罗丽梦奇境",
             "overview": "At the edge of reality lies Yeluo Li Wonderland, a magical realm where fairies once lived in harmony with nature. Now, human environmental destruction threatens this balance, and the realm’s queen, Mandora, plans to use the power of dreams to invade and reshape the human world.",
             "popularity": 1049.22,
             "poster_path": "https://image.tmdb.org/t/p/original/oybLPEQ5wtcRQzVwuMgz1FsJS3K.jpg",
             "first_air_date": "2024-11-04",
+            "name": "叶罗丽梦奇境",
             "vote_average": 0,
             "vote_count": 0,
             "type": "series",
@@ -3925,10 +4019,12 @@
                 "DE"
             ],
             "original_language": "de",
+            "original_name": "rbb24 Brandenburg aktuell",
             "overview": "",
             "popularity": 1035.222,
             "poster_path": "https://image.tmdb.org/t/p/originalnull",
             "first_air_date": "1992-05-02",
+            "name": "rbb24 Brandenburg aktuell",
             "vote_average": 6,
             "vote_count": 1,
             "type": "series",
@@ -3950,10 +4046,12 @@
                 "NL"
             ],
             "original_language": "nl",
+            "original_name": "Vandaag Inside",
             "overview": "",
             "popularity": 1013.645,
             "poster_path": "https://image.tmdb.org/t/p/original/xEFfIcHzlxiYw8e6hXRCqskSKsG.jpg",
             "first_air_date": "2022-01-10",
+            "name": "Vandaag Inside",
             "vote_average": 5.1,
             "vote_count": 7,
             "type": "series",
@@ -3973,10 +4071,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Grey's Anatomy",
             "overview": "Follows the personal and professional lives of a group of doctors at Seattle’s Grey Sloan Memorial Hospital.",
             "popularity": 999.467,
             "poster_path": "https://image.tmdb.org/t/p/original/7jEVqXC14bhfAzSPgr896dMdDv6.jpg",
             "first_air_date": "2005-03-27",
+            "name": "Grey's Anatomy",
             "vote_average": 8.2,
             "vote_count": 10248,
             "type": "series",
@@ -3996,10 +4096,12 @@
                 "ES"
             ],
             "original_language": "es",
+            "original_name": "Bake Off: Famosos Argentina",
             "overview": "",
             "popularity": 924.949,
             "poster_path": "https://image.tmdb.org/t/p/original/tCXCzfop7hyocsMiYVpKYCng12C.jpg",
             "first_air_date": "2024-09-30",
+            "name": "Bake Off: Famosos Argentina",
             "vote_average": 0,
             "vote_count": 0,
             "type": "series",
@@ -4020,10 +4122,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "American Dad!",
             "overview": "The series focuses on an eccentric motley crew that is the Smith family and their three housemates: Father, husband, and breadwinner Stan Smith; his better half housewife, Francine Smith; their college-aged daughter, Hayley Smith; and their high-school-aged son, Steve Smith. Outside of the Smith family, there are three additional main characters, including Hayley's boyfriend turned husband, Jeff Fischer; the family's man-in-a-goldfish-body pet, Klaus; and most notably the family's zany alien, Roger, who is \"full of masquerades, brazenness, and shocking antics.\"",
             "popularity": 907.205,
             "poster_path": "https://image.tmdb.org/t/p/original/gQIIqz6H06I3vAFgtmjKzVJhXOR.jpg",
             "first_air_date": "2005-02-06",
+            "name": "American Dad!",
             "vote_average": 6.961,
             "vote_count": 2102,
             "type": "series",
@@ -4045,10 +4149,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Family Guy",
             "overview": "Sick, twisted, politically incorrect and Freakin' Sweet animated series featuring the adventures of the dysfunctional Griffin family. Bumbling Peter and long-suffering Lois have three kids. Stewie (a brilliant but sadistic baby bent on killing his mother and taking over the world), Meg (the oldest, and is the most unpopular girl in town) and Chris (the middle kid, he's not very bright but has a passion for movies). The final member of the family is Brian - a talking dog and much more than a pet, he keeps Stewie in check whilst sipping Martinis and sorting through his own life issues.",
             "popularity": 898.852,
             "poster_path": "https://image.tmdb.org/t/p/original/y0HUz4eUNUe3TeEd8fQWYazPaC7.jpg",
             "first_air_date": "1999-01-31",
+            "name": "Family Guy",
             "vote_average": 7.4,
             "vote_count": 4361,
             "type": "series",
@@ -4071,10 +4177,12 @@
                 "JP"
             ],
             "original_language": "ja",
+            "original_name": "ドラゴンボールゼット",
             "overview": "The adventures of Earth's martial arts defender, Son Goku, continue with a new family and the revelation of his alien origins. Now Goku and his allies must defend the planet from an onslaught of new extraterrestrial enemies.",
             "popularity": 882.301,
             "poster_path": "https://image.tmdb.org/t/p/original/6VKOfL6ihwTiB5Vibq6QTfzhxA6.jpg",
             "first_air_date": "1989-04-26",
+            "name": "Dragon Ball Z",
             "vote_average": 8.3,
             "vote_count": 4437,
             "type": "series",
@@ -4097,10 +4205,12 @@
                 "GB"
             ],
             "original_language": "en",
+            "original_name": "Richard Osman's House of Games",
             "overview": "Each week a group of four famous faces go toe to toe in testing their general knowledge skills in a variety of entertaining games.",
             "popularity": 850.751,
             "poster_path": "https://image.tmdb.org/t/p/original/oNXdhWjB9AXDicbQ6zxyRjcPlJW.jpg",
             "first_air_date": "2017-09-04",
+            "name": "Richard Osman's House of Games",
             "vote_average": 5.9,
             "vote_count": 21,
             "type": "series",
@@ -4122,10 +4232,12 @@
                 "CN"
             ],
             "original_language": "zh",
+            "original_name": "深潜",
             "overview": "During the Anti-Japanese War, Yun Hongshen unknowingly chases after his father's killer, only to fall into a trap set by \"Black Butler,\" a Japanese spy who had been undercover in China for 15 years. With the help of a close family friend and guidance from the Communist Party, Yun Hongshen joins forces with patriotic youth Wen Yeming to expose the spies hidden within the Nationalist army. Together, they set intricate counter-traps, overcoming personal vendettas to help turn the tide of war.",
             "popularity": 841.309,
             "poster_path": "https://image.tmdb.org/t/p/original/oW0H7zUBVnYRem8dL0AvlZ71bXG.jpg",
             "first_air_date": "2024-11-13",
+            "name": "Deep Lurk",
             "vote_average": 8,
             "vote_count": 1,
             "type": "series",
@@ -4150,10 +4262,12 @@
                 "CN"
             ],
             "original_language": "zh",
+            "original_name": "开心超人联盟",
             "overview": "",
             "popularity": 838.215,
             "poster_path": "https://image.tmdb.org/t/p/original/wqOYz9kpRbznmYPdJFSwjZ4HCT9.jpg",
             "first_air_date": "2010-07-02",
+            "name": "Happy Toon",
             "vote_average": 7.8,
             "vote_count": 5,
             "type": "series",
@@ -4178,10 +4292,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Lioness",
             "overview": "Cruz Manuelos, a rough-around-the-edges but passionate young Marine, is recruited to join the CIA's Lioness Engagement Team to help bring down a terrorist organization from within. Joe, the station chief of the Lioness program, is tasked with training, managing and leading her female undercover operatives.",
             "popularity": 816.92,
             "poster_path": "https://image.tmdb.org/t/p/original/ajaXSmdAlYYhnvx1EIsvpfN949y.jpg",
             "first_air_date": "2023-07-23",
+            "name": "Lioness",
             "vote_average": 8,
             "vote_count": 739,
             "type": "series",
@@ -4203,10 +4319,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Tulsa King",
             "overview": "Just after he is released from prison after 25 years, New York mafia capo Dwight “The General” Manfredi is unceremoniously exiled by his boss to set up shop in Tulsa, Okla. Realizing that his mob family may not have his best interests in mind, Dwight slowly builds a “crew” from a group of unlikely characters, to help him establish a new criminal empire in a place that to him might as well be another planet.",
             "popularity": 806.172,
             "poster_path": "https://image.tmdb.org/t/p/original/zMFAdj30K84Sz90bCd6ePwiAO37.jpg",
             "first_air_date": "2022-11-13",
+            "name": "Tulsa King",
             "vote_average": 8.4,
             "vote_count": 1931,
             "type": "series",
@@ -4229,10 +4347,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Law & Order: Special Victims Unit",
             "overview": "In the criminal justice system, sexually-based offenses are considered especially heinous. In New York City, the dedicated detectives who investigate these vicious felonies are members of an elite squad known as the Special Victims Unit. These are their stories.",
             "popularity": 802.977,
             "poster_path": "https://image.tmdb.org/t/p/original/abWOCrIo7bbAORxcQyOFNJdnnmR.jpg",
             "first_air_date": "1999-09-20",
+            "name": "Law & Order: Special Victims Unit",
             "vote_average": 7.93,
             "vote_count": 3823,
             "type": "series",
@@ -4256,10 +4376,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "NCIS",
             "overview": "From murder and espionage to terrorism and stolen submarines, a team of special agents investigates any crime that has a shred of evidence connected to Navy and Marine Corps personnel, regardless of rank or position.",
             "popularity": 761.61,
             "poster_path": "https://image.tmdb.org/t/p/original/mBcu8d6x6zB1el3MPNl7cZQEQ31.jpg",
             "first_air_date": "2003-09-23",
+            "name": "NCIS",
             "vote_average": 7.619,
             "vote_count": 2268,
             "type": "series",
@@ -4281,10 +4403,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Let's Make a Deal",
             "overview": "Audience members dress up in outlandish costumes to get host Wayne Brady's attention in an attempt to make deals for trips, prizes, cars or cash, while trying to avoid the dreaded Zonks.",
             "popularity": 757.956,
             "poster_path": "https://image.tmdb.org/t/p/original/8lQkzJCwPpB0P6GieQeojUOW6PU.jpg",
             "first_air_date": "2009-10-05",
+            "name": "Let's Make a Deal",
             "vote_average": 4.7,
             "vote_count": 15,
             "type": "series",
@@ -4306,10 +4430,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Prison Break",
             "overview": "Due to a political conspiracy, an innocent man is sent to death row and his only hope is his brother, who makes it his mission to deliberately get himself sent to the same prison in order to break the both of them out, from the inside out.",
             "popularity": 742.5,
             "poster_path": "https://image.tmdb.org/t/p/original/5E1BhkCgjLBlqx557Z5yzcN0i88.jpg",
             "first_air_date": "2005-08-29",
+            "name": "Prison Break",
             "vote_average": 8.1,
             "vote_count": 5130,
             "type": "series",
@@ -4332,10 +4458,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "The Tonight Show Starring Jimmy Fallon",
             "overview": "After Jay Leno's second retirement from the program, Jimmy Fallon stepped in as his permanent replacement. After 42 years in Los Angeles the program was brought back to New York.",
             "popularity": 740.459,
             "poster_path": "https://image.tmdb.org/t/p/original/if7ECoH4xaYw5S8gomNIEmtwTxP.jpg",
             "first_air_date": "2014-02-17",
+            "name": "The Tonight Show Starring Jimmy Fallon",
             "vote_average": 5.824,
             "vote_count": 312,
             "type": "series",
@@ -4357,10 +4485,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "The Late Late Show with Craig Ferguson",
             "overview": "The Late Late Show with Craig Ferguson is an American late-night talk show hosted by Scottish American comedian Craig Ferguson, who is the third regular host of the Late Late Show franchise. It follows Late Show with David Letterman in the CBS late-night lineup, airing weekdays in the US at 12:37 a.m. It is taped in front of a live studio audience from Monday to Friday at CBS Television City in Los Angeles, California, directly above the Bob Barker Studio. It is produced by David Letterman's production company Worldwide Pants Incorporated and CBS Television Studios.\n\nSince becoming host on January 3, 2005, after Craig Kilborn and Tom Snyder, Ferguson has achieved the highest ratings since the show's inception in 1995. While the majority of the episodes focus on comedy, Ferguson has also addressed difficult subject matter, such as the deaths of his parents, and undertaken serious interviews, such as one with Desmond Tutu, which earned the show a 2009 Peabody Award.",
             "popularity": 738.72,
             "poster_path": "https://image.tmdb.org/t/p/original/gGC7zSDgG0FY0MbM1pjfhTCWQBI.jpg",
             "first_air_date": "2005-01-03",
+            "name": "The Late Late Show with Craig Ferguson",
             "vote_average": 6.755,
             "vote_count": 94,
             "type": "series",
@@ -4381,10 +4511,12 @@
                 "GB"
             ],
             "original_language": "en",
+            "original_name": "A Girl's Guide to 21st Century Sex",
             "overview": "A Girl's Guide to 21st Century Sex is a documentary TV series about sex, which ran in eight episodes on Channel 5 and was presented by Dr. Catherine Hood. The 45-minute long episodes were broadcast on Monday nights. The series started on 30 October 2006, with the final programme broadcast on 18 December 2006.\n\nEach episode explained a sex position and covered a sexually transmitted disease. Additionally, the following topics were discussed: sex among handicapped and overweight people, penis enlargement devices, penis enlargement surgery, sexual violence against men and penis removal, tantric sex, the g-spot, erectile dysfunction, sex reassignment surgery, cosmetic surgery of the vagina, swinging, lichen sclerosus, the use of recreational drugs during sex, male homosexual sex in public toilets, full body plastic wrap bondage, and sex dolls.\n\nThe programme included close shots of the male and female body as well as footage of sexual intercourse and ejaculation filmed with an internal camera placed inside the vagina. These scenes were filmed using Australian-born pornographic actress Elizabeth Lawrence and English-born pornographic actor Stefan Hard.",
             "popularity": 729.178,
             "poster_path": "https://image.tmdb.org/t/p/original/9NSX2YrFGBIih0XqRedsSbDVx4U.jpg",
             "first_air_date": "2006-10-30",
+            "name": "A Girl's Guide to 21st Century Sex",
             "vote_average": 5.25,
             "vote_count": 16,
             "type": "series",
@@ -4405,10 +4537,12 @@
                 "SA"
             ],
             "original_language": "ar",
+            "original_name": "خريف القلب",
             "overview": "A devastating car accident unearths a long-buried secret that turns wealthy businessman Rashid and hardworking Nahla's life around; fifteen years ago, their daughters were switched at birth.",
             "popularity": 707.456,
             "poster_path": "https://image.tmdb.org/t/p/original/8uDmIxjBx90y5OCwJDBADtQzxb7.jpg",
             "first_air_date": "2024-10-27",
+            "name": "Autumn of the Heart",
             "vote_average": 10,
             "vote_count": 1,
             "type": "series",
@@ -4431,10 +4565,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "The Simpsons",
             "overview": "Set in Springfield, the average American town, the show focuses on the antics and everyday adventures of the Simpson family; Homer, Marge, Bart, Lisa and Maggie, as well as a virtual cast of thousands. Since the beginning, the series has been a pop culture icon, attracting hundreds of celebrities to guest star. The show has also made name for itself in its fearless satirical take on politics, media and American life in general.",
             "popularity": 696.86,
             "poster_path": "https://image.tmdb.org/t/p/original/vHqeLzYl3dEAutojCO26g0LIkom.jpg",
             "first_air_date": "1989-12-17",
+            "name": "The Simpsons",
             "vote_average": 8.014,
             "vote_count": 9893,
             "type": "series",
@@ -4458,10 +4594,12 @@
                 "KR"
             ],
             "original_language": "ko",
+            "original_name": "꼬리에 꼬리를 무는 그날 이야기",
             "overview": "",
             "popularity": 691.843,
             "poster_path": "https://image.tmdb.org/t/p/original/ty9wVEbzvJre9ClM7ETgBFreJZG.jpg",
             "first_air_date": "2020-09-17",
+            "name": "The story of the day when the tail was bitten",
             "vote_average": 7,
             "vote_count": 2,
             "type": "series",
@@ -4483,10 +4621,12 @@
                 "JP"
             ],
             "original_language": "ja",
+            "original_name": "月曜から夜ふかし",
             "overview": "Hosts Matsuko Deluxe and Murakami Shingo review street interviews based on current trends/topics in Japan.",
             "popularity": 680.614,
             "poster_path": "https://image.tmdb.org/t/p/original/zj9rb86Ai3EXoDriCRlBDwzPDuC.jpg",
             "first_air_date": "2012-04-10",
+            "name": "Monday Late Show",
             "vote_average": 9,
             "vote_count": 3,
             "type": "series",
@@ -4508,10 +4648,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Supernatural",
             "overview": "When they were boys, Sam and Dean Winchester lost their mother to a mysterious and demonic supernatural force. Subsequently, their father raised them to be soldiers. He taught them about the paranormal evil that lives in the dark corners and on the back roads of America ... and he taught them how to kill it. Now, the Winchester brothers crisscross the country in their '67 Chevy Impala, battling every kind of supernatural threat they encounter along the way. ",
             "popularity": 679.574,
             "poster_path": "https://image.tmdb.org/t/p/original/KoYWXbnYuS3b0GyQPkbuexlVK9.jpg",
             "first_air_date": "2005-09-13",
+            "name": "Supernatural",
             "vote_average": 8.3,
             "vote_count": 7593,
             "type": "series",
@@ -4535,10 +4677,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Game of Thrones",
             "overview": "Seven noble families fight for control of the mythical land of Westeros. Friction between the houses leads to full-scale war. All while a very ancient evil awakens in the farthest north. Amidst the war, a neglected military order of misfits, the Night's Watch, is all that stands between the realms of men and icy horrors beyond.",
             "popularity": 665.188,
             "poster_path": "https://image.tmdb.org/t/p/original/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg",
             "first_air_date": "2011-04-17",
+            "name": "Game of Thrones",
             "vote_average": 8.456,
             "vote_count": 24151,
             "type": "series",
@@ -4561,10 +4705,12 @@
                 "JP"
             ],
             "original_language": "ja",
+            "original_name": "おーばーふろぉ",
             "overview": "Male college student Kazushi Sudou and his childhood friends, the Shirakawa sisters, end up bathing together.",
             "popularity": 660.466,
             "poster_path": "https://image.tmdb.org/t/p/original/8RtwL5gxUvh9YViqjhNlVRvJpum.jpg",
             "first_air_date": "2020-01-06",
+            "name": "Overflow",
             "vote_average": 8.037,
             "vote_count": 41,
             "type": "series",
@@ -4572,6 +4718,230 @@
             "genres": [
                 "Animation",
                 "Comedy"
+            ]
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/xgyTnSUUDT4jYL3X6F3DKYeP9HE.jpg",
+            "genre_ids": [
+                35,
+                18,
+                10751
+            ],
+            "id": 119316,
+            "origin_country": [
+                "IN"
+            ],
+            "original_language": "hi",
+            "original_name": "वागले की दुनिया",
+            "overview": "Three generations of the family live together, who share all their happiness and sorrows. Follow the story of this family as they bring laughter to each other's lives and will make your heart melt. A new generation of the old critically acclaimed show is here to take you on a roller coaster ride of emotions.",
+            "popularity": 636.99,
+            "poster_path": "https://image.tmdb.org/t/p/original/jKonm6Q3vw51Ytd4y7bJ70xJT7l.jpg",
+            "first_air_date": "2021-02-08",
+            "name": "Wagle Ki Duniya",
+            "vote_average": 7.8,
+            "vote_count": 13,
+            "type": "series",
+            "release_date": null,
+            "genres": [
+                "Comedy",
+                "Drama",
+                "Family"
+            ]
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/eLGICVIbVWke9U8SnUVrtXdwrlC.jpg",
+            "genre_ids": [
+                80,
+                18,
+                35
+            ],
+            "id": 79744,
+            "origin_country": [
+                "US"
+            ],
+            "original_language": "en",
+            "original_name": "The Rookie",
+            "overview": "Starting over isn’t easy, especially for small-town guy John Nolan who, after a life-altering incident, is pursuing his dream of being an LAPD officer. As the force’s oldest rookie, he’s met with skepticism from some higher-ups who see him as just a walking midlife crisis.",
+            "popularity": 629.505,
+            "poster_path": "https://image.tmdb.org/t/p/original/wbeqBUFydztHDQ4h7dZqnknh5HE.jpg",
+            "first_air_date": "2018-10-16",
+            "name": "The Rookie",
+            "vote_average": 8.441,
+            "vote_count": 2036,
+            "type": "series",
+            "release_date": null,
+            "genres": [
+                "Crime",
+                "Drama",
+                "Comedy"
+            ]
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/w8Um9O5rIHCbYwqVXTjLkKgivFt.jpg",
+            "genre_ids": [
+                18
+            ],
+            "id": 262364,
+            "origin_country": [
+                "HR"
+            ],
+            "original_language": "hr",
+            "original_name": "Sjene prošlosti",
+            "overview": "",
+            "popularity": 615.307,
+            "poster_path": "https://image.tmdb.org/t/p/original/ycZgG9FG8dP4MwUSBvDXCagpoTa.jpg",
+            "first_air_date": "2024-09-02",
+            "name": "Sjene prošlosti",
+            "vote_average": 0,
+            "vote_count": 0,
+            "type": "series",
+            "release_date": null,
+            "genres": [
+                "Drama"
+            ]
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/2bhOm46HfWEu7xpZ4bfwNa1K60w.jpg",
+            "genre_ids": [
+                10764
+            ],
+            "id": 911,
+            "origin_country": [
+                "IN"
+            ],
+            "original_language": "hi",
+            "original_name": "कौन बनेगा करोड़पति",
+            "overview": "Hosted by India's biggest superstar, Amitabh Bachchan, one of the biggest shows is here to entertain millions, change lives and make dreams come true.",
+            "popularity": 606.932,
+            "poster_path": "https://image.tmdb.org/t/p/original/8srHjzgZq9V9sgsTkIwGARDyADj.jpg",
+            "first_air_date": "2000-07-03",
+            "name": "Kaun Banega Crorepati",
+            "vote_average": 7,
+            "vote_count": 25,
+            "type": "series",
+            "release_date": null,
+            "genres": [
+                "Reality"
+            ]
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/qVmgq1KXBp6BF2EqYPPaUG9iUGy.jpg",
+            "genre_ids": [
+                80,
+                18,
+                9648
+            ],
+            "id": 764,
+            "origin_country": [
+                "GB"
+            ],
+            "original_language": "en",
+            "original_name": "Midsomer Murders",
+            "overview": "The peacefulness of the Midsomer community is shattered by violent crimes, suspects are placed under suspicion, and it is up to a veteran DCI and his young sergeant to calmly and diligently eliminate the innocent and ruthlessly pursue the guilty. ",
+            "popularity": 600.092,
+            "poster_path": "https://image.tmdb.org/t/p/original/pz7tsWxe0TTdfJnWPjZAEnrSl5M.jpg",
+            "first_air_date": "1997-03-23",
+            "name": "Midsomer Murders",
+            "vote_average": 7.6,
+            "vote_count": 299,
+            "type": "series",
+            "release_date": null,
+            "genres": [
+                "Crime",
+                "Drama",
+                "Mystery"
+            ]
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/zHA6kd8INvqMfGR9vDrn1GATKxs.jpg",
+            "genre_ids": [
+                35,
+                18,
+                9648,
+                80
+            ],
+            "id": 1447,
+            "origin_country": [
+                "US"
+            ],
+            "original_language": "en",
+            "original_name": "Psych",
+            "overview": "Thanks to his police officer father's efforts, Shawn Spencer spent his childhood developing a keen eye for detail (and a lasting dislike of his dad). Years later, Shawn's frequent tips to the police lead to him being falsely accused of a crime he solved.\n\nNow, Shawn has no choice but to use his abilities to perpetuate his cover story: psychic crime-solving powers, all the while dragging his best friend, his dad, and the police along for the ride.",
+            "popularity": 599.281,
+            "poster_path": "https://image.tmdb.org/t/p/original/fDI15gTVbtW5Sbv5QenqecRxWKJ.jpg",
+            "first_air_date": "2006-07-07",
+            "name": "Psych",
+            "vote_average": 7.9,
+            "vote_count": 797,
+            "type": "series",
+            "release_date": null,
+            "genres": [
+                "Comedy",
+                "Drama",
+                "Mystery",
+                "Crime"
+            ]
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/fyPE888ASexXOTEXTzKvM0mWyRE.jpg",
+            "genre_ids": [
+                99
+            ],
+            "id": 58581,
+            "origin_country": [
+                "GB"
+            ],
+            "original_language": "en",
+            "original_name": "Antiques Road Trip",
+            "overview": "Antiques experts travel across the country, competing to make a profit at auction.",
+            "popularity": 594.205,
+            "poster_path": "https://image.tmdb.org/t/p/original/wBMFyk3SwOkBwoByEaGKeSvY5Ns.jpg",
+            "first_air_date": "2010-03-08",
+            "name": "Antiques Road Trip",
+            "vote_average": 5,
+            "vote_count": 8,
+            "type": "series",
+            "release_date": null,
+            "genres": [
+                "Documentary"
+            ]
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/oUmWLyeko3kYdUr8DBLIsxwcugl.jpg",
+            "genre_ids": [
+                16,
+                10759,
+                35,
+                10765
+            ],
+            "id": 236994,
+            "origin_country": [
+                "JP"
+            ],
+            "original_language": "ja",
+            "original_name": "ドラゴンボールDAIMA",
+            "overview": "Mysteriously transformed into mini versions of themselves, Goku and his friends travel to the Demon Realm to uncover the truth and find a cure.",
+            "popularity": 590.646,
+            "poster_path": "https://image.tmdb.org/t/p/original/cIDPZMGsiVHkHA6HPJmEmGcgyyw.jpg",
+            "first_air_date": "2024-10-11",
+            "name": "Dragon Ball DAIMA",
+            "vote_average": 8.1,
+            "vote_count": 199,
+            "type": "series",
+            "release_date": null,
+            "genres": [
+                "Animation",
+                "Action & Adventure",
+                "Comedy",
+                "Sci-Fi & Fantasy"
             ]
         },
         {
@@ -4588,12 +4958,14 @@
                 "JP"
             ],
             "original_language": "ja",
+            "original_name": "ダンダダン",
             "overview": "In a bet to prove whether ghosts or aliens exist, two high schoolers face terrifying paranormal threats, gain superpowers and maybe even fall in love?!",
             "popularity": 583.595,
             "poster_path": "https://image.tmdb.org/t/p/original/6qfZAOEUFIrbUH3JvePclx1nXzz.jpg",
             "first_air_date": "2024-10-04",
-            "vote_average": 8.8,
-            "vote_count": 149,
+            "name": "Dan Da Dan",
+            "vote_average": 8.803,
+            "vote_count": 150,
             "type": "series",
             "release_date": null,
             "genres": [
@@ -4605,102 +4977,54 @@
         },
         {
             "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/o6KKirdK4WyXfnSTd3QRzHcZJat.jpg",
+            "backdrop_path": "https://image.tmdb.org/t/p/original/vh9Rk0BeU3udQoOFUIxndmafq7s.jpg",
             "genre_ids": [
-                10767,
-                10763
-            ],
-            "id": 114863,
-            "origin_country": [
-                "CL"
-            ],
-            "original_language": "es",
-            "overview": "Daily interviews discussing the guest's personal lives and national contingency.",
-            "popularity": 362.647,
-            "poster_path": "https://image.tmdb.org/t/p/original/lBm5uxFGU40Hz7wztTAcsvh6Ng9.jpg",
-            "first_air_date": "2011-10-11",
-            "vote_average": 5.5,
-            "vote_count": 2,
-            "type": "series",
-            "release_date": null,
-            "genres": [
-                "Talk",
-                "News"
-            ]
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/a3N30HNaWSx6TL0bmRSPWMkAFxM.jpg",
-            "genre_ids": [
-                35,
+                10751,
                 18
             ],
-            "id": 156899,
+            "id": 210865,
             "origin_country": [
-                "JP"
+                "TR"
             ],
-            "original_language": "ja",
-            "overview": "Azusa Akiyama is top of her class, only daughter of a supermarket manager in Los Angeles.  Kouhei Takamoto is her classmate, a rough and tumble guitarist for the band Cherry Boys.  One day after school, they crash into each other, and fallen electrical lines cause them to switch bodies.",
-            "popularity": 355.046,
-            "poster_path": "https://image.tmdb.org/t/p/original/5hhJXYEjgHTzGw3CWGaGhG7tAXr.jpg",
-            "first_air_date": "1992-10-15",
-            "vote_average": 6,
-            "vote_count": 4,
+            "original_language": "tr",
+            "original_name": "Yalı Çapkını",
+            "overview": "A young girl is forced to marry a rich groom. The groom is not only rich, but also allows himself to live without any restrictions or obligations. Will married life change his habits? And how will such a man be accepted by a good-hearted wife?",
+            "popularity": 577.951,
+            "poster_path": "https://image.tmdb.org/t/p/original/yTHaFClgAktpHwlAJzZGftep2ok.jpg",
+            "first_air_date": "2022-09-23",
+            "name": "Golden Boy",
+            "vote_average": 8.3,
+            "vote_count": 53,
             "type": "series",
             "release_date": null,
             "genres": [
-                "Comedy",
+                "Family",
                 "Drama"
             ]
         },
         {
             "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/gc8PfyTqzqltKPW3X0cIVUGmagz.jpg",
+            "backdrop_path": "https://image.tmdb.org/t/p/original/vhAPxbQukz8b2IgBqLIxfCskMXy.jpg",
             "genre_ids": [
-                18,
-                80
+                35
             ],
-            "id": 1396,
+            "id": 1089,
             "origin_country": [
-                "US"
+                "IL"
             ],
-            "original_language": "en",
-            "overview": "Walter White, a New Mexico chemistry teacher, is diagnosed with Stage III cancer and given a prognosis of only two years left to live. He becomes filled with a sense of fearlessness and an unrelenting desire to secure his family's financial future at any cost as he enters the dangerous world of drugs and crime.",
-            "popularity": 515.198,
-            "poster_path": "https://image.tmdb.org/t/p/original/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg",
-            "first_air_date": "2008-01-20",
-            "vote_average": 8.9,
-            "vote_count": 14526,
+            "original_language": "he",
+            "original_name": "זהו זה!",
+            "overview": "Plots of the episodes revolved around different subjects related to life in Israel, fashions like Folk dancing, tributes to classics like Charlie Chaplin movies, or contemporary series like The Simpsons and Dallas.",
+            "popularity": 562.124,
+            "poster_path": "https://image.tmdb.org/t/p/original/zt0Ev2U9ECsCcCSJ7AZHuQqRNqz.jpg",
+            "first_air_date": "1978-07-02",
+            "name": "Zehu Ze",
+            "vote_average": 9,
+            "vote_count": 1,
             "type": "series",
             "release_date": null,
             "genres": [
-                "Drama",
-                "Crime"
-            ]
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/aDBRtunw49UF4XmqfyNuD9nlYIu.jpg",
-            "genre_ids": [
-                80,
-                10765
-            ],
-            "id": 63174,
-            "origin_country": [
-                "US"
-            ],
-            "original_language": "en",
-            "overview": "Bored and unhappy as the Lord of Hell, Lucifer Morningstar abandoned his throne and retired to Los Angeles, where he has teamed up with LAPD detective Chloe Decker to take down criminals. But the longer he's away from the underworld, the greater the threat that the worst of humanity could escape.",
-            "popularity": 482.168,
-            "poster_path": "https://image.tmdb.org/t/p/original/ekZobS8isE6mA53RAiGDG93hBxL.jpg",
-            "first_air_date": "2016-01-25",
-            "vote_average": 8.46,
-            "vote_count": 14713,
-            "type": "series",
-            "release_date": null,
-            "genres": [
-                "Crime",
-                "Sci-Fi & Fantasy"
+                "Comedy"
             ]
         },
         {
@@ -4716,191 +5040,20 @@
                 "CA"
             ],
             "original_language": "en",
+            "original_name": "Heartland",
             "overview": "Life is hard on the Flemings' ranch in the Alberta foothills where abused or neglected horses find refuge with a kind, hard-working family. Debts abound and the bank is about to foreclose. Can they keep the ranch running?",
             "popularity": 552.122,
             "poster_path": "https://image.tmdb.org/t/p/original/uc2gtWczT58BiAUJWFz9P5aZmNF.jpg",
             "first_air_date": "2007-10-14",
-            "vote_average": 8.259,
-            "vote_count": 553,
+            "name": "Heartland",
+            "vote_average": 8.26,
+            "vote_count": 554,
             "type": "series",
             "release_date": null,
             "genres": [
                 "Family",
                 "Drama",
                 "Comedy"
-            ]
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/cwKuMNndfjSl8iQIcAISL0C1tDZ.jpg",
-            "genre_ids": [
-                18
-            ],
-            "id": 37680,
-            "origin_country": [
-                "US"
-            ],
-            "original_language": "en",
-            "overview": "While running from a drug deal gone bad, Mike Ross, a brilliant young college-dropout, slips into a job interview with one of New York City's best legal closers, Harvey Specter. Tired of cookie-cutter law school grads, Harvey takes a gamble by hiring Mike on the spot after he recognizes his raw talent and photographic memory.",
-            "popularity": 522.936,
-            "poster_path": "https://image.tmdb.org/t/p/original/vQiryp6LioFxQThywxbC6TuoDjy.jpg",
-            "first_air_date": "2011-06-23",
-            "vote_average": 8.2,
-            "vote_count": 5058,
-            "type": "series",
-            "release_date": null,
-            "genres": [
-                "Drama"
-            ]
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/3RC0M5ynmtrGRJBkQcYi0kjxD64.jpg",
-            "genre_ids": [
-                10764
-            ],
-            "id": 114439,
-            "origin_country": [
-                "US"
-            ],
-            "original_language": "en",
-            "overview": "Audience members dress up in outlandish costumes to get host Wayne Brady's attention in an attempt to make deals for trips, prizes, cars or cash, while trying to avoid the dreaded Zonks.",
-            "popularity": 757.956,
-            "poster_path": "https://image.tmdb.org/t/p/original/8lQkzJCwPpB0P6GieQeojUOW6PU.jpg",
-            "first_air_date": "2009-10-05",
-            "vote_average": 4.7,
-            "vote_count": 15,
-            "type": "series",
-            "release_date": null,
-            "genres": [
-                "Reality"
-            ]
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/lTGTQ02Bci6SIncqE1aljuy3NK7.jpg",
-            "genre_ids": [
-                16,
-                35
-            ],
-            "id": 99466,
-            "origin_country": [
-                "JP"
-            ],
-            "original_language": "ja",
-            "overview": "First-year Toono transfers from Tokyo to the all-boys boarding school deep in the mountains, \"Mori Moori Private School.\" The friendly Yaguchi who calls out to him becomes his only friend, but his dislike of sports makes him join the most laid-back looking photography club instead of Yaguchi's soccer club. However, the photography club is in name only and is actually nicknamed the \"Yarichin Bitch Club,\" filled with colorful seniors. In contrast to the troubled Toono, Kajima, who joined the club at the same time, is completely unphased and even slips a confession to Toono into the confusion. Toono himself thinks Yaguchi is cute, but Yaguchi finds himself blushing around Kajima and stuff happens. Furthermore, complications arise between the seniors…",
-            "popularity": 320.752,
-            "poster_path": "https://image.tmdb.org/t/p/original/lz9FZVmb4zoy6L9of47atKz8uAE.jpg",
-            "first_air_date": "2018-09-21",
-            "vote_average": 7.3,
-            "vote_count": 37,
-            "type": "series",
-            "release_date": null,
-            "genres": [
-                "Animation",
-                "Comedy"
-            ]
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/r0Q6eeN9L1ORL9QsV0Sg8ZV3vnv.jpg",
-            "genre_ids": [
-                18,
-                9648,
-                35
-            ],
-            "id": 1408,
-            "origin_country": [
-                "US"
-            ],
-            "original_language": "en",
-            "overview": "Dr. Gregory House, a drug-addicted, unconventional, misanthropic medical genius, leads a team of diagnosticians at the fictional Princeton–Plainsboro Teaching Hospital in New Jersey.",
-            "popularity": 475.129,
-            "poster_path": "https://image.tmdb.org/t/p/original/3Cz7ySOQJmqiuTdrc6CY0r65yDI.jpg",
-            "first_air_date": "2004-11-16",
-            "vote_average": 8.591,
-            "vote_count": 6552,
-            "type": "series",
-            "release_date": null,
-            "genres": [
-                "Drama",
-                "Mystery",
-                "Comedy"
-            ]
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/vh9Rk0BeU3udQoOFUIxndmafq7s.jpg",
-            "genre_ids": [
-                10751,
-                18
-            ],
-            "id": 210865,
-            "origin_country": [
-                "TR"
-            ],
-            "original_language": "tr",
-            "overview": "A young girl is forced to marry a rich groom. The groom is not only rich, but also allows himself to live without any restrictions or obligations. Will married life change his habits? And how will such a man be accepted by a good-hearted wife?",
-            "popularity": 577.951,
-            "poster_path": "https://image.tmdb.org/t/p/original/yTHaFClgAktpHwlAJzZGftep2ok.jpg",
-            "first_air_date": "2022-09-23",
-            "vote_average": 8.3,
-            "vote_count": 53,
-            "type": "series",
-            "release_date": null,
-            "genres": [
-                "Family",
-                "Drama"
-            ]
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/xl1wGwaPZInJo1JAnpKqnFozWBE.jpg",
-            "genre_ids": [
-                35,
-                10767
-            ],
-            "id": 59941,
-            "origin_country": [
-                "US"
-            ],
-            "original_language": "en",
-            "overview": "After Jay Leno's second retirement from the program, Jimmy Fallon stepped in as his permanent replacement. After 42 years in Los Angeles the program was brought back to New York.",
-            "popularity": 740.459,
-            "poster_path": "https://image.tmdb.org/t/p/original/if7ECoH4xaYw5S8gomNIEmtwTxP.jpg",
-            "first_air_date": "2014-02-17",
-            "vote_average": 5.8,
-            "vote_count": 311,
-            "type": "series",
-            "release_date": null,
-            "genres": [
-                "Comedy",
-                "Talk"
-            ]
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/m0bV3qBiJBBlpFaaKjwHo13MVjm.jpg",
-            "genre_ids": [
-                35,
-                10767
-            ],
-            "id": 14981,
-            "origin_country": [
-                "US"
-            ],
-            "original_language": "en",
-            "overview": "The Late Late Show with Craig Ferguson is an American late-night talk show hosted by Scottish American comedian Craig Ferguson, who is the third regular host of the Late Late Show franchise. It follows Late Show with David Letterman in the CBS late-night lineup, airing weekdays in the US at 12:37 a.m. It is taped in front of a live studio audience from Monday to Friday at CBS Television City in Los Angeles, California, directly above the Bob Barker Studio. It is produced by David Letterman's production company Worldwide Pants Incorporated and CBS Television Studios.\n\nSince becoming host on January 3, 2005, after Craig Kilborn and Tom Snyder, Ferguson has achieved the highest ratings since the show's inception in 1995. While the majority of the episodes focus on comedy, Ferguson has also addressed difficult subject matter, such as the deaths of his parents, and undertaken serious interviews, such as one with Desmond Tutu, which earned the show a 2009 Peabody Award.",
-            "popularity": 738.72,
-            "poster_path": "https://image.tmdb.org/t/p/original/gGC7zSDgG0FY0MbM1pjfhTCWQBI.jpg",
-            "first_air_date": "2005-01-03",
-            "vote_average": 6.7,
-            "vote_count": 93,
-            "type": "series",
-            "release_date": null,
-            "genres": [
-                "Comedy",
-                "Talk"
             ]
         },
         {
@@ -4915,10 +5068,12 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Shameless",
             "overview": "Chicagoan Frank Gallagher is the proud single dad of six smart, industrious, independent kids, who without him would be... perhaps better off. When Frank's not at the bar spending what little money they have, he's passed out on the floor. But the kids have found ways to grow up in spite of him. They may not be like any family you know, but they make no apologies for being exactly who they are.",
             "popularity": 538.048,
             "poster_path": "https://image.tmdb.org/t/p/original/9akij7PqZ1g6zl42DQQTtL9CTSb.jpg",
             "first_air_date": "2011-01-09",
+            "name": "Shameless",
             "vote_average": 8.2,
             "vote_count": 2732,
             "type": "series",
@@ -4926,60 +5081,6 @@
             "genres": [
                 "Drama",
                 "Comedy"
-            ]
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/65Y6PweSvQ1OOFBzStybjipURRP.jpg",
-            "genre_ids": [
-                80,
-                18,
-                9648
-            ],
-            "id": 4057,
-            "origin_country": [
-                "US"
-            ],
-            "original_language": "en",
-            "overview": "An elite team of FBI profilers analyze the country's most twisted criminal minds, anticipating their next moves before they strike again. The Behavioral Analysis Unit's most experienced agent is David Rossi, a founding member of the BAU who returns to help the team solve new cases.",
-            "popularity": 518.078,
-            "poster_path": "https://image.tmdb.org/t/p/original/wLMQebhTApmn4F6Fzg6FovdwVvL.jpg",
-            "first_air_date": "2005-09-22",
-            "vote_average": 8.313,
-            "vote_count": 3724,
-            "type": "series",
-            "release_date": null,
-            "genres": [
-                "Crime",
-                "Drama",
-                "Mystery"
-            ]
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/iprMfJ9VHS4wMhBXyHtN7l9d2hP.jpg",
-            "genre_ids": [
-                80,
-                18,
-                9648
-            ],
-            "id": 1405,
-            "origin_country": [
-                "US"
-            ],
-            "original_language": "en",
-            "overview": "Dexter Morgan, a blood spatter pattern analyst for the Miami Metro Police also leads a secret life as a serial killer, hunting down criminals who have slipped through the cracks of justice.",
-            "popularity": 511.964,
-            "poster_path": "https://image.tmdb.org/t/p/original/q8dWfc4JwQuv3HayIZeO84jAXED.jpg",
-            "first_air_date": "2006-10-01",
-            "vote_average": 8.191,
-            "vote_count": 4298,
-            "type": "series",
-            "release_date": null,
-            "genres": [
-                "Crime",
-                "Drama",
-                "Mystery"
             ]
         },
         {
@@ -4996,12 +5097,14 @@
                 "JP"
             ],
             "original_language": "ja",
+            "original_name": "らんま1/2",
             "overview": "Ranma Saotome, a teenage martial artist, and his father Genma travel to the 'cursed training ground' of Jusenkyo in China. There, despite the warnings of the Chinese guard, they fall into the cursed springs. From now on, whenever Ranma is doused in cold water, he turns into a girl and a cute, well-built redhead at that. Hot water changes him back into a man again, but only until the next time. To make matters worse, his father engages him to Akane Tendo, a girl who hates boys.",
             "popularity": 537.299,
             "poster_path": "https://image.tmdb.org/t/p/original/qb1R5iLZcjIgdDIfXFQXmJadQPI.jpg",
             "first_air_date": "1989-04-15",
-            "vote_average": 8.607,
-            "vote_count": 1373,
+            "name": "Ranma ½",
+            "vote_average": 8.608,
+            "vote_count": 1374,
             "type": "series",
             "release_date": null,
             "genres": [
@@ -5009,6 +5112,139 @@
                 "Action & Adventure",
                 "Animation",
                 "Sci-Fi & Fantasy"
+            ]
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/63xyLcwq2Nx88Ca3ERKPqIL5UsD.jpg",
+            "genre_ids": [
+                10767
+            ],
+            "id": 119330,
+            "origin_country": [
+                "CN"
+            ],
+            "original_language": "zh",
+            "original_name": "非正式会谈",
+            "overview": "",
+            "popularity": 530.881,
+            "poster_path": "https://image.tmdb.org/t/p/original/4vjXL7fXjRYpE9Q2Dvb4z1KSe7T.jpg",
+            "first_air_date": "2015-04-24",
+            "name": "Informal Talks",
+            "vote_average": 9.3,
+            "vote_count": 3,
+            "type": "series",
+            "release_date": null,
+            "genres": [
+                "Talk"
+            ]
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/mXtL24G2Awyl3lKFtreMHnH5qFC.jpg",
+            "genre_ids": [
+                35,
+                18
+            ],
+            "id": 105,
+            "origin_country": [
+                "US"
+            ],
+            "original_language": "en",
+            "original_name": "Sex and the City",
+            "overview": "Based on the bestselling book by Candace Bushnell, Sex and the City tells the story of four best friends, all single and in their late thirties, as they pursue their careers and talk about their sex lives, all while trying to survive the New York social scene. ",
+            "popularity": 524.243,
+            "poster_path": "https://image.tmdb.org/t/p/original/tzVUZxNwntAS8Gk3WF2DCcI8x1B.jpg",
+            "first_air_date": "1998-06-06",
+            "name": "Sex and the City",
+            "vote_average": 7.403,
+            "vote_count": 2006,
+            "type": "series",
+            "release_date": null,
+            "genres": [
+                "Comedy",
+                "Drama"
+            ]
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/cwKuMNndfjSl8iQIcAISL0C1tDZ.jpg",
+            "genre_ids": [
+                18
+            ],
+            "id": 37680,
+            "origin_country": [
+                "US"
+            ],
+            "original_language": "en",
+            "original_name": "Suits",
+            "overview": "While running from a drug deal gone bad, Mike Ross, a brilliant young college-dropout, slips into a job interview with one of New York City's best legal closers, Harvey Specter. Tired of cookie-cutter law school grads, Harvey takes a gamble by hiring Mike on the spot after he recognizes his raw talent and photographic memory.",
+            "popularity": 522.936,
+            "poster_path": "https://image.tmdb.org/t/p/original/vQiryp6LioFxQThywxbC6TuoDjy.jpg",
+            "first_air_date": "2011-06-23",
+            "name": "Suits",
+            "vote_average": 8.2,
+            "vote_count": 5058,
+            "type": "series",
+            "release_date": null,
+            "genres": [
+                "Drama"
+            ]
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/65Y6PweSvQ1OOFBzStybjipURRP.jpg",
+            "genre_ids": [
+                80,
+                18,
+                9648
+            ],
+            "id": 4057,
+            "origin_country": [
+                "US"
+            ],
+            "original_language": "en",
+            "original_name": "Criminal Minds",
+            "overview": "An elite team of FBI profilers analyze the country's most twisted criminal minds, anticipating their next moves before they strike again. The Behavioral Analysis Unit's most experienced agent is David Rossi, a founding member of the BAU who returns to help the team solve new cases.",
+            "popularity": 518.078,
+            "poster_path": "https://image.tmdb.org/t/p/original/wLMQebhTApmn4F6Fzg6FovdwVvL.jpg",
+            "first_air_date": "2005-09-22",
+            "name": "Criminal Minds",
+            "vote_average": 8.313,
+            "vote_count": 3725,
+            "type": "series",
+            "release_date": null,
+            "genres": [
+                "Crime",
+                "Drama",
+                "Mystery"
+            ]
+        },
+        {
+            "adult": false,
+            "backdrop_path": "https://image.tmdb.org/t/p/original/ApGvX0blnHw1cAaL2QRBlJn7hUR.jpg",
+            "genre_ids": [
+                10764,
+                10767
+            ],
+            "id": 111798,
+            "origin_country": [
+                "KR"
+            ],
+            "original_language": "ko",
+            "original_name": "요즘 육아 금쪽같은 내새끼",
+            "overview": "Parenting's not an easy job, and every child is different. Experts provide tips and coaching for struggling parents in search of solutions.",
+            "popularity": 516.872,
+            "poster_path": "https://image.tmdb.org/t/p/original/iq7VSsoyJCZZstCiM7Vw5GdXbEB.jpg",
+            "first_air_date": "2020-05-29",
+            "name": "My Golden Kids",
+            "vote_average": 5.2,
+            "vote_count": 5,
+            "type": "series",
+            "release_date": null,
+            "genres": [
+                "Reality",
+                "Talk"
             ]
         },
         {
@@ -5022,68 +5258,18 @@
                 "US"
             ],
             "original_language": "en",
+            "original_name": "Landman",
             "overview": "Set in the proverbial boomtowns of West-Texas and a modern-day tale of fortune-seeking in the world of oil rigs, the series is an upstairs/downstairs story of roughnecks and wildcat billionaires that are fueling a boom so big it’s reshaping our climate, our economy and our geopolitics.",
             "popularity": 516.552,
             "poster_path": "https://image.tmdb.org/t/p/original/rxWtATtTdwx0ERQjQ7BtVOMyq5r.jpg",
             "first_air_date": "2024-11-17",
-            "vote_average": 8.2,
-            "vote_count": 21,
+            "name": "Landman",
+            "vote_average": 8.1,
+            "vote_count": 23,
             "type": "series",
             "release_date": null,
             "genres": [
                 "Drama"
-            ]
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/2eIlCirgcvEwmCSYh2wDfz5Sxvz.jpg",
-            "genre_ids": [
-                18,
-                80,
-                9648
-            ],
-            "id": 46952,
-            "origin_country": [
-                "US"
-            ],
-            "original_language": "en",
-            "overview": "Raymond \"Red\" Reddington, one of the FBI's most wanted fugitives, surrenders in person at FBI Headquarters in Washington, D.C. He claims that he and the FBI have the same interests: bringing down dangerous criminals and terrorists. In the last two decades, he's made a list of criminals and terrorists that matter the most but the FBI cannot find because it does not know they exist. Reddington calls this \"The Blacklist\". Reddington will co-operate, but insists that he will speak only to Elizabeth Keen, a rookie FBI profiler.",
-            "popularity": 481.67,
-            "poster_path": "https://image.tmdb.org/t/p/original/r935SMphvXppx5bJjbIBNx02fwc.jpg",
-            "first_air_date": "2013-09-23",
-            "vote_average": 7.6,
-            "vote_count": 3148,
-            "type": "series",
-            "release_date": null,
-            "genres": [
-                "Drama",
-                "Crime",
-                "Mystery"
-            ]
-        },
-        {
-            "adult": false,
-            "backdrop_path": "https://image.tmdb.org/t/p/original/6tsAZGCoyZo965h2uV3fgGwfDJj.jpg",
-            "genre_ids": [
-                10765,
-                35
-            ],
-            "id": 1149,
-            "origin_country": [
-                "TW"
-            ],
-            "original_language": "zh",
-            "overview": "Gifted with special powers, fighting skills and slick hair, the rowdy KO One navigates tough friendships and high school romance.",
-            "popularity": 307.807,
-            "poster_path": "https://image.tmdb.org/t/p/original/tnrWCtRdYUiVMTTnAWvGLYXUj6I.jpg",
-            "first_air_date": "2005-11-26",
-            "vote_average": 6.7,
-            "vote_count": 9,
-            "type": "series",
-            "release_date": null,
-            "genres": [
-                "Sci-Fi & Fantasy",
-                "Comedy"
             ]
         }
     ]

@@ -1,6 +1,97 @@
-
 namespace util
-  function getNodeById(id = "" as String) as object
-    return m.top.findNode(id)
+  function getCarouselByGenre(genre as string, contentType = "series" as string) as Object
+    returnObject = {
+      "title": genre
+      "items": []
+    }
+
+    filteredContent = []
+    if contentType = "series"
+      filteredContent = getShowsByGenre(genre)
+    else if contentType = "movie"
+      filteredContent = getMoviesByGenre(genre)
+    end if
+
+    for each item in filteredContent
+      returnObject.items.push({
+        "id": item.id,
+        "name": item.name,
+        "genres": item.genres,
+        "rating": rodash.toString(item.vote_average),
+        "poster_path": item.poster_path,
+        "backdrop_path": item.backdrop_path,
+        "description": item.overview
+      })
+    end for
+
+    return returnObject
+  end function
+  
+  function getRelatedCarousel(content = {} as object, contentType="" as string) as Object
+    print source_function_name, contentType
+    returnObject = {
+      "title": `Related ${contentType = "series" ? "Shows" : "Movies"}`,
+      "items": []
+    }
+
+    filteredContent = []
+    if contentType = "series"
+      filteredContent = getShowsByGenre(content.genres[0])
+    else if contentType = "movie"
+      filteredContent = getMoviesByGenre(content.genres[0])
+    end if
+
+    filteredContent = rodash.sampleSize(filteredContent, 10)
+
+    for each item in filteredContent
+      returnObject.items.push({
+        "id": item.id,
+        "name": item.name,
+        "genres": item.genres,
+        "rating": rodash.toString(item.vote_average),
+        "poster_path": item.poster_path,
+        "backdrop_path": item.backdrop_path,
+        "description": item.overview
+      })
+    end for
+
+    return returnObject
+  end function
+
+  function getShowsByGenre(genre as string) as Object
+    m.tempGenre = genre
+    return filter(m.global.content, function(o)
+        return o.type = "series" and rodash.indexOf(o.genres, m.tempGenre) <> -1
+    end function)
+  end function
+
+  function getMoviesByGenre(genre as string) as Object
+    m.tempGenre = genre
+    return filter(m.global.content, function(o)
+        return o.type = "movie" and rodash.indexOf(o.genres, m.tempGenre) <> -1
+    end function)
+  end function
+
+  function filter(sourceArray as Object, predicate as Function) as Object
+    ' Validate inputs
+    if type(sourceArray) <> "roArray" or type(predicate) <> "Function"
+        print "Error: Invalid arguments. sourceArray must be an array and predicate must be a function."
+        return invalid
+    end if
+
+    ' Create a new array to hold filtered results
+    filteredArray = []
+
+    ' Iterate through the source array
+    for each item in sourceArray
+        ' Apply the predicate function to each item
+        if predicate(item)
+            ' Add item to filteredArray if predicate returns true
+            filteredArray.push(item)
+        end if
+    end for
+
+    ' Return the new filtered array
+    return filteredArray
   end function
 end namespace

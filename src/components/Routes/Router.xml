@@ -6,7 +6,6 @@
         <function name="addRoutes" />
         <function name="getRoutes" />
         <function name="navigateTo" />
-        <function name="onMainSceneResume" />
     </interface>
     <children />
 </component>

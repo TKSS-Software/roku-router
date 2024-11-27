@@ -1,11 +1,11 @@
 import "../../../source/roku_modules/rodash/rodash.brs"
 import "../../../source/roku_modules/promises/promises.brs"
 
-function onScreenOpen(params = invalid as dynamic) as dynamic
+function onScreenOpen(params = Invalid as Dynamic) as Dynamic
     print source_function_name, params
     context = rodash.getAA(params, "context")
     print context
-    textWidths = 1920 - (m.content.translation[0]*2) - m.content.itemSpacings[0] - m.poster.width
+    textWidths = 1920 - (m.content.translation[0] * 2) - m.content.itemSpacings[0] - m.poster.width
 
     m.title.font = "font:MediumBoldSystemFont"
     m.title.width = textWidths
@@ -19,5 +19,9 @@ function onScreenOpen(params = invalid as dynamic) as dynamic
 
     m.poster.uri = rodash.getString(context, "image").replace("/original/", `/w${m.poster.width}_and_h${m.poster.height}_multi_faces/`)
     m.background.uri = rodash.getString(context, "image").replace("/original/", `/w1920_and_h1080_multi_faces/`)
-    return promises.resolve(invalid)
+    return promises.resolve(Invalid)
+end function
+
+function onScreenResume(context = Invalid as Dynamic) as Dynamic
+    return promises.resolve(Invalid)
 end function

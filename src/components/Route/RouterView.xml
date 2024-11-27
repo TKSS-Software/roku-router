@@ -8,9 +8,10 @@
         <function name="_onScreenOpen" />
         <function name="_beforeScreenClose" />
         <function name="_onRouteUpdate" />
-        <function name="onMainSceneResume" />
+        <function name="_onScreenResume" />
+        <function name="_onScreenSuspend" />
     </interface>
     <children>
-       
+
     </children>
 </component>

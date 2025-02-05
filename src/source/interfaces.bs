@@ -1,0 +1,20 @@
+interface RouteObject
+    path as String ' /movies/3/play?autoPlayNext=true#browseWhileWatching
+    routeConfig as RouteConfig
+    routeParams as Object ' { movieId: 3}
+    queryParams as Object ' { autoPlayNext: true }
+    hash as String ' #browseWhileWatching
+end interface
+
+interface RouteConfig
+    path as String ' /movies/:movieId/play?autoPlayNext=true#browseWhileWatching
+    component as String ' "MovieDetailsScreen"
+    optional skeleton as String ' "MovieDetailsScreenSkeleton"
+    optional isRoot as Boolean ' true
+    optional isDialog as Boolean ' false
+end interface
+
+interface RouteUpdateEvent
+    oldRoute as RouteObject
+    newRoute as RouteObject
+end interface

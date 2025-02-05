@@ -69,7 +69,10 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
 
             if reuse then
                 m.activeScreen.route = newRoute
-                m.activeScreen@._onRouteUpdate(oldRoute, newRoute)
+                m.activeScreen@._onRouteUpdate({
+                    oldRoute: oldRoute
+                    newRoute: newRoute
+                })
                 updateDebugInfo()
                 return promises.resolve(m.activeScreen)
             end if

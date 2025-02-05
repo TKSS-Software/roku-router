@@ -1,0 +1,289 @@
+import "pkg:/source/roku_modules/promises/promises.brs"
+import "pkg:/source/roku_modules/rodash/rodash.brs"
+import "pkg:/source/interfaces.bs"
+
+sub init()
+    m.activeScreen = Invalid
+    m.routes = {}
+
+    m.top.appLaunchComplete = false
+end sub
+
+sub addRoutes(routes = [] as Object)
+    for each route in routes
+        m.routes[route.pattern] = route
+    end for
+end sub
+
+function getRoutes(_ = Invalid as Dynamic) as Dynamic
+    return m.routes
+end function
+
+function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
+    matchedRoute = findMatchingRoute(path, m.routes)
+
+    if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
+        isRoot = matchedRoute.routeConfig.isRoot
+
+        if isRoot then
+            print "ROOT SCREEN" 'bs:disable-line 1001 LINT3012
+        end if
+
+        componentName = rodash.getString(matchedRoute, "routeConfig.component")
+        if rodash.isEmptyString(componentName) then
+            return promises.reject({ message: `No component for route "${path}"` })
+        end if
+
+        newRoute = {
+            context: context
+        }
+        newRoute.append(matchedRoute)
+
+        if m.activeScreen <> Invalid then
+            oldRoute = m.activeScreen.route
+
+            ' Reuse the screen and call onRouteUpdate if the path or hash is the same, OR if the options allow it
+            hasHash = rodash.isNonEmptyString(newRoute.hash)
+            isSamePath = rodash.isEqual(newRoute.path, oldRoute.path)
+            reuse = rodash.getBoolean(options, "allowReuse") OR hasHash OR isSamePath
+            if hasHash then
+                if NOT rodash.isEqual(newRoute.routeConfig, oldRoute.routeConfig) then reuse = false
+            else
+                if NOT rodash.isEqual(newRoute.routeParams.component, oldRoute.routeParams.component) then reuse = false
+            end if
+
+            if reuse then
+                m.activeScreen.route = newRoute
+                m.activeScreen@._onRouteUpdate({
+                    oldRoute: oldRoute
+                    newRoute: newRoute
+                })
+                updateDebugInfo()
+                return promises.resolve(m.activeScreen)
+            end if
+        end if
+
+        screen = rodash.createNode(componentName)
+        if screen = Invalid then
+            return promises.reject({ message: `Failed to create screen "${componentName}"` })
+        end if
+
+        screen.route = newRoute
+        screen.router = m.top
+        return promises.chain(screen@._beforeScreenOpen(newRoute), { screen: screen, newRoute: newRoute }).then(function(response as Dynamic, context as Dynamic) as Dynamic
+            m.viewTarget.appendChild(context.screen)
+            hideScreen(m.activeScreen)
+            return showScreen(context.screen, context.newRoute)
+        end function).catch(function(error as Dynamic) as Dynamic
+            return promises.reject(error)
+        end function).toPromise()
+    end if
+
+    message = { message: `Route "${path}" not found` }
+    print message 'bs:disable-line 1001 LINT3012
+    return promises.reject(message)
+end function
+
+
+' Helper function to find a matching route
+function findMatchingRoute(path as String, routes as Object) as RouteObject
+    hash = getHashParam(path)
+
+    if rodash.isNonEmptyString(hash) then
+        path = path.replace("#" + hash, "")
+    end if
+
+    ' Separate the path from the query string
+    pathParts = path.split("?")
+    basePath = normalizePath(pathParts[0])
+    queryString = Invalid
+    if pathParts.count() > 1 then
+        queryString = pathParts[1]
+    end if
+
+    ' Parse the query string if present
+    queryParams = parseQueryString(queryString)
+
+    ' First check for exact matches (static paths)
+    for each routePath in routes
+        if normalizePath(routePath) = basePath then
+            routeConfig = routes[routePath]
+            ' Backfill routeConfig with default values
+            routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
+            routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
+            routeConfig.skeleton = rodash.getString(routeConfig, "skeleton")
+
+            return {
+                path: path
+                routeConfig: routeConfig
+                routeParams: {}
+                queryParams: queryParams
+                hash: hash
+            }
+        end if
+    end for
+
+    ' Then check parameterized matches
+    for each routePath in routes
+        routeParts = normalizePath(routePath).split("/")
+        pathParts = basePath.split("/")
+
+        matchedParams = {}
+        if routeParts.count() = pathParts.count() then
+            matchedParams = {}
+            isMatch = true
+
+            for i = 0 to routeParts.count() - 1
+                if routeParts[i].left(1) = ":" then
+                    ' This is a parameter
+                    paramName = routeParts[i].mid(1)
+                    matchedParams[paramName] = pathParts[i]
+                else if routeParts[i] <> pathParts[i] then
+                    ' If a static part doesn't match, break
+                    isMatch = false
+                    exit for
+                end if
+            end for
+
+            if isMatch then
+                routeConfig = routes[routePath]
+                ' Backfill routeConfig with default values
+                routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
+                routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
+                routeConfig.skeleton = rodash.getString(routeConfig, "skeleton")
+
+                return {
+                    path: path
+                    routeConfig: routeConfig
+                    routeParams: matchedParams
+                    queryParams: queryParams
+                    hash: hash
+                }
+            end if
+        end if
+    end for
+
+    ' Return Route with empty routeConfig if no match found
+    return {
+        path: path
+        routeConfig: {}
+        routeParams: {}
+        queryParams: queryParams
+        hash: hash
+    }
+end function
+
+function getHashParam(url as String) as String
+    ' Check if the input URL is valid
+    if rodash.isEmptyString(url) then
+        return ""
+    end if
+
+    ' Find the position of the # character in the URL
+    hashIndex = rodash.stringIndexOf(url, "#")
+
+    ' If # is not found, return "Invalid"
+    if hashIndex = -1 then
+        return ""
+    end if
+
+    ' Extract and return the substring after the #
+    return url.mid(hashIndex + 1)
+end function
+
+' Helper function to normalize a path
+function normalizePath(path as String) as String
+    path = path.trim()
+    if path.right(1) = "/" then
+        path = path.left(path.len() - 1)
+    end if
+    if path.left(1) <> "/" then
+        path = "/" + path
+    end if
+    return path
+end function
+
+' Helper function to parse a query string into an associative array
+function parseQueryString(queryString as Dynamic) as Object
+    if NOT rodash.isNonEmptyString(queryString) then
+        return {}
+    end if
+
+    queryParams = {}
+    pairs = queryString.split("&")
+    for each pair in pairs
+        keyValue = pair.split("=")
+        if keyValue.count() = 2 then
+            key = keyValue[0]
+            value = keyValue[1]
+            queryParams[key] = value
+        end if
+    end for
+    return queryParams
+end function
+
+function hideScreen(screen as Object, onSuspend = false as Boolean) as Boolean
+    success = rodash.isNode(screen)
+    if success then
+        screen.visible = false
+        screen.translation = [10000, 10000]
+
+        if onSuspend then
+            screen@._onScreenSuspend()
+        end if
+    end if
+    return success
+end function
+
+function showScreen(screen as Object, params = {} as Dynamic, onResume = false as Boolean) as Dynamic
+    if rodash.isNode(screen) then
+        screen.visible = true
+        screen.translation = [0, 0]
+        m.activeScreen = screen
+        screen.setFocus(true)
+
+        updateDebugInfo()
+
+        if onResume then
+            return screen@._onScreenResume(params)
+        end if
+        return screen@._onScreenOpen(params)
+    end if
+
+    return promises.reject({ message: "Invalid screen" })
+end function
+
+function closeScreen(screen = Invalid as Dynamic) as Dynamic
+    screen.translation = [1000000, 100000]
+    screen.visible = false
+
+    return promises.onThen(screen@._beforeScreenClose(screen.route), function(response as Dynamic, context as Dynamic) as Dynamic
+        if hideScreen(context.screen) then
+            rodash.removeNode(context.screen)
+        end if
+
+        return true
+    end function, { screen: screen })
+end function
+
+function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
+    if NOT press then return true
+
+    if key = "back" then
+        screens = rodash.getNodeChildren(m.viewTarget)
+        numberOfScreens = screens.count()
+        if numberOfScreens <= 1 then return false
+
+        promises.chain(closeScreen(screens.pop()), screens.peek()).then(sub(response as Dynamic, screen as Dynamic)
+            showScreen(screen, {}, true)
+        end sub)
+        return true
+    end if
+
+    return false
+end function
+
+
+sub updateDebugInfo()
+    m.activeRouteLabel.text = "Active Route: " + rodash.toString(m.activeScreen.route)
+end sub

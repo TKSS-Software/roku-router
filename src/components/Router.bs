@@ -1,21 +1,6 @@
 import "pkg:/source/roku_modules/promises/promises.brs"
 import "pkg:/source/roku_modules/rodash/rodash.brs"
-
-interface RouteObject
-    path as String ' /movies/3/play?autoPlayNext=true#browseWhileWatching
-    routeConfig as RouteConfig
-    routeParams as Object ' { movieId: 3}
-    queryParams as Object ' { autoPlayNext: true }
-    hash as String ' #browseWhileWatching
-end interface
-
-interface RouteConfig
-    path as String ' /movies/:movieId/play?autoPlayNext=true#browseWhileWatching
-    component as String ' "MovieDetailsScreen"
-    optional skeleton as String ' "MovieDetailsScreenSkeleton"
-    optional isRoot as Boolean ' true
-    optional isDialog as Boolean ' false
-end interface
+import "pkg:/source/interfaces.bs"
 
 sub init()
     m.activeScreen = Invalid
@@ -69,7 +54,10 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
 
             if reuse then
                 m.activeScreen.route = newRoute
-                m.activeScreen@._onRouteUpdate(oldRoute, newRoute)
+                m.activeScreen@._onRouteUpdate({
+                    oldRoute: oldRoute
+                    newRoute: newRoute
+                })
                 updateDebugInfo()
                 return promises.resolve(m.activeScreen)
             end if

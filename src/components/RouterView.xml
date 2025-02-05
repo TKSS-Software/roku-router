@@ -11,7 +11,4 @@
         <function name="_onScreenResume" />
         <function name="_onScreenSuspend" />
     </interface>
-    <children>
-
-    </children>
 </component>

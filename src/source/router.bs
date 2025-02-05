@@ -23,6 +23,8 @@ namespace Router
                 return node
             end if
         end for
+
+        return invalid
     end function
 
     ' @private

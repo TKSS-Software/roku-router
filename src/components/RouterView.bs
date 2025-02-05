@@ -40,7 +40,7 @@ function beforeScreenClose(params = {} as Object) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function _onRouteUpdate(event = {} as Object) as Dynamic
+function _onRouteUpdate(event as RouteUpdateEvent) as Dynamic
     print "Route is updating", event.oldRoute, event.newRoute 'bs:disable-line 1001 LINT3012
     return onRouteUpdate(event)
 end function

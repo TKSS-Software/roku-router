@@ -1,9 +1,14 @@
-import "../../source/roku_modules/promises/promises.brs"
+import "pkg:/source/router.bs"
+import "pkg:/source/roku_modules/promises/promises.brs"
 
 sub init()
 end sub
 
 function _beforeScreenOpen(params = {} as Object) as Dynamic
+    m.top.router.busy = true
+    if params.routeConfig.isDialog AND NOT m.router.appLaunchComplete then
+        m.top.signalBeacon("AppDialogInitiate")
+    end if
     return beforeScreenOpen(params)
 end function
 
@@ -12,6 +17,11 @@ function beforeScreenOpen(params = {} as Object) as Dynamic
 end function
 
 function _onScreenOpen(params = {} as Object) as Dynamic
+    if NOT params.routeConfig.isDialog AND NOT m.top.router.appLaunchComplete then
+        m.top.signalBeacon("AppLaunchComplete")
+        m.top.router.appLaunchComplete = true
+    end if
+    m.top.router.busy = false
     return onScreenOpen(params)
 end function
 
@@ -20,6 +30,9 @@ function onScreenOpen(params = {} as Object) as Dynamic
 end function
 
 function _beforeScreenClose(params = {} as Object) as Dynamic
+    if params.routeConfig.isDialog AND NOT m.top.router.appLaunchComplete then
+        m.top.signalBeacon("AppDialogComplete")
+    end if
     return beforeScreenClose(params)
 end function
 
@@ -28,7 +41,7 @@ function beforeScreenClose(params = {} as Object) as Dynamic
 end function
 
 function _onRouteUpdate(oldParams = {} as Object, newParams = {} as Object) as Dynamic
-    print "Route is updating", oldParams, newParams
+    print "Route is updating", oldParams, newParams 'bs:disable-line 1001 LINT3012
     return onRouteUpdate(oldParams, newParams)
 end function
 

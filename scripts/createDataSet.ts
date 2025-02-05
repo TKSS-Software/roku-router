@@ -7,18 +7,19 @@ import _ from 'lodash';
 console.log(__dirname);
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-const DISCOVER_MOVIES_API_URL = 'https://api.themoviedb.org/3/discover/movie?include_adult=true&include_video=true&language=en-US&page={pageNumber}';
-const DISCOVER_TV_API_URL = 'https://api.themoviedb.org/3/discover/tv?include_adult=true&include_video=true&language=en-US&page={pageNumber}';
+const DISCOVER_MOVIES_API_URL = 'https://api.themoviedb.org/3/discover/movie?language=en-US';
+const DISCOVER_TV_API_URL = 'https://api.themoviedb.org/3/discover/tv?language=en-US';
 const MOVIES_GENRES_API_URL = 'https://api.themoviedb.org/3/genre/movie/list?language=en-US';
 const TV_GENRES_API_URL = 'https://api.themoviedb.org/3/genre/tv/list?language=en-US';
 const API_READ_TOKEN = process.env.TMDB_API_READ_TOKEN;
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/';
-const getContent = (url = "" as string, pageNumber = 0 as number) => {
-    if (pageNumber > 0) {
-        url = url.replace('{pageNumber}', pageNumber.toString());
-    }
+const getContent = (url = "" as string, queryParams = {} as object) => {
+    let formattedUrl = new URL(url);
+    Object.keys(queryParams).forEach(key => formattedUrl.searchParams.set(key, queryParams[key]));
 
-    return fetch(url, {
+    console.log("formattedUrl", formattedUrl);
+
+    return fetch(formattedUrl.href, {
         method: 'GET',
         headers: {
             'Authorization': "Bearer " + API_READ_TOKEN
@@ -48,12 +49,24 @@ function addGenres(data = [] as any, genres = {} as any) {
 
 getContent(MOVIES_GENRES_API_URL).then((moviesGenres: any) => {
     getContent(TV_GENRES_API_URL).then((tvGenres: any) => {
-        Promise.all([getContent(DISCOVER_MOVIES_API_URL, 1), getContent(DISCOVER_MOVIES_API_URL, 2), getContent(DISCOVER_MOVIES_API_URL, 3), getContent(DISCOVER_MOVIES_API_URL, 4), getContent(DISCOVER_MOVIES_API_URL, 5)]).then((values) => {
+        let moviePromises = [];
+        moviesGenres.genres.map((genre: any) => {
+            [1, 2, 3].map((page: number) => {
+                moviePromises.push(getContent(DISCOVER_MOVIES_API_URL, { page: page, with_genres: genre.id.toString() }));
+            });
+        });
+        Promise.all(moviePromises).then((values) => {
             let movies = [];
             values.forEach((response: any) => {
                 movies = [...movies, ...response.results];
             });
-            Promise.all([getContent(DISCOVER_TV_API_URL, 1), getContent(DISCOVER_TV_API_URL, 2), getContent(DISCOVER_TV_API_URL, 3), getContent(DISCOVER_TV_API_URL, 4), getContent(DISCOVER_TV_API_URL, 5)]).then((values) => {
+            let tvPromises = [];
+            tvGenres.genres.map((genre: any) => {
+                [1, 2, 3].map((page: number) => {
+                    tvPromises.push(getContent(DISCOVER_TV_API_URL, { page: page, with_genres: genre.id.toString() }));
+                });
+            });
+            Promise.all(tvPromises).then((values) => {
                 let tvShows = [];
                 values.forEach((response: any) => {
                     tvShows = [...tvShows, ...response.results];
@@ -88,7 +101,11 @@ getContent(MOVIES_GENRES_API_URL).then((moviesGenres: any) => {
                     }
                 });
                 let contentPayload = {
-                    data: content
+                    genres: {
+                        movies: moviesGenres.genres,
+                        shows: tvGenres.genres
+                    },
+                    content: content
                 }
                 var fs = require('fs');
                 fs.writeFile(path.resolve(__dirname, "../test-project/assets/sampleData.json"), JSON.stringify(contentPayload, null, 4), function (err: any) {

@@ -12,13 +12,13 @@ function beforeScreenOpen(params = {} as Object) as Dynamic
   m.pageType = rodash.getString(params, "routeConfig.pattern") = "/shows" ? "shows": "movies"
   if m.pageType = "shows" then
     title = "Shows"
-    genres = ["Action & Adventure", "Animation", "Comedy", "Crime", "Drama", "Horror", "Sci-Fi & Fantasy"]
+    genres = util.getGenreNamesForType("shows")
     for each genre in genres
       api.data.carousels.push(util.getCarouselByGenre(genre, "series"))
     end for
   else if m.pageType = "movies" then
     title = "Movies"
-    genres = ["Action", "Comedy", "Drama", "Horror", "Sci-Fi"]
+    genres = util.getGenreNamesForType("movies")
     for each genre in genres
       api.data.carousels.push(util.getCarouselByGenre(genre, "movie"))
     end for
@@ -59,7 +59,7 @@ sub onItemSelected(event as Object)
   if m.pageType = "movies" then contentType = "movie"
 
   path = `/details/${contentType}/${itemSelected.id}`
-  m.top.router@.navigateTo(path)
+  Router.getRouter()@.navigateTo(path)
 end sub
 
 function onScreenOpen(context = Invalid as Dynamic) as Dynamic

@@ -1,0 +1,56 @@
+import "pkg:/source/roku_modules/promises/promises.brs"
+import "pkg:/source/roku_modules/rodash/rodash.brs"
+
+'************************
+'*** This namespace can be used inside any component that is a view, or child of a view
+'*** DO NOT USE THIS FILE OUTSIDE OF A VIEW COMPONENT, such as the main scene
+'************************
+namespace Router
+    function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
+        r = Router.getRouter()
+        if rodash.isNotInvalid(r) then
+            return r@.navigateTo(path, options, context)
+        end if
+        return promises.resolve(true)
+    end function
+
+    function getRouter() as Dynamic
+        currentChain = Router.getCurrentFocusedChain(m.top.getScene())
+        currentChain.reverse()
+
+        for each node in currentChain
+            if rodash.isNode(node, "Router") then
+                return node
+            end if
+        end for
+    end function
+
+    ' @private
+    function getCurrentFocusedChain(parent = Invalid as Object, maxDepth = 30 as Integer) as Object
+        if rodash.isNode(parent) then
+            targetNode = parent
+        else
+            targetNode = m.top.getScene()
+        end if
+
+        focusedChild = targetNode.focusedChild
+
+        chain = [targetNode]
+
+        if rodash.isNode(focusedChild) then
+            while maxDepth > 0 AND NOT rodash.isEqual(focusedChild, targetNode)
+                targetNode = focusedChild
+
+                ' There is a chance the chain is incomplete
+                if targetNode = Invalid then exit while
+                chain.push(targetNode)
+                focusedChild = targetNode.focusedChild 'bs:disable-line LINT1005
+                maxDepth--
+            end while
+
+            return chain
+        end if
+
+        return chain
+    end function
+end namespace

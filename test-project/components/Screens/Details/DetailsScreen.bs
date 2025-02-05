@@ -9,11 +9,10 @@ end sub
 sub onItemSelected(event as Object)
     itemSelected = event.getRoSGNode().content.getChild(event.getData()[0]).getChild(event.getData()[1])
     path = `/details/${m.pageType}/${itemSelected.id}`
-    m.top.router@.navigateTo(path)
+    Router.navigateTo(path)
 end sub
 
 function beforeScreenOpen(params = Invalid as Dynamic) as Dynamic
-    print params.routeParams
     m.pageType = params.routeParams.type
 
     content = util.getContentById(params.routeParams.id)
@@ -26,7 +25,7 @@ function beforeScreenOpen(params = Invalid as Dynamic) as Dynamic
     m.title.width = textWidths
     m.title.text = rodash.getString(content, "name")
 
-    m.description.text = rodash.getString(content, "description")
+    m.description.text = rodash.getString(content, "overview")
     m.description.width = textWidths
 
     m.rating.font = "font:SmallestSystemFont"

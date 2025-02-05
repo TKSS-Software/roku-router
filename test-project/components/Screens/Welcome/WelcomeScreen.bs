@@ -20,13 +20,13 @@ end function
 sub onButtonPress(event as Object)
     button = event.getData()
     if button = 0 then
-        m.top.router@.navigateTo("/shows")
+        Router.navigateTo("/shows")
     else if button = 1 then
-        m.top.router@.navigateTo("/movies")
+        Router.navigateTo("/movies")
     else if button = 2 then
-        m.top.router@.navigateTo("/?firstLoad=false", { allowReuse: true })
+        Router.navigateTo("/?firstLoad=false", { allowReuse: true })
     else if button = 3 then
-        m.top.router@.navigateTo("/#hello")
+        Router.navigateTo("/#hello")
     end if
 end sub
 

@@ -22,6 +22,27 @@ end function
 function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
     matchedRoute = findMatchingRoute(path, m.routes)
 
+    canActivateGuard = rodash.get(matchedRoute.routeConfig, "canActivate")
+    if rodash.isNonEmptyArray(canActivateGuard) then
+        for each guard in canActivateGuard
+            guardNode = Invalid
+            if rodash.isNode(guard) then
+                guardNode = guard
+            else if rodash.isString(guard) then
+                guardNode = rodash.createNode(guard)
+            end if
+
+            if rodash.isNotInvalid(guardNode) then
+                canActivate = guardNode@.canActivate(m.top)
+                if NOT canActivate then
+                    message = { message: `Route "${path}" is not accessible` }
+                    print message
+                    return promises.reject(message)
+                end if
+            end if
+        end for
+    end if
+
     if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
         isRoot = matchedRoute.routeConfig.isRoot
 
@@ -80,7 +101,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
     end if
 
     message = { message: `Route "${path}" not found` }
-    print message 'bs:disable-line 1001 LINT3012
+    print message
     return promises.reject(message)
 end function
 

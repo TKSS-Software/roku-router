@@ -5,6 +5,7 @@ import "pkg:/source/interfaces.bs"
 sub init()
     m.activeScreen = Invalid
     m.routes = {}
+    m.guardInstances = {}
 
     m.top.appLaunchComplete = false
 end sub
@@ -29,7 +30,11 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
             if rodash.isNode(guard) then
                 guardNode = guard
             else if rodash.isString(guard) then
-                guardNode = rodash.createNode(guard)
+                if m.guardInstances[guard] = Invalid then
+                    m.guardInstances[guard] = rodash.createNode(guard)
+                end if
+
+                guardNode = m.guardInstances[guard]
             end if
 
             if guardNode <> Invalid then
@@ -47,7 +52,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
         isRoot = matchedRoute.routeConfig.isRoot
 
         if isRoot then
-            print "ROOT SCREEN" 'bs:disable-line 1001 LINT3012
+            print "ROOT SCREEN"
         end if
 
         componentName = rodash.getString(matchedRoute, "routeConfig.component")
@@ -130,6 +135,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
         if normalizePath(routePath) = basePath then
             routeConfig = routes[routePath]
             ' Backfill routeConfig with default values
+            routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
             routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
             routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
             routeConfig.skeleton = rodash.getString(routeConfig, "skeleton")
@@ -169,6 +175,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
             if isMatch then
                 routeConfig = routes[routePath]
                 ' Backfill routeConfig with default values
+                routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
                 routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
                 routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
                 routeConfig.skeleton = rodash.getString(routeConfig, "skeleton")

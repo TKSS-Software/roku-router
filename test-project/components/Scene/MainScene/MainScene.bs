@@ -2,6 +2,10 @@ sub init()
     m.top.backgroundColor = "#000000"
     m.top.backgroundUri = ""
 
+    m.global.addFields({
+        "isLoggedIn": false
+    })
+
     m.router@.addRoutes([
         { pattern: "/", component: "WelcomeScreen", isRoot: true },
         { pattern: "/shows", component: "CatalogScreen", isRoot: true, canActivate: ["AuthManager"] },

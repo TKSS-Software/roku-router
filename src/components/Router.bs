@@ -32,7 +32,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                 guardNode = rodash.createNode(guard)
             end if
 
-            if rodash.isNotInvalid(guardNode) then
+            if guardNode <> Invalid then
                 canActivate = guardNode@.canActivate(m.top)
                 if NOT canActivate then
                     message = { message: `Route "${path}" is not accessible` }

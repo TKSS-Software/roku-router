@@ -9,6 +9,7 @@
 	"createPackage": false,
 	"stagingDir": ".tmp",
 	"plugins": [
-        "bsc-plugin-auto-findnode"
-    ]
+		"bsc-plugin-auto-findnode",
+		"bsc-plugin-inline-annotation"
+	]
 }

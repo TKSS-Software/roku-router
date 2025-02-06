@@ -7,8 +7,5 @@
 	],
 	"emitDefinitions": true,
 	"createPackage": false,
-	"stagingDir": ".tmp",
-	"plugins": [
-        "bsc-plugin-auto-findnode"
-    ]
+	"stagingDir": ".tmp"
 }

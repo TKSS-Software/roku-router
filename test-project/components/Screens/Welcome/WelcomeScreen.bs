@@ -1,6 +1,17 @@
 sub init()
     m.buttonGroup.observeField("buttonSelected", "onButtonPress")
-    m.buttonGroup.buttons = ["Go to Shows Catalog", "Go to Movies Catalog", "Test Params Change", "Test Hash Change"]
+    m.buttonGroup.buttons = ["Go to Shows Catalog", "Go to Movies Catalog", "Test Params Change", "Test Hash Change", "Toggle Logged In State"]
+
+    checkLoggedInState()
+    m.global.observeField("isLoggedIn", "checkLoggedInState")
+end sub
+
+sub checkLoggedInState()
+    if m.global.isLoggedIn then
+        m.label.text = "User is logged in"
+    else
+        m.label.text = "User is not logged in"
+    end if
 end sub
 
 function onScreenOpen(context = Invalid as Dynamic) as Dynamic
@@ -27,6 +38,8 @@ sub onButtonPress(event as Object)
         Router.navigateTo("/?firstLoad=false", { allowReuse: true })
     else if button = 3 then
         Router.navigateTo("/#hello")
+    else if button = 4 then
+        m.global.isLoggedIn = NOT m.global.isLoggedIn
     end if
 end sub
 

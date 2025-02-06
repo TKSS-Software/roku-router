@@ -1,0 +1,14 @@
+function canActivate(router as Dynamic) as Boolean
+    if m.global.isLoggedIn then
+        return true
+    end if
+
+    dialog = createObject("roSGNode", "Dialog")
+    dialog.title = "You must be logged in"
+    dialog.optionsDialog = true
+    dialog.message = "Press * To Dismiss"
+    m.top.getScene().dialog = dialog
+
+    router@.navigateTo("/?needToLogin=true", {})
+    return false
+end function

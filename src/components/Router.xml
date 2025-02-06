@@ -7,7 +7,7 @@
         <!-- END READ ONLY -->
 
         <field id="fireSignalBeacons" type="boolean" /> <!-- TODO: Hook into this -->
-        <field id="busy" type="boolean" /> <!-- Maybe rename this.... -->
+        <field id="busy" type="boolean" alwaysNotify="true" /> <!-- Maybe rename this.... -->
         <function name="addRoutes" />
         <function name="getRoutes" />
         <function name="navigateTo" />

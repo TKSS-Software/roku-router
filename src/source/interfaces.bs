@@ -7,8 +7,9 @@ interface RouteObject
 end interface
 
 interface RouteConfig
-    path as String ' /movies/:movieId/play?autoPlayNext=true#browseWhileWatching
+    pattern as String ' /movies/:movieId/play
     component as String ' "MovieDetailsScreen"
+    optional canActivate as Dynamic
     optional skeleton as String ' "MovieDetailsScreenSkeleton"
     optional isRoot as Boolean ' true
     optional isDialog as Boolean ' false

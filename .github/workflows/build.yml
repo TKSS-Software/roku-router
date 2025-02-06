@@ -1,5 +1,11 @@
 name: build
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+  pull_request:
 
 jobs:
   ci:
@@ -8,8 +14,9 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-node@master
         with:
-          node-version: "14.19.0"
+          node-version: "16.20.2"
       - run: npm ci
+      - run: npx ropm copy
       - run: npm run build
   npm-release:
     #only run this task if a tag starting with 'v' was used to trigger this (i.e. a tagged release)
@@ -22,7 +29,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-node@master
         with:
-          node-version: "14.19.0"
+          node-version: "16.20.2"
       - run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ./.npmrc
       - run: npm ci
       - run: npm run build

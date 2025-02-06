@@ -1,5 +1,5 @@
 {
-  "name": "@tkss/roact-router",
+  "name": "roku-router",
   "version": "0.0.23",
   "description": "A lodash inspired utility for Roku development",
   "main": "index.js",

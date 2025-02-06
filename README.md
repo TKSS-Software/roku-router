@@ -26,12 +26,12 @@ Each route maps a URL path (or pattern) to a specific component. For example, na
 <br/><br/>
 ## Route Configuration
 Routes are typically configured in a routing module using an array of route objects. Each route object can specify:
-- **pattern** (required): The URL style pattern that represents the route.
-- **component** (required): The component to render when the route is activated. This component must extend the **RouterView** component.
-- **TODO isRoot** (optional): Views that are defined as root are considered at the top of the view stack. When navigating to a root screen, the stack is cleared and the breadcrumbs are reset.  These could be hub screens such as a Shows or Movie hubs that are top level in your menu.
-- **canActivate** (optional): A route guard that controls access to the route. An example of this would be to validate the user has authenticated before navigating to a screen (particularly useful when using deeplinks).
-- **TODO skeleton** (optional): A component that displays between the request of the new route and the completion of the onScreenOpen lifecycle hook.
-- **isDialog** (optional): Defining isDialog will notify the router to fire the dialog beacons. DO WE NEED?
+- `pattern` (required): The URL style pattern that represents the route.
+- `component` (required): The component to render when the route is activated. This component must extend the **RouterView** component.
+- `TODO isRoot` (optional): Views that are defined as root are considered at the top of the view stack. When navigating to a root screen, the stack is cleared and the breadcrumbs are reset.  These could be hub screens such as a Shows or Movie hubs that are top level in your menu.
+- `canActivate` (optional): A route guard that controls access to the route. An example of this would be to validate the user has authenticated before navigating to a screen (particularly useful when using deeplinks).
+- `TODO skeleton` (optional): A component that displays between the request of the new route and the completion of the onScreenOpen lifecycle hook.
+- `isDialog` (optional): Defining isDialog will notify the router to fire the dialog beacons. DO WE NEED?
 
 <br/><br/>
 ## Example Setup

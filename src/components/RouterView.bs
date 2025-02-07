@@ -4,12 +4,18 @@ import "pkg:/source/roku_modules/promises/promises.brs"
 sub init()
 end sub
 
+function setRouterBusyState(busy as Boolean) as Dynamic
+    m.top.router.busy = busy
+    return promises.resolve(Invalid)
+end function
+
 function _beforeScreenOpen(params = {} as Object) as Dynamic
-    m.top.router.busy = true
-    if params.routeConfig.isDialog AND NOT m.router.appLaunchComplete then
-        m.top.signalBeacon("AppDialogInitiate")
-    end if
-    return beforeScreenOpen(params)
+    return promises.chain(setRouterBusyState(true), params).then(function(response as Dynamic, params as Dynamic) as Dynamic
+        if params.routeConfig.isDialog AND NOT m.router.appLaunchComplete then
+            m.top.signalBeacon("AppDialogInitiate")
+        end if
+        return beforeScreenOpen(params)
+    end function).toPromise()
 end function
 
 function beforeScreenOpen(params = {} as Object) as Dynamic
@@ -17,12 +23,15 @@ function beforeScreenOpen(params = {} as Object) as Dynamic
 end function
 
 function _onScreenOpen(params = {} as Object) as Dynamic
-    if NOT params.routeConfig.isDialog AND NOT m.top.router.appLaunchComplete then
-        m.top.signalBeacon("AppLaunchComplete")
-        m.top.router.appLaunchComplete = true
-    end if
-    m.top.router.busy = false
-    return onScreenOpen(params)
+    return promises.chain(onScreenOpen(params), params).then(function(response as Dynamic, params as Dynamic) as Dynamic
+        if NOT params.routeConfig.isDialog AND NOT m.top.router.appLaunchComplete then
+            m.top.signalBeacon("AppLaunchComplete")
+            m.top.router.appLaunchComplete = true
+        end if
+
+        setRouterBusyState(false)
+        return response
+    end function).toPromise()
 end function
 
 function onScreenOpen(params = {} as Object) as Dynamic

@@ -6,6 +6,7 @@ sub init()
         "isLoggedIn": false
     })
 
+    m.router.observeField("busy", "onRouterBusyChanged")
     m.router@.addRoutes([
         { pattern: "/", component: "WelcomeScreen", isRoot: true },
         { pattern: "/shows", component: "CatalogScreen", isRoot: true, canActivate: ["AuthManager"] },
@@ -17,8 +18,12 @@ sub init()
 
     ' Read the sample data from the file. You normally wouldn't want to do this in a real app.
     m.global.update(ParseJSON(ReadAsciiFile("pkg:/assets/sampleData.json")), true)
-
     m.router@.navigateTo("/?firstLoad=true", {})
+end sub
+
+sub onRouterBusyChanged(event as Object)
+    print "Loading Overlay: ", event.getData()
+    m.loadingOverlay.visible = event.getData()
 end sub
 
 function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean

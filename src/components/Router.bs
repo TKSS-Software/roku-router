@@ -103,6 +103,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
             hideScreen(m.activeScreen)
             return showScreen(context.screen, context.newRoute)
         end function).catch(function(error as Dynamic) as Dynamic
+            hideSkeleton()
             return promises.reject(error)
         end function).toPromise()
     end if

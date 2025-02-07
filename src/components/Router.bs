@@ -23,34 +23,34 @@ end function
 function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
     matchedRoute = findMatchingRoute(path, m.routes)
 
-    canActivateGuard = rodash.get(matchedRoute.routeConfig, "canActivate")
-    if rodash.isNonEmptyArray(canActivateGuard) then
-        for each guard in canActivateGuard
-            guardNode = Invalid
-            if rodash.isNode(guard) then
-                guardNode = guard
-            else if rodash.isString(guard) then
-                if m.guardInstances[guard] = Invalid then
-                    m.guardInstances[guard] = rodash.createNode(guard)
-                end if
-
-                guardNode = m.guardInstances[guard]
-            end if
-
-            if guardNode <> Invalid then
-                canActivate = guardNode@.canActivate(m.top)
-                if NOT canActivate then
-                    message = { message: `Route "${path}" is not accessible` }
-                    print message
-                    return promises.reject(message)
-                end if
-            end if
-        end for
-    end if
-
     if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
-        isRoot = matchedRoute.routeConfig.isRoot
+        ' Run guard checks
+        canActivateGuard = rodash.get(matchedRoute.routeConfig, "canActivate")
+        if rodash.isNonEmptyArray(canActivateGuard) then
+            for each guard in canActivateGuard
+                guardNode = Invalid
+                if rodash.isNode(guard) then
+                    guardNode = guard
+                else if rodash.isString(guard) then
+                    if m.guardInstances[guard] = Invalid then
+                        m.guardInstances[guard] = rodash.createNode(guard)
+                    end if
 
+                    guardNode = m.guardInstances[guard]
+                end if
+
+                if guardNode <> Invalid then
+                    canActivate = guardNode@.canActivate(m.top)
+                    if NOT canActivate then
+                        message = { message: `Route "${path}" is not accessible` }
+                        print message
+                        return promises.reject(message)
+                    end if
+                end if
+            end for
+        end if
+
+        isRoot = matchedRoute.routeConfig.isRoot
         if isRoot then
             print "ROOT SCREEN"
         end if
@@ -96,6 +96,8 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
 
         screen.route = newRoute
         screen.router = m.top
+
+        showSkeleton(rodash.getString(matchedRoute.routeConfig, "skeleton"))
         return promises.chain(screen@._beforeScreenOpen(newRoute), { screen: screen, newRoute: newRoute }).then(function(response as Dynamic, context as Dynamic) as Dynamic
             m.viewTarget.appendChild(context.screen)
             hideScreen(m.activeScreen)
@@ -268,6 +270,7 @@ function showScreen(screen as Object, params = {} as Dynamic, onResume = false a
         screen.visible = true
         screen.translation = [0, 0]
         m.activeScreen = screen
+        hideSkeleton()
         screen.setFocus(true)
 
         updateDebugInfo()
@@ -311,6 +314,25 @@ function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
     return false
 end function
 
+sub showSkeleton(skeleton)
+    if rodash.isNonEmptyString(skeleton) then
+        skeletonScreen = rodash.createNode(skeleton)
+        if skeletonScreen <> Invalid then
+            ' Ensure there is only ever one skeleton
+            hideSkeleton()
+
+            m.skeletonTarget.appendChild(skeletonScreen)
+            m.viewTarget.visible = false
+            m.skeletonTarget.visible = true
+        end if
+    end if
+end sub
+
+sub hideSkeleton()
+    m.viewTarget.visible = true
+    m.skeletonTarget.visible = false
+    rodash.removeNodeChildren(m.skeletonTarget)
+end sub
 
 sub updateDebugInfo()
     m.activeRouteLabel.text = "Active Route: " + rodash.toString(m.activeScreen.route)

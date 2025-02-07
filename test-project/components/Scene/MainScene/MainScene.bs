@@ -10,7 +10,7 @@ sub init()
     m.router@.addRoutes([
         { pattern: "/", component: "WelcomeScreen", isRoot: true },
         { pattern: "/shows", component: "CatalogScreen", isRoot: true, canActivate: ["AuthManager"] },
-        { pattern: "/movies", component: "CatalogScreen", isRoot: true },
+        { pattern: "/movies", component: "CatalogScreen", isRoot: true, skeleton: "CatalogScreenSkeleton" },
         { pattern: "/details/:type/:id", component: "DetailsScreen" },
         { pattern: "/details/:type/:id/cast", component: "CastDetailsScreen" },
         { pattern: "/:screenName", component: "DefaultScreen" }

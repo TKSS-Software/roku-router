@@ -6,11 +6,11 @@ sub init()
         "isLoggedIn": false
     })
 
-    m.router.observeField("busy", "onRouterBusyChanged")
+    m.router.observeField("routerState", "onRouterStateChanged")
     m.router@.addRoutes([
         { pattern: "/", component: "WelcomeScreen", isRoot: true },
         { pattern: "/shows", component: "CatalogScreen", isRoot: true, canActivate: ["AuthManager"] },
-        { pattern: "/movies", component: "CatalogScreen", isRoot: true, skeleton: "CatalogScreenSkeleton" },
+        { pattern: "/movies", component: "CatalogScreen", isRoot: true },
         { pattern: "/details/:type/:id", component: "DetailsScreen" },
         { pattern: "/details/:type/:id/cast", component: "CastDetailsScreen" },
         { pattern: "/:screenName", component: "DefaultScreen" }
@@ -21,9 +21,9 @@ sub init()
     m.router@.navigateTo("/?firstLoad=true", {})
 end sub
 
-sub onRouterBusyChanged(event as Object)
-    print "Loading Overlay: ", event.getData()
-    m.loadingOverlay.visible = event.getData()
+sub onRouterStateChanged(event as Object)
+    data = event.getData()
+    print "onRouterStateChanged: ", data
 end sub
 
 function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean

@@ -1,6 +1,7 @@
 import "pkg:/source/roku_modules/promises/promises.brs"
 import "pkg:/source/roku_modules/rodash/rodash.brs"
 import "interfaces.bs"
+import "routerStates.bs"
 
 '************************
 '*** This namespace can be used inside any component that is a view, or child of a view

@@ -10,7 +10,6 @@ interface RouteConfig
     pattern as String ' /movies/:movieId/play
     component as String ' "MovieDetailsScreen"
     optional canActivate as Dynamic
-    optional skeleton as String ' "MovieDetailsScreenSkeleton"
     optional isRoot as Boolean ' true
     optional isDialog as Boolean ' false
 end interface
@@ -19,3 +18,8 @@ interface RouteUpdateEvent
     oldRoute as RouteObject
     newRoute as RouteObject
 end interface
+
+interface RouterState
+    type as String
+end interface
+

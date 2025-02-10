@@ -7,14 +7,13 @@
         <!-- END READ ONLY -->
 
         <field id="fireSignalBeacons" type="boolean" /> <!-- TODO: Hook into this -->
-        <field id="busy" type="boolean" alwaysNotify="true" /> <!-- Maybe rename this.... -->
+        <field id="routerState" type="assocArray" />
         <function name="addRoutes" />
         <function name="getRoutes" />
         <function name="navigateTo" />
     </interface>
     <children>
         <Group id="viewTarget" />
-        <Group id="skeletonTarget" />
 
         <Rectangle width="1920" height="100" color="#000000C0" id="debug" translation="[0, 980]">
             <Label translation="[20,20]" wrap="true" width="1880" id="activeRouteLabel"

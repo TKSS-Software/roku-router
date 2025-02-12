@@ -63,11 +63,15 @@ sub onItemSelected(event as Object)
 end sub
 
 function onScreenOpen(context = Invalid as Dynamic) as Dynamic
-  m.rowList.setFocus(true)
   return promises.resolve(Invalid)
 end function
 
 function onScreenResume(context = Invalid as Dynamic) as Dynamic
-  m.rowList.setFocus(true)
   return promises.resolve(Invalid)
+end function
+
+function handleFocus(data as Object) as Boolean
+  if data.routerFocused then
+    return m.rowList.setFocus(true)
+  end if
 end function

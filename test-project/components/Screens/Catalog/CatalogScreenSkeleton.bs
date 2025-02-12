@@ -1,5 +1,0 @@
-sub init()
-    m.top.height = 1080
-    m.top.width = 1920
-    m.top.color = "#FF0000"
-end sub

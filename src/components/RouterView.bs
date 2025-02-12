@@ -1,14 +1,18 @@
 import "pkg:/source/router.bs"
+import "pkg:/source/roku_modules/rodash/rodash.brs"
 import "pkg:/source/roku_modules/promises/promises.brs"
 
 sub init()
+    m._allowHandleFocus = false
 end sub
 
 function _beforeScreenOpen(params = {} as Object) as Dynamic
-    if params.routeConfig.isDialog AND NOT m.router.appLaunchComplete then
-        m.top.signalBeacon("AppDialogInitiate")
-    end if
-    return beforeScreenOpen(params)
+    return promises.chain(beforeScreenOpen(params), params).then(function(response as Dynamic, params as Dynamic) as Dynamic
+        if params.routeConfig.isDialog AND NOT m.router.appLaunchComplete then
+            m.top.signalBeacon("AppDialogInitiate")
+        end if
+        return response
+    end function).toPromise()
 end function
 
 function beforeScreenOpen(params = {} as Object) as Dynamic
@@ -22,6 +26,7 @@ function _onScreenOpen(params = {} as Object) as Dynamic
             m.top.router.appLaunchComplete = true
         end if
 
+        m._allowHandleFocus = true
         return response
     end function).toPromise()
 end function
@@ -31,6 +36,7 @@ function onScreenOpen(params = {} as Object) as Dynamic
 end function
 
 function _beforeScreenClose(params = {} as Object) as Dynamic
+    m._allowHandleFocus = false
     if params.routeConfig.isDialog AND NOT m.top.router.appLaunchComplete then
         m.top.signalBeacon("AppDialogComplete")
     end if
@@ -50,7 +56,7 @@ function onRouteUpdate(event = {} as Object) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function _onScreenResume(_ as Dynamic) as Dynamic
+function _onScreenResume(_ as Dynamic, applyFocus = false) as Dynamic
     return onScreenResume(_)
 end function
 
@@ -64,4 +70,20 @@ end function
 
 function onScreenSuspend(_ as Dynamic) as Dynamic
     return promises.resolve(Invalid)
+end function
+
+function _handleFocus(data = {} as Object) as Boolean
+    if m._allowHandleFocus then
+        handled = handleFocus(data)
+        if handled then
+            print "RouterView focused", data
+        else
+            print "RouterView not focused", data
+        end if
+        return handled
+    end if
+end function
+
+function handleFocus(data = {} as Object) as Boolean
+    return false
 end function

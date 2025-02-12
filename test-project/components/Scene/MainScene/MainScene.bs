@@ -1,3 +1,5 @@
+import "pkg:/source/roku_modules/promises/promises.brs"
+
 sub init()
     m.top.backgroundColor = "#000000"
     m.top.backgroundUri = ""
@@ -5,6 +7,12 @@ sub init()
     m.global.addFields({
         "isLoggedIn": false
     })
+
+    m.buttonGroup.observeField("buttonSelected", "onButtonPress")
+    m.buttonGroup.buttons = ["Go to Shows Catalog", "Go to Movies Catalog", "Test Params Change", "Test Hash Change", "Toggle Logged In State"]
+
+    checkLoggedInState()
+    m.global.observeField("isLoggedIn", "checkLoggedInState")
 
     m.router.observeField("routerState", "onRouterStateChanged")
     m.router@.addRoutes([
@@ -19,6 +27,16 @@ sub init()
     ' Read the sample data from the file. You normally wouldn't want to do this in a real app.
     m.global.update(ParseJSON(ReadAsciiFile("pkg:/assets/sampleData.json")), true)
     m.router@.navigateTo("/?firstLoad=true", {})
+
+    m.buttonGroup.setFocus(true)
+end sub
+
+sub checkLoggedInState()
+    if m.global.isLoggedIn then
+        m.label.text = "User is logged in"
+    else
+        m.label.text = "User is not logged in"
+    end if
 end sub
 
 sub onRouterStateChanged(event as Object)
@@ -26,6 +44,43 @@ sub onRouterStateChanged(event as Object)
     print "onRouterStateChanged: ", data
 end sub
 
+sub onButtonPress(event as Object)
+    button = event.getData()
+    navigateTo = Invalid
+    if button = 0 then
+        navigateTo = m.router@.navigateTo("/shows")
+    else if button = 1 then
+        navigateTo = m.router@.navigateTo("/movies")
+    else if button = 2 then
+        navigateTo = m.router@.navigateTo("/?firstLoad=false", { allowReuse: true })
+    else if button = 3 then
+        navigateTo = m.router@.navigateTo("/#hello")
+    else if button = 4 then
+        m.global.isLoggedIn = NOT m.global.isLoggedIn
+    end if
+
+    if navigateTo <> Invalid then
+        promises.chain(navigateTo).then(sub(response as Dynamic)
+            print "Navigation complete"
+            if NOT m.router@.setFocus(true) then
+                m.buttonGroup.setFocus(true)
+            end if
+        end sub)
+    end if
+end sub
+
 function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
+    if press then
+        if key = "back" OR key = "left" then
+            m.buttonGroup.setFocus(true)
+            return true
+        else if key = "right" then
+            if NOT m.router@.setFocus(true) then
+                m.buttonGroup.setFocus(true)
+            end if
+            return true
+        end if
+    end if
+
     return true
 end function

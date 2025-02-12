@@ -63,18 +63,12 @@ function beforeScreenOpen(params = Invalid as Dynamic) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function onScreenOpen(params = Invalid as Dynamic) as Dynamic
-    return promises.resolve(Invalid)
-end function
-
-function onScreenResume(content = Invalid as Dynamic) as Dynamic
-    return promises.resolve(Invalid)
-end function
-
 function handleFocus(data as Object) as Boolean
     if data.routerFocused then
         return m.rowList.setFocus(true)
     end if
+
+    return false
 end function
 
 

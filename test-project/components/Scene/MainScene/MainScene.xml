@@ -8,5 +8,9 @@
 	<children>
 		<Router id="router" />
 		<Rectangle id="loadingOverlay" visible="false" color="#000000C0" width="1920" height="1080" />
+		<Rectangle id="mainMenu" width="100" height="1080" color="#0000001A">
+			<Label id="label" text="Welcome!" translation="[96, 96]" />
+			<ButtonGroup id="buttonGroup" translation="[96, 196]" />
+		</Rectangle>
 	</children>
 </component>

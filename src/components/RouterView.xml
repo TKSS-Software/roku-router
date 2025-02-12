@@ -10,5 +10,6 @@
         <function name="_onRouteUpdate" />
         <function name="_onScreenResume" />
         <function name="_onScreenSuspend" />
+        <function name="_handleFocus" />
     </interface>
 </component>

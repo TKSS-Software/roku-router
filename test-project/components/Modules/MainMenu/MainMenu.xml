@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="MainMenu" extends="Rectangle">
+    <interface>
+        <field id="router" type="node" />
+        <function name="initialize" />
+    </interface>
+    <children>
+        <Label id="label" text="Welcome!" translation="[96, 96]" />
+        <ButtonGroup id="buttonGroup" translation="[96, 196]" />
+    </children>
+</component>

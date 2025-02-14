@@ -1,5 +1,5 @@
 function canActivate(currentRequest = {} as Object) as Boolean
-    if m.global.isLoggedIn then
+    if m.top.isLoggedIn then
         return true
     end if
 

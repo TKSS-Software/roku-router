@@ -10,7 +10,7 @@ sub init()
     m.routes = {}
     m.guardInstances = {}
 
-    m.inFocusChain = false
+    m.focusRequestMade = false
     m.processingGoBack = false
 
     m.top.appLaunchComplete = false
@@ -19,27 +19,27 @@ end sub
 sub onFocusChildChanged(event as Object)
     inFocusChain = event.getData() <> Invalid
 
-    if NOT m.processingGoBack AND m.activeScreen <> Invalid AND NOT inFocusChain AND m.inFocusChain <> inFocusChain then
-        m.inFocusChain = inFocusChain
+    if NOT m.processingGoBack AND m.activeScreen <> Invalid AND NOT inFocusChain AND m.focusRequestMade <> inFocusChain then
+        m.focusRequestMade = inFocusChain
         m.activeScreen@._handleFocus({
             routerFocused: inFocusChain
         })
     end if
+
+    m.focusRequestMade = inFocusChain
 end sub
 
 function setFocus(takeFocus as Boolean) as Boolean
+    print source_function_name, takeFocus
     response = false
 
-    if m.activeScreen <> Invalid AND takeFocus AND m.inFocusChain <> takeFocus then
-
+    if m.activeScreen <> Invalid AND takeFocus AND m.focusRequestMade <> takeFocus then
         response = m.activeScreen@._handleFocus({
             routerFocused: true
         })
-
-        if response then
-            m.inFocusChain = true
-        end if
     end if
+
+    m.focusRequestMade = true
 
     return response
 end function
@@ -314,12 +314,13 @@ function showScreen(screen as Object, params = {} as Dynamic, onResume = false a
         end if
 
         return promises.chain(response, { response: response, screen: screen }).finally(function(context) as Dynamic
+            print "Screen opened", m.focusRequestMade
             focusSuccess = context.screen@._handleFocus({
-                routerFocused: m.inFocusChain
+                routerFocused: m.focusRequestMade
             })
 
             ' Return focus to the top node if the view didn't handle focus
-            if m.inFocusChain AND NOT focusSuccess then
+            if m.focusRequestMade AND NOT focusSuccess then
                 m.top.setFocus(true)
             end if
 

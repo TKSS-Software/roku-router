@@ -1,5 +1,5 @@
 sub init()
-
+    m.buttonGroup.buttons = ["Login"]
 end sub
 
 function onScreenOpen(context = Invalid as Dynamic) as Dynamic
@@ -12,4 +12,12 @@ end function
 
 function beforeScreenClose(context = Invalid as Dynamic) as Dynamic
     return promises.resolve(Invalid)
+end function
+
+function handleFocus(data as Object) as Boolean
+    if data.routerFocused then
+        return m.buttonGroup.setFocus(true)
+    end if
+
+    return false
 end function

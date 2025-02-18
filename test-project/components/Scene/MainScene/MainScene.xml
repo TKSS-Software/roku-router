@@ -9,6 +9,6 @@
 		<AuthManager id="authManager" />
 		<Router id="router" />
 		<Rectangle id="loadingOverlay" visible="false" color="#000000C0" width="1920" height="1080" />
-		<MainMenu id="mainMenu" />
+		<MainMenu id="mainMenu" visible="false" />
 	</children>
 </component>

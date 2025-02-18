@@ -1,5 +1,6 @@
 sub init()
     m.buttonGroup.buttons = ["Login"]
+    m.buttonGroup.observeField("buttonSelected", "onButtonPress")
 end sub
 
 function onScreenOpen(context = Invalid as Dynamic) as Dynamic
@@ -21,3 +22,13 @@ function handleFocus(data as Object) as Boolean
 
     return false
 end function
+
+
+sub onButtonPress(event as Object)
+    button = event.getData()
+    navigateTo = Invalid
+    if button = 0 then
+        m.global.AuthManager.isLoggedIn = true
+        navigateTo = m.top.router@.navigateTo("/shows")
+    end if
+end sub

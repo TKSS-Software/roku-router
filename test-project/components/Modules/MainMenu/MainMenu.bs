@@ -3,14 +3,14 @@ import "pkg:/source/roku_modules/promises/promises.brs"
 
 sub init()
     m.top.update({
-        focusable: true
         width: 100
         height: 1080
         color: "#0000001A"
     })
-
     m.inFocusChain = false
     m.top.observeField("focusedChild", "onFocusChildChanged")
+    m.top.observeField("visible", "handleVisibilityChange")
+    handleVisibilityChange()
 end sub
 
 sub initialize(_ = Invalid as Dynamic)
@@ -19,6 +19,11 @@ sub initialize(_ = Invalid as Dynamic)
 
     m.global.AuthManager.observeField("isLoggedIn", "checkLoggedInState")
     checkLoggedInState()
+end sub
+
+sub handleVisibilityChange(_ = Invalid as Dynamic)
+    m.top.focusable = m.top.visible
+    print m.top
 end sub
 
 sub onFocusChildChanged(event as Object)

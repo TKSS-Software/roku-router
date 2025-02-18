@@ -63,6 +63,7 @@ function goBack(_ = Invalid as Dynamic) as Dynamic
     if numberOfScreens <= 1 then return false
 
     promises.chain(closeScreen(screens.pop()), screens.peek()).then(sub(response as Dynamic, screen as Dynamic)
+        m.focusRequestMade = m.focusRequestMade OR m.processingGoBack
         showScreen(screen, {}, true)
     end sub)
 

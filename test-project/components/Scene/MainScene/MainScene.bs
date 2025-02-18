@@ -36,11 +36,11 @@ end sub
 function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
     if press then
         if key = "back" OR key = "left" then
-            m.mainMenu.setFocus(true)
+            if m.mainMenu.visible then m.mainMenu.setFocus(true)
             return true
         else if key = "right" then
             if NOT m.router@.setFocus(true) then
-                m.mainMenu.setFocus(true)
+                if m.mainMenu.visible then m.mainMenu.setFocus(true)
             end if
             return true
         end if

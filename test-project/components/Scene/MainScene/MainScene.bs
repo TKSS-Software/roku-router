@@ -42,6 +42,11 @@ sub onRouterStateChanged(event as Object)
 
     if data.type = "NavigationEnd" then
         m.mainMenu.visible = data.route.routeConfig.isRoot AND m.global.AuthManager.isLoggedIn
+        m.loadingOverlay.visible = false
+    else if data.type = "NavigationStart" then
+        m.loadingOverlay.visible = true
+    else if data.type = "NavigationError" then
+        m.loadingOverlay.visible = false
     end if
 end sub
 

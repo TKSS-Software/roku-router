@@ -5,11 +5,6 @@ enum RouterStates
     NavigationError = "NavigationError"
     GuardsCheckStart = "GuardsCheckStart"
     GuardsCheckEnd = "GuardsCheckEnd"
-    GuardsCheckResult = "GuardsCheckResult"
+    GuardResult = "GuardsResult"
     RedirectCommand = "RedirectCommand"
 end enum
-
-function dispatchRouterState(stateType as String, route = {} as Dynamic) as Dynamic
-    m.top.routerState = { type: stateType, route: route }
-    return promises.resolve(Invalid)
-end function

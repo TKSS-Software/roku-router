@@ -70,13 +70,37 @@ function goBack(_ = Invalid as Dynamic) as Dynamic
     return true
 end function
 
+function dispatchRouterState(stateType as String, context = {} as Dynamic) as Dynamic
+    update = {
+        type: stateType
+        id: rodash.getString(context, "route.id", context.id)
+        route: rodash.get(context, "route")
+    }
+
+    if stateType = RouterStates.GuardResult then
+        update.result = rodash.get(context, "result")
+    end if
+    m.top.routerState = update
+    return promises.resolve(update)
+end function
+
 ' Function to navigate to a specific route
 function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
-    matchedRoute = findMatchingRoute(path, m.routes)
+    id = CreateObject("roDeviceInfo").GetRandomUUID()
+    matchedRoute = findMatchingRoute(path, m.routes, id)
+
+    dispatchRouterState(RouterStates.NavigationStart, {
+        id: id
+        route: matchedRoute
+    })
 
     if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
         ' Run guard checks
         canActivateGuard = rodash.get(matchedRoute.routeConfig, "canActivate")
+        dispatchRouterState(RouterStates.GuardsCheckStart, {
+            id: id
+            route: matchedRoute
+        })
         if rodash.isNonEmptyArray(canActivateGuard) then
             for each guard in canActivateGuard
                 guardNode = Invalid
@@ -91,15 +115,47 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                 end if
 
                 if guardNode <> Invalid then
-                    canActivate = guardNode@.canActivate(matchedRoute)
-                    if NOT canActivate then
-                        message = { message: `Route "${path}" is not accessible` }
-                        print message
+                    canActivateResult = guardNode@.canActivate(matchedRoute)
+                    print "canActivateResult", canActivateResult
+                    dispatchRouterState(RouterStates.GuardResult, {
+                        id: id
+                        route: matchedRoute
+                        type: "canActivate"
+                        result: canActivateResult
+                    })
+
+                    if rodash.isBoolean(canActivateResult) then
+                        canActivate = canActivateResult
+
+                        if NOT canActivate then
+                            message = { message: `Route "${path}" is not accessible` }
+                            print message
+                            dispatchRouterState(RouterStates.GuardsCheckEnd, {
+                                id: id
+                                route: matchedRoute
+                            })
+                            return promises.reject(message)
+                        end if
+                    else if rodash.isNonEmptyAA(canActivateResult) then
+                        redirectTo = rodash.getString(canActivateResult, "path")
+                        if rodash.isNonEmptyString(redirectTo) then
+                            dispatchRouterState(RouterStates.GuardsCheckEnd, {
+                                id: id
+                                route: matchedRoute
+                            })
+                            return navigateTo(redirectTo, rodash.getAA(canActivateResult, "options"), rodash.getAA(canActivateResult, "context"))
+                        end if
+                    else
                         return promises.reject(message)
                     end if
                 end if
             end for
         end if
+
+        dispatchRouterState(RouterStates.GuardsCheckEnd, {
+            id: id
+            route: matchedRoute
+        })
 
         isRoot = matchedRoute.routeConfig.isRoot
         if isRoot then
@@ -156,6 +212,9 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
         end function).toPromise()
     end if
 
+    dispatchRouterState(RouterStates.NavigationError, {
+        id: id
+    })
     message = { message: `Route "${path}" not found` }
     print message
     return promises.reject(message)
@@ -163,7 +222,7 @@ end function
 
 
 ' Helper function to find a matching route
-function findMatchingRoute(path as String, routes as Object) as RouteObject
+function findMatchingRoute(path as String, routes as Object, id as String) as RouteObject
     hash = Router._utils.getHashParam(path)
 
     if rodash.isNonEmptyString(hash) then
@@ -196,7 +255,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
                 routeParams: {}
                 queryParams: queryParams
                 hash: hash
-                id: CreateObject("roDeviceInfo").GetRandomUUID()
+                id: id
                 router: m.top
             }
         end if
@@ -237,7 +296,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
                     routeParams: matchedParams
                     queryParams: queryParams
                     hash: hash
-                    id: CreateObject("roDeviceInfo").GetRandomUUID()
+                    id: id
                     router: m.top
                 }
             end if
@@ -326,6 +385,10 @@ function showScreen(screen as Object, params = {} as Dynamic, onResume = false a
             end if
 
             m.processingGoBack = false
+            dispatchRouterState(RouterStates.NavigationEnd, {
+                id: context.screen.id
+                route: context.screen.route
+            })
             return context.response
         end function).toPromise()
     end if

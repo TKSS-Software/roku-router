@@ -1,0 +1,11 @@
+namespace Router
+    class RedirectCommand
+        public command as String
+        public path as String
+
+        sub new(path as String)
+            m.command = "RedirectCommand"
+            m.path = path
+        end sub
+    end class
+end namespace

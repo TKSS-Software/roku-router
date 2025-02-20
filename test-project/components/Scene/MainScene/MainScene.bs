@@ -6,6 +6,8 @@ sub init()
         "AuthManager": createObject("roSGNode", "AuthManager")
     })
 
+    m.global.AuthManager.observeField("isLoggedIn", "onAuthManagerIsLoggedInChanged")
+
     m.mainMenu.router = m.router
     m.mainMenu@.initialize()
 
@@ -13,24 +15,34 @@ sub init()
     m.router@.addRoutes([
         { pattern: "/", component: "WelcomeScreen", isRoot: true },
         { pattern: "/shows", component: "CatalogScreen", isRoot: true, canActivate: [m.global.AuthManager] },
-        { pattern: "/movies", component: "CatalogScreen", isRoot: true },
-        { pattern: "/details/:type/:id", component: "DetailsScreen" },
-        { pattern: "/details/:type/:id/cast", component: "CastDetailsScreen" },
+        { pattern: "/movies", component: "CatalogScreen", isRoot: true, canActivate: [m.global.AuthManager] },
+        { pattern: "/details/:type/:id", component: "DetailsScreen", canActivate: [m.global.AuthManager] },
+        { pattern: "/details/:type/:id/cast", component: "CastDetailsScreen", canActivate: [m.global.AuthManager] },
         { pattern: "/:screenName", component: "DefaultScreen" }
     ])
 
     ' Read the sample data from the file. You normally wouldn't want to do this in a real app.
     m.global.update(ParseJSON(ReadAsciiFile("pkg:/assets/sampleData.json")), true)
-    m.router@.navigateTo("/?firstLoad=true", {})
+    m.router@.navigateTo("/#firstLoad=true", {})
 
     m.router@.setFocus(true)
 end sub
 
-
+sub onAuthManagerIsLoggedInChanged(event as Object)
+    if event.getData() then
+        m.router@.navigateTo("/shows", {})
+    else
+        m.router@.navigateTo("/", {})
+    end if
+end sub
 
 sub onRouterStateChanged(event as Object)
     data = event.getData()
     print "onRouterStateChanged: ", data
+
+    if data.type = "NavigationEnd" then
+        m.mainMenu.visible = data.route.routeConfig.isRoot AND m.global.AuthManager.isLoggedIn
+    end if
 end sub
 
 function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean

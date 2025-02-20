@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="MainMenuButton" extends="Rectangle">
+    <interface>
+        <field id="text" alias="label.text" />
+        <field id="icon" alias="icon.uri" />
+        <field id="link" type="string" />
+        <field id="router" type="node" />
+    </interface>
+    <children>
+        <LayoutGroup translation="[10,10]" id="buttonGroup" itemSpacings="[20]"
+            layoutDirection="horizontal" vertAlignment="center">
+            <Poster id="icon" width="60" height="60" />
+            <Label id="label" />
+        </LayoutGroup>
+    </children>
+</component>

@@ -1,4 +1,6 @@
-function canActivate(currentRequest = {} as Object) as Boolean
+import "pkg:/source/classes/RedirectCommand.bs"
+
+function canActivate(currentRequest = {} as Object) as Dynamic
     if m.top.isLoggedIn then
         return true
     end if
@@ -9,6 +11,5 @@ function canActivate(currentRequest = {} as Object) as Boolean
     dialog.message = "Press * To Dismiss"
     m.top.getScene().dialog = dialog
 
-    currentRequest.router@.navigateTo("/?needToLogin=true", {})
-    return false
+    return new Router.RedirectCommand("/")
 end function

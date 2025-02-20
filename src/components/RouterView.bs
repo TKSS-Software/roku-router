@@ -56,7 +56,7 @@ function onRouteUpdate(event = {} as Object) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function _onScreenResume(_ as Dynamic, applyFocus = false) as Dynamic
+function _onScreenResume(_ as Dynamic, applyFocus = false as Boolean) as Dynamic
     return onScreenResume(_)
 end function
 
@@ -82,6 +82,7 @@ function _handleFocus(data = {} as Object) as Boolean
         end if
         return handled
     end if
+    return false
 end function
 
 function handleFocus(data = {} as Object) as Boolean

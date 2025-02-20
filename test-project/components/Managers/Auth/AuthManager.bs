@@ -11,5 +11,5 @@ function canActivate(currentRequest = {} as Object) as Dynamic
     dialog.message = "Press * To Dismiss"
     m.top.getScene().dialog = dialog
 
-    return new Router.RedirectCommand("/")
+    return new Router.RedirectCommand("/login")
 end function

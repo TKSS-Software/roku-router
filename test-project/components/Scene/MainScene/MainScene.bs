@@ -45,7 +45,7 @@ sub onRouterStateChanged(event as Object)
         m.loadingOverlay.visible = false
     else if data.type = "NavigationStart" then
         m.loadingOverlay.visible = true
-    else if data.type = "NavigationError" then
+    else if data.type = "NavigationError" OR data.type = "NavigationCancel" then
         m.loadingOverlay.visible = false
     end if
 end sub

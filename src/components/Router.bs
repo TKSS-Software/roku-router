@@ -143,6 +143,10 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                                 id: id
                                 route: matchedRoute
                             })
+                            dispatchRouterState(RouterStates.NavigationCancel, {
+                                id: id
+                                route: matchedRoute
+                            })
                             return navigateTo(redirectTo, rodash.getAA(canActivateResult, "options"), rodash.getAA(canActivateResult, "context"))
                         end if
                     else
@@ -185,6 +189,10 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                 m.activeScreen@._onRouteUpdate({
                     oldRoute: oldRoute
                     newRoute: newRoute
+                })
+                dispatchRouterState(RouterStates.NavigationEnd, {
+                    id: id
+                    route: newRoute
                 })
                 return promises.resolve(m.activeScreen)
             else
@@ -396,7 +404,7 @@ function showScreen(screen as Object, onResume = false as Boolean) as Dynamic
             response = screen@._onScreenOpen(screen.route)
         end if
 
-        return promises.chain(response, { response: response, screen: screen }).finally(function(context) as Dynamic
+        return promises.chain(response, { response: response, screen: screen }).finally(function(context as Dynamic) as Dynamic
             print "Screen opened", m.focusRequestMade
             focusSuccess = context.screen@._handleFocus({
                 routerFocused: m.focusRequestMade

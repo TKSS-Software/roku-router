@@ -229,14 +229,10 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
         end if
 
         return promises.chain(promises.all(promisesToResolve), context).then(function(_ as Dynamic, context as Dynamic) as Dynamic
-            print "A", context
             return promises.chain(showScreen(context.screen), context).then(function(response as Dynamic, context as Dynamic) as Dynamic
-                print "B", context
                 if rodash.isNonEmptyArray(context.closeViews) then
                     for each view in context.closeViews
-                        if hideScreen(view) then
-                            rodash.removeNode(view)
-                        end if
+                        if hideScreen(view) then rodash.removeNode(view)
                     end for
                 end if
                 return response

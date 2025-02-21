@@ -93,7 +93,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
     return promises.chain(dispatchRouterState(RouterStates.NavigationStart, {
         id: id
         route: matchedRoute
-    }), { id: id, matchedRoute: matchedRoute, options: options, context: context }).finally(function(context) as Dynamic
+    }), { id: id, matchedRoute: matchedRoute, options: options, context: context }).finally(function(context as dynamic) as Dynamic
         id = context.id
         matchedRoute = context.matchedRoute
         options = context.options
@@ -133,7 +133,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                             canActivate = canActivateResult
 
                             if NOT canActivate then
-                                message = { message: `Route "${path}" is not accessible` }
+                                message = { message: `Route "${matchedRoute.path}" is not accessible` }
                                 print message
                                 dispatchRouterState(RouterStates.GuardsCheckEnd, {
                                     id: id
@@ -167,7 +167,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
             })
 
             if rodash.isEmptyString(rodash.getString(matchedRoute, "routeConfig.component")) then
-                return promises.reject({ message: `No component for route "${path}"` })
+                return promises.reject({ message: `No component for route "${matchedRoute.path}"` })
             end if
 
             newRoute = {
@@ -214,7 +214,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
         dispatchRouterState(RouterStates.NavigationError, {
             id: id
         })
-        message = { message: `Route "${path}" not found` }
+        message = { message: `Route "${matchedRoute.path}" not found` }
         print message
         return promises.reject(message)
     end function).toPromise()

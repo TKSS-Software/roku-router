@@ -6,7 +6,7 @@ sub init()
     m.top.focusable = true
     m.top.observeField("focusedChild", "onFocusChildChanged")
 
-    m.activeScreen = Invalid
+    m.activeView = Invalid
     m.routes = {}
     m.guardInstances = {}
 
@@ -19,9 +19,9 @@ end sub
 sub onFocusChildChanged(event as Object)
     inFocusChain = event.getData() <> Invalid
 
-    if NOT m.processingGoBack AND m.activeScreen <> Invalid AND NOT inFocusChain AND m.focusRequestMade <> inFocusChain then
+    if NOT m.processingGoBack AND m.activeView <> Invalid AND NOT inFocusChain AND m.focusRequestMade <> inFocusChain then
         m.focusRequestMade = inFocusChain
-        m.activeScreen@._handleFocus({
+        m.activeView@._handleFocus({
             routerFocused: inFocusChain
         })
     end if
@@ -33,8 +33,8 @@ function setFocus(takeFocus as Boolean) as Boolean
     print source_function_name, takeFocus
     response = false
 
-    if m.activeScreen <> Invalid AND takeFocus AND m.focusRequestMade <> takeFocus then
-        response = m.activeScreen@._handleFocus({
+    if m.activeView <> Invalid AND takeFocus AND m.focusRequestMade <> takeFocus then
+        response = m.activeView@._handleFocus({
             routerFocused: true
         })
     end if
@@ -58,13 +58,13 @@ end function
 ' Function to navigate back in the router history
 function goBack(_ = Invalid as Dynamic) as Dynamic
     m.processingGoBack = true
-    screens = rodash.getNodeChildren(m.viewTarget)
-    numberOfScreens = screens.count()
-    if numberOfScreens <= 1 then return false
+    views = rodash.getNodeChildren(m.viewTarget)
+    numberOfViews = views.count()
+    if numberOfViews <= 1 then return false
 
-    promises.chain(closeScreen(screens.pop()), screens.peek()).then(sub(response as Dynamic, screen as Dynamic)
+    promises.chain(closeView(views.pop()), views.peek()).then(sub(response as Dynamic, view as Dynamic)
         m.focusRequestMade = m.focusRequestMade OR m.processingGoBack
-        showScreen(screen, {}, true)
+        showView(view, {}, true)
     end sub)
 
     return true
@@ -177,10 +177,10 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
             }
             newRoute.append(matchedRoute)
 
-            if m.activeScreen <> Invalid then
-                oldRoute = m.activeScreen.route
+            if m.activeView <> Invalid then
+                oldRoute = m.activeView.route
 
-                ' Reuse the screen and call onRouteUpdate if the path or hash is the same, OR if the options allow it
+                ' Reuse the view and call onRouteUpdate if the path or hash is the same, OR if the options allow it
                 hasHash = rodash.isNonEmptyString(newRoute.hash)
                 isSamePath = rodash.isEqual(newRoute.path, oldRoute.path)
                 reuse = rodash.getBoolean(options, "allowReuse") OR hasHash OR isSamePath
@@ -191,27 +191,27 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                 end if
 
                 if reuse then
-                    m.activeScreen.route = newRoute
-                    m.activeScreen@._onRouteUpdate({
+                    m.activeView.route = newRoute
+                    m.activeView@._onRouteUpdate({
                         oldRoute: oldRoute
                         newRoute: newRoute
                     })
-                    return promises.resolve(m.activeScreen)
+                    return promises.resolve(m.activeView)
                 end if
             end if
 
-            screen = rodash.createNode(componentName)
-            if screen = Invalid then
-                return promises.reject({ message: `Failed to create screen "${componentName}"` })
+            view = rodash.createNode(componentName)
+            if view = Invalid then
+                return promises.reject({ message: `Failed to create view "${componentName}"` })
             end if
 
-            screen.id = newRoute.id
-            screen.route = newRoute
-            screen.router = m.top
-            return promises.chain(screen@._beforeScreenOpen(newRoute), { screen: screen, newRoute: newRoute }).then(function(response as Dynamic, context as Dynamic) as Dynamic
-                m.viewTarget.appendChild(context.screen)
-                hideScreen(m.activeScreen)
-                return showScreen(context.screen, context.newRoute)
+            view.id = newRoute.id
+            view.route = newRoute
+            view.router = m.top
+            return promises.chain(view@._beforeViewOpen(newRoute), { view: view, newRoute: newRoute }).then(function(response as Dynamic, context as Dynamic) as Dynamic
+                m.viewTarget.appendChild(context.view)
+                hideView(m.activeView)
+                return showView(context.view, context.newRoute)
             end function).catch(function(error as Dynamic) as Dynamic
                 return promises.reject(error)
             end function).toPromise()
@@ -352,36 +352,36 @@ function parseQueryString(queryString as Dynamic) as Object
     return queryParams
 end function
 
-function hideScreen(screen as Object, onSuspend = false as Boolean) as Boolean
-    success = rodash.isNode(screen)
+function hideView(view as Object, onSuspend = false as Boolean) as Boolean
+    success = rodash.isNode(view)
     if success then
-        screen.visible = false
-        screen.translation = [10000, 10000]
+        view.visible = false
+        view.translation = [10000, 10000]
 
         if onSuspend then
-            screen@._onScreenSuspend()
+            view@._onViewSuspend()
         end if
     end if
     return success
 end function
 
-' Tells the screen to open and fire the handleFocus lifecycle method
-function showScreen(screen as Object, params = {} as Dynamic, onResume = false as Boolean) as Dynamic
-    if rodash.isNode(screen) then
-        screen.visible = true
-        screen.translation = [0, 0]
-        m.activeScreen = screen
+' Tells the view to open and fire the handleFocus lifecycle method
+function showView(view as Object, params = {} as Dynamic, onResume = false as Boolean) as Dynamic
+    if rodash.isNode(view) then
+        view.visible = true
+        view.translation = [0, 0]
+        m.activeView = view
 
         response = Invalid
         if onResume then
-            response = screen@._onScreenResume(params)
+            response = view@._onViewResume(params)
         else
-            response = screen@._onScreenOpen(params)
+            response = view@._onViewOpen(params)
         end if
 
-        return promises.chain(response, { response: response, screen: screen }).finally(function(context) as Dynamic
-            print "Screen opened", m.focusRequestMade
-            focusSuccess = context.screen@._handleFocus({
+        return promises.chain(response, { response: response, view: view }).finally(function(context) as Dynamic
+            print "View opened", m.focusRequestMade
+            focusSuccess = context.view@._handleFocus({
                 routerFocused: m.focusRequestMade
             })
 
@@ -392,27 +392,27 @@ function showScreen(screen as Object, params = {} as Dynamic, onResume = false a
 
             m.processingGoBack = false
             dispatchRouterState(RouterStates.NavigationEnd, {
-                id: context.screen.id
-                route: context.screen.route
+                id: context.view.id
+                route: context.view.route
             })
             return context.response
         end function).toPromise()
     end if
 
-    return promises.reject({ message: "Invalid screen" })
+    return promises.reject({ message: "Invalid view" })
 end function
 
-function closeScreen(screen = Invalid as Dynamic) as Dynamic
-    screen.translation = [1000000, 100000]
-    screen.visible = false
+function closeView(view = Invalid as Dynamic) as Dynamic
+    view.translation = [1000000, 100000]
+    view.visible = false
 
-    return promises.onThen(screen@._beforeScreenClose(screen.route), function(response as Dynamic, context as Dynamic) as Dynamic
-        if hideScreen(context.screen) then
-            rodash.removeNode(context.screen)
+    return promises.onThen(view@._beforeViewClose(view.route), function(response as Dynamic, context as Dynamic) as Dynamic
+        if hideView(context.view) then
+            rodash.removeNode(context.view)
         end if
 
         return true
-    end function, { screen: screen })
+    end function, { view: view })
 end function
 
 function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean

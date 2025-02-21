@@ -11,7 +11,8 @@ function onRouteUpdate(event = {} as Object) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function beforeScreenClose(context = Invalid as Dynamic) as Dynamic
+function beforeViewClose(context = Invalid as Dynamic) as Dynamic
+    m.buttonGroup.unobserveField("buttonSelected")
     return promises.resolve(Invalid)
 end function
 
@@ -22,7 +23,6 @@ function handleFocus(data as Object) as Boolean
 
     return false
 end function
-
 
 sub onButtonPress(event as Object)
     button = event.getData()

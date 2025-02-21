@@ -77,7 +77,7 @@ function dispatchRouterState(stateType as String, context = {} as Dynamic) as Dy
         route: rodash.get(context, "route")
     }
 
-    if stateType = RouterStates.GuardResult then
+    if stateType = RouterState.GuardResult then
         update.result = rodash.get(context, "result")
     end if
     m.top.routerState = update
@@ -89,7 +89,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
     matchedRoute = findMatchingRoute(path, m.routes)
 
     ' Prepare the function to support a queue
-    return promises.chain(dispatchRouterState(RouterStates.NavigationStart, {
+    return promises.chain(dispatchRouterState(RouterState.NavigationStart, {
         id: matchedRoute.id
         route: matchedRoute
     }), { matchedRoute: matchedRoute, options: options, context: context }).finally(function(context) as Dynamic
@@ -101,7 +101,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
         if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
             ' Run guard checks
             canActivateGuard = rodash.get(matchedRoute.routeConfig, "canActivate")
-            dispatchRouterState(RouterStates.GuardsCheckStart, {
+            dispatchRouterState(RouterState.GuardsCheckStart, {
                 id: id
                 route: matchedRoute
             })
@@ -121,7 +121,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                     if guardNode <> Invalid then
                         canActivateResult = guardNode@.canActivate(matchedRoute)
                         print "canActivateResult", canActivateResult
-                        dispatchRouterState(RouterStates.GuardResult, {
+                        dispatchRouterState(RouterState.GuardResult, {
                             id: id
                             route: matchedRoute
                             type: "canActivate"
@@ -134,7 +134,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                             if NOT canActivate then
                                 message = { message: `Route "${path}" is not accessible` }
                                 print message
-                                dispatchRouterState(RouterStates.GuardsCheckEnd, {
+                                dispatchRouterState(RouterState.GuardsCheckEnd, {
                                     id: id
                                     route: matchedRoute
                                 })
@@ -143,7 +143,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                         else if rodash.isNonEmptyAA(canActivateResult) then
                             redirectTo = rodash.getString(canActivateResult, "path")
                             if rodash.isNonEmptyString(redirectTo) then
-                                dispatchRouterState(RouterStates.GuardsCheckEnd, {
+                                dispatchRouterState(RouterState.GuardsCheckEnd, {
                                     id: id
                                     route: matchedRoute
                                 })
@@ -156,7 +156,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                 end for
             end if
 
-            dispatchRouterState(RouterStates.GuardsCheckEnd, {
+            dispatchRouterState(RouterState.GuardsCheckEnd, {
                 id: id
                 route: matchedRoute
             })
@@ -216,7 +216,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
             end function).toPromise()
         end if
 
-        dispatchRouterState(RouterStates.NavigationError, {
+        dispatchRouterState(RouterState.NavigationError, {
             id: id
         })
         message = { message: `Route "${path}" not found` }
@@ -390,7 +390,7 @@ function showView(view as Object, params = {} as Dynamic, onResume = false as Bo
             end if
 
             m.processingGoBack = false
-            dispatchRouterState(RouterStates.NavigationEnd, {
+            dispatchRouterState(RouterState.NavigationEnd, {
                 id: context.view.id
                 route: context.view.route
             })

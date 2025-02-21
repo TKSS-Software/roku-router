@@ -1,4 +1,4 @@
-enum RouterStates
+enum RouterState
     NavigationStart = "NavigationStart"
     NavigationEnd = "NavigationEnd"
     NavigationCancel = "NavigationCancel"

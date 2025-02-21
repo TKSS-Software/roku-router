@@ -6,7 +6,7 @@ sub init()
   m.rowList.observeField("rowItemSelected", "onItemSelected")
 end sub
 
-function beforeScreenOpen(params = {} as Object) as Dynamic
+function beforeViewOpen(params = {} as Object) as Dynamic
   api = { data: { carousels: [] } }
   title = ""
   m.pageType = rodash.getString(params, "routeConfig.pattern") = "/shows" ? "shows": "movies"

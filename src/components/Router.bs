@@ -70,7 +70,7 @@ function goBack(_ = Invalid as Dynamic) as Dynamic
     return true
 end function
 
-function dispatchRouterState(stateType as String, context = {} as Dynamic) as Dynamic
+sub dispatchRouterState(stateType as String, context = {} as Dynamic)
     update = {
         type: stateType
         id: rodash.getString(context, "route.id", context.id)
@@ -81,18 +81,17 @@ function dispatchRouterState(stateType as String, context = {} as Dynamic) as Dy
         update.result = rodash.get(context, "result")
     end if
     m.top.routerState = update
-    return promises.resolve(update)
-end function
+end sub
 
 ' Function to navigate to a specific route
 function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
     matchedRoute = findMatchingRoute(path, m.routes)
 
     ' Prepare the function to support a queue
-    return promises.chain(dispatchRouterState(RouterState.NavigationStart, {
+    return promises.chain(promises.resolve(dispatchRouterState(RouterState.NavigationStart, {
         id: matchedRoute.id
         route: matchedRoute
-    }), { matchedRoute: matchedRoute, options: options, context: context }).finally(function(context) as Dynamic
+    })), { matchedRoute: matchedRoute, options: options, context: context }).finally(function(context) as Dynamic
         id = context.matchedRoute.id
         matchedRoute = context.matchedRoute
         options = context.options

@@ -94,7 +94,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
     })
 
     'sleep until next tick, then continue work
-    return promises.chain(promises.resolve(Invalid), { matchedRoute: matchedRoute, options: options, context: context }).finally(function(context) as Dynamic
+    return promises.chain(promises.resolve(Invalid), { matchedRoute: matchedRoute, options: options, context: context }).finally(function(context as dynamic) as Dynamic
         id = context.matchedRoute.id
         matchedRoute = context.matchedRoute
         options = context.options

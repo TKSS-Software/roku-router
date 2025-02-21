@@ -86,137 +86,142 @@ end sub
 ' Function to navigate to a specific route
 function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
     matchedRoute = findMatchingRoute(path, m.routes)
-    id = matchedRoute.id
-    dispatchRouterState(RouterState.NavigationStart, {
-        id: id
-        route: matchedRoute
-    })
 
-    sleep(100)
-    if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
-        ' Run guard checks
-        canActivateGuard = rodash.get(matchedRoute.routeConfig, "canActivate")
-        dispatchRouterState(RouterState.GuardsCheckStart, {
-            id: id
-            route: matchedRoute
-        })
-        if rodash.isNonEmptyArray(canActivateGuard) then
-            for each guard in canActivateGuard
-                guardNode = Invalid
-                if rodash.isNode(guard) then
-                    guardNode = guard
-                else if rodash.isString(guard) then
-                    if m.guardInstances[guard] = Invalid then
-                        m.guardInstances[guard] = rodash.createNode(guard)
+    ' Prepare the function to support a queue
+    return promises.chain(promises.resolve(dispatchRouterState(RouterState.NavigationStart, {
+        id: matchedRoute.id
+        route: matchedRoute
+    })), { matchedRoute: matchedRoute, options: options, context: context }).finally(function(context) as Dynamic
+        id = context.matchedRoute.id
+        matchedRoute = context.matchedRoute
+        options = context.options
+        context = context.context
+
+        if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
+            ' Run guard checks
+            canActivateGuard = rodash.get(matchedRoute.routeConfig, "canActivate")
+            dispatchRouterState(RouterState.GuardsCheckStart, {
+                id: id
+                route: matchedRoute
+            })
+            if rodash.isNonEmptyArray(canActivateGuard) then
+                for each guard in canActivateGuard
+                    guardNode = Invalid
+                    if rodash.isNode(guard) then
+                        guardNode = guard
+                    else if rodash.isString(guard) then
+                        if m.guardInstances[guard] = Invalid then
+                            m.guardInstances[guard] = rodash.createNode(guard)
+                        end if
+
+                        guardNode = m.guardInstances[guard]
                     end if
 
-                    guardNode = m.guardInstances[guard]
-                end if
+                    if guardNode <> Invalid then
+                        canActivateResult = guardNode@.canActivate(matchedRoute)
+                        print "canActivateResult", canActivateResult
+                        dispatchRouterState(RouterState.GuardResult, {
+                            id: id
+                            route: matchedRoute
+                            type: "canActivate"
+                            result: canActivateResult
+                        })
 
-                if guardNode <> Invalid then
-                    canActivateResult = guardNode@.canActivate(matchedRoute)
-                    print "canActivateResult", canActivateResult
-                    dispatchRouterState(RouterState.GuardResult, {
-                        id: id
-                        route: matchedRoute
-                        type: "canActivate"
-                        result: canActivateResult
-                    })
+                        if rodash.isBoolean(canActivateResult) then
+                            canActivate = canActivateResult
 
-                    if rodash.isBoolean(canActivateResult) then
-                        canActivate = canActivateResult
-
-                        if NOT canActivate then
-                            message = { message: `Route "${path}" is not accessible` }
-                            print message
-                            dispatchRouterState(RouterState.GuardsCheckEnd, {
-                                id: id
-                                route: matchedRoute
-                            })
+                            if NOT canActivate then
+                                message = { message: `Route "${path}" is not accessible` }
+                                print message
+                                dispatchRouterState(RouterState.GuardsCheckEnd, {
+                                    id: id
+                                    route: matchedRoute
+                                })
+                                return promises.reject(message)
+                            end if
+                        else if rodash.isNonEmptyAA(canActivateResult) then
+                            redirectTo = rodash.getString(canActivateResult, "path")
+                            if rodash.isNonEmptyString(redirectTo) then
+                                dispatchRouterState(RouterState.GuardsCheckEnd, {
+                                    id: id
+                                    route: matchedRoute
+                                })
+                                return navigateTo(redirectTo, rodash.getAA(canActivateResult, "options"), rodash.getAA(canActivateResult, "context"))
+                            end if
+                        else
                             return promises.reject(message)
                         end if
-                    else if rodash.isNonEmptyAA(canActivateResult) then
-                        redirectTo = rodash.getString(canActivateResult, "path")
-                        if rodash.isNonEmptyString(redirectTo) then
-                            dispatchRouterState(RouterState.GuardsCheckEnd, {
-                                id: id
-                                route: matchedRoute
-                            })
-                            return navigateTo(redirectTo, rodash.getAA(canActivateResult, "options"), rodash.getAA(canActivateResult, "context"))
-                        end if
-                    else
-                        return promises.reject(message)
                     end if
+                end for
+            end if
+
+            dispatchRouterState(RouterState.GuardsCheckEnd, {
+                id: id
+                route: matchedRoute
+            })
+
+            isRoot = matchedRoute.routeConfig.isRoot
+            if isRoot then
+                ' print "ROOT SCREEN"
+            end if
+
+            componentName = rodash.getString(matchedRoute, "routeConfig.component")
+            if rodash.isEmptyString(componentName) then
+                return promises.reject({ message: `No component for route "${path}"` })
+            end if
+
+            newRoute = {
+                context: context
+            }
+            newRoute.append(matchedRoute)
+
+            if m.activeView <> Invalid then
+                oldRoute = m.activeView.route
+
+                ' Reuse the view and call onRouteUpdate if the path or hash is the same, OR if the options allow it
+                hasHash = rodash.isNonEmptyString(newRoute.hash)
+                isSamePath = rodash.isEqual(newRoute.path, oldRoute.path)
+                reuse = rodash.getBoolean(options, "allowReuse") OR hasHash OR isSamePath
+                if hasHash then
+                    if NOT rodash.isEqual(newRoute.routeConfig, oldRoute.routeConfig) then reuse = false
+                else
+                    if NOT rodash.isEqual(newRoute.routeParams.component, oldRoute.routeParams.component) then reuse = false
                 end if
-            end for
+
+                if reuse then
+                    m.activeView.route = newRoute
+                    m.activeView@._onRouteUpdate({
+                        oldRoute: oldRoute
+                        newRoute: newRoute
+                    })
+                    return promises.resolve(m.activeView)
+                end if
+            end if
+
+            view = rodash.createNode(componentName)
+            if view = Invalid then
+                return promises.reject({ message: `Failed to create view "${componentName}"` })
+            end if
+
+            view.id = newRoute.id
+            view.route = newRoute
+            view.router = m.top
+            return promises.chain(view@._beforeViewOpen(newRoute), { view: view, newRoute: newRoute }).then(function(response as Dynamic, context as Dynamic) as Dynamic
+                m.viewTarget.appendChild(context.view)
+                hideView(m.activeView)
+                return showView(context.view, context.newRoute)
+            end function).catch(function(error as Dynamic) as Dynamic
+                return promises.reject(error)
+            end function).toPromise()
         end if
 
-        dispatchRouterState(RouterState.GuardsCheckEnd, {
+        dispatchRouterState(RouterState.NavigationError, {
             id: id
-            route: matchedRoute
         })
-
-        isRoot = matchedRoute.routeConfig.isRoot
-        if isRoot then
-            ' print "ROOT SCREEN"
-        end if
-
-        componentName = rodash.getString(matchedRoute, "routeConfig.component")
-        if rodash.isEmptyString(componentName) then
-            return promises.reject({ message: `No component for route "${path}"` })
-        end if
-
-        newRoute = {
-            context: context
-        }
-        newRoute.append(matchedRoute)
-
-        if m.activeView <> Invalid then
-            oldRoute = m.activeView.route
-
-            ' Reuse the view and call onRouteUpdate if the path or hash is the same, OR if the options allow it
-            hasHash = rodash.isNonEmptyString(newRoute.hash)
-            isSamePath = rodash.isEqual(newRoute.path, oldRoute.path)
-            reuse = rodash.getBoolean(options, "allowReuse") OR hasHash OR isSamePath
-            if hasHash then
-                if NOT rodash.isEqual(newRoute.routeConfig, oldRoute.routeConfig) then reuse = false
-            else
-                if NOT rodash.isEqual(newRoute.routeParams.component, oldRoute.routeParams.component) then reuse = false
-            end if
-
-            if reuse then
-                m.activeView.route = newRoute
-                m.activeView@._onRouteUpdate({
-                    oldRoute: oldRoute
-                    newRoute: newRoute
-                })
-                return promises.resolve(m.activeView)
-            end if
-        end if
-
-        view = rodash.createNode(componentName)
-        if view = Invalid then
-            return promises.reject({ message: `Failed to create view "${componentName}"` })
-        end if
-
-        view.id = newRoute.id
-        view.route = newRoute
-        view.router = m.top
-        return promises.chain(view@._beforeViewOpen(newRoute), { view: view, newRoute: newRoute }).then(function(response as Dynamic, context as Dynamic) as Dynamic
-            m.viewTarget.appendChild(context.view)
-            hideView(m.activeView)
-            return showView(context.view, context.newRoute)
-        end function).catch(function(error as Dynamic) as Dynamic
-            return promises.reject(error)
-        end function).toPromise()
-    end if
-
-    dispatchRouterState(RouterState.NavigationError, {
-        id: id
-    })
-    message = { message: `Route "${path}" not found` }
-    print message
-    return promises.reject(message)
+        message = { message: `Route "${path}" not found` }
+        print message
+        return promises.reject(message)
+    end function).toPromise()
 end function
 
 

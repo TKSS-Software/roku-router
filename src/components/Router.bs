@@ -1,14 +1,48 @@
 import "pkg:/source/roku_modules/promises/promises.brs"
 import "pkg:/source/roku_modules/rodash/rodash.brs"
-import "pkg:/source/interfaces.bs"
+import "pkg:/source/router.bs"
 
 sub init()
+    m.top.focusable = true
+    m.top.observeField("focusedChild", "onFocusChildChanged")
+
     m.activeView = Invalid
     m.routes = {}
     m.guardInstances = {}
 
+    m.focusRequestMade = false
+    m.processingGoBack = false
+
     m.top.appLaunchComplete = false
 end sub
+
+sub onFocusChildChanged(event as Object)
+    inFocusChain = event.getData() <> Invalid
+
+    if NOT m.processingGoBack AND m.activeView <> Invalid AND NOT inFocusChain AND m.focusRequestMade <> inFocusChain then
+        m.focusRequestMade = inFocusChain
+        m.activeView@._handleFocus({
+            routerFocused: inFocusChain
+        })
+    end if
+
+    m.focusRequestMade = inFocusChain
+end sub
+
+function setFocus(takeFocus as Boolean) as Boolean
+    print source_function_name, takeFocus
+    response = false
+
+    if m.activeView <> Invalid AND takeFocus AND m.focusRequestMade <> takeFocus then
+        response = m.activeView@._handleFocus({
+            routerFocused: true
+        })
+    end if
+
+    m.focusRequestMade = true
+
+    return response
+end function
 
 sub addRoutes(routes = [] as Object)
     for each route in routes
@@ -16,43 +50,60 @@ sub addRoutes(routes = [] as Object)
     end for
 end sub
 
+' Function to get the routes
 function getRoutes(_ = Invalid as Dynamic) as Dynamic
     return m.routes
 end function
 
+' Function to navigate back in the router history
+function goBack(_ = Invalid as Dynamic) as Dynamic
+    m.processingGoBack = true
+    views = rodash.getNodeChildren(m.viewTarget)
+    numberOfViews = views.count()
+    if numberOfViews <= 1 then return false
+
+    promises.chain(closeView(views.pop()), views.peek()).then(sub(response as Dynamic, view as Dynamic)
+        m.focusRequestMade = m.focusRequestMade OR m.processingGoBack
+        showView(view, {}, true)
+    end sub)
+
+    return true
+end function
+
+' Function to navigate to a specific route
 function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
     matchedRoute = findMatchingRoute(path, m.routes)
 
-    canActivateGuard = rodash.get(matchedRoute.routeConfig, "canActivate")
-    if rodash.isNonEmptyArray(canActivateGuard) then
-        for each guard in canActivateGuard
-            guardNode = Invalid
-            if rodash.isNode(guard) then
-                guardNode = guard
-            else if rodash.isString(guard) then
-                if m.guardInstances[guard] = Invalid then
-                    m.guardInstances[guard] = rodash.createNode(guard)
-                end if
-
-                guardNode = m.guardInstances[guard]
-            end if
-
-            if guardNode <> Invalid then
-                canActivate = guardNode@.canActivate(m.top)
-                if NOT canActivate then
-                    message = { message: `Route "${path}" is not accessible` }
-                    print message
-                    return promises.reject(message)
-                end if
-            end if
-        end for
-    end if
-
     if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
-        isRoot = matchedRoute.routeConfig.isRoot
+        ' Run guard checks
+        canActivateGuard = rodash.get(matchedRoute.routeConfig, "canActivate")
+        if rodash.isNonEmptyArray(canActivateGuard) then
+            for each guard in canActivateGuard
+                guardNode = Invalid
+                if rodash.isNode(guard) then
+                    guardNode = guard
+                else if rodash.isString(guard) then
+                    if m.guardInstances[guard] = Invalid then
+                        m.guardInstances[guard] = rodash.createNode(guard)
+                    end if
 
+                    guardNode = m.guardInstances[guard]
+                end if
+
+                if guardNode <> Invalid then
+                    canActivate = guardNode@.canActivate(matchedRoute)
+                    if NOT canActivate then
+                        message = { message: `Route "${path}" is not accessible` }
+                        print message
+                        return promises.reject(message)
+                    end if
+                end if
+            end for
+        end if
+
+        isRoot = matchedRoute.routeConfig.isRoot
         if isRoot then
-            print "ROOT SCREEN"
+            ' print "ROOT SCREEN"
         end if
 
         componentName = rodash.getString(matchedRoute, "routeConfig.component")
@@ -68,7 +119,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
         if m.activeView <> Invalid then
             oldRoute = m.activeView.route
 
-            ' Reuse the View and call onRouteUpdate if the path or hash is the same, OR if the options allow it
+            ' Reuse the view and call onRouteUpdate if the path or hash is the same, OR if the options allow it
             hasHash = rodash.isNonEmptyString(newRoute.hash)
             isSamePath = rodash.isEqual(newRoute.path, oldRoute.path)
             reuse = rodash.getBoolean(options, "allowReuse") OR hasHash OR isSamePath
@@ -84,7 +135,6 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                     oldRoute: oldRoute
                     newRoute: newRoute
                 })
-                updateDebugInfo()
                 return promises.resolve(m.activeView)
             end if
         end if
@@ -94,6 +144,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
             return promises.reject({ message: `Failed to create view "${componentName}"` })
         end if
 
+        view.id = newRoute.id
         view.route = newRoute
         view.router = m.top
         return promises.chain(view@._beforeViewOpen(newRoute), { view: view, newRoute: newRoute }).then(function(response as Dynamic, context as Dynamic) as Dynamic
@@ -113,7 +164,7 @@ end function
 
 ' Helper function to find a matching route
 function findMatchingRoute(path as String, routes as Object) as RouteObject
-    hash = getHashParam(path)
+    hash = Router._utils.getHashParam(path)
 
     if rodash.isNonEmptyString(hash) then
         path = path.replace("#" + hash, "")
@@ -138,7 +189,6 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
             routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
             routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
             routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
-            routeConfig.skeleton = rodash.getString(routeConfig, "skeleton")
 
             return {
                 path: path
@@ -146,6 +196,8 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
                 routeParams: {}
                 queryParams: queryParams
                 hash: hash
+                id: CreateObject("roDeviceInfo").GetRandomUUID()
+                router: m.top
             }
         end if
     end for
@@ -178,7 +230,6 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
                 routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
                 routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
                 routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
-                routeConfig.skeleton = rodash.getString(routeConfig, "skeleton")
 
                 return {
                     path: path
@@ -186,6 +237,8 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
                     routeParams: matchedParams
                     queryParams: queryParams
                     hash: hash
+                    id: CreateObject("roDeviceInfo").GetRandomUUID()
+                    router: m.top
                 }
             end if
         end if
@@ -198,25 +251,9 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
         routeParams: {}
         queryParams: queryParams
         hash: hash
+        id: CreateObject("roDeviceInfo").GetRandomUUID()
+        router: m.top
     }
-end function
-
-function getHashParam(url as String) as String
-    ' Check if the input URL is valid
-    if rodash.isEmptyString(url) then
-        return ""
-    end if
-
-    ' Find the position of the # character in the URL
-    hashIndex = rodash.stringIndexOf(url, "#")
-
-    ' If # is not found, return "Invalid"
-    if hashIndex = -1 then
-        return ""
-    end if
-
-    ' Extract and return the substring after the #
-    return url.mid(hashIndex + 1)
 end function
 
 ' Helper function to normalize a path
@@ -263,19 +300,34 @@ function hideView(view as Object, onSuspend = false as Boolean) as Boolean
     return success
 end function
 
+' Tells the view to open and fire the handleFocus lifecycle method
 function showView(view as Object, params = {} as Dynamic, onResume = false as Boolean) as Dynamic
     if rodash.isNode(view) then
         view.visible = true
         view.translation = [0, 0]
         m.activeView = view
-        view.setFocus(true)
 
-        updateDebugInfo()
-
+        response = Invalid
         if onResume then
-            return view@._onViewResume(params)
+            response = view@._onViewResume(params)
+        else
+            response = view@._onViewOpen(params)
         end if
-        return view@._onViewOpen(params)
+
+        return promises.chain(response, { response: response, view: view }).finally(function(context) as Dynamic
+            print "View opened", m.focusRequestMade
+            focusSuccess = context.view@._handleFocus({
+                routerFocused: m.focusRequestMade
+            })
+
+            ' Return focus to the top node if the view didn't handle focus
+            if m.focusRequestMade AND NOT focusSuccess then
+                m.top.setFocus(true)
+            end if
+
+            m.processingGoBack = false
+            return context.response
+        end function).toPromise()
     end if
 
     return promises.reject({ message: "Invalid view" })
@@ -298,20 +350,8 @@ function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
     if NOT press then return true
 
     if key = "back" then
-        views = rodash.getNodeChildren(m.viewTarget)
-        numberOfViews = views.count()
-        if numberOfViews <= 1 then return false
-
-        promises.chain(closeView(views.pop()), views.peek()).then(sub(response as Dynamic, view as Dynamic)
-            showView(view, {}, true)
-        end sub)
-        return true
+        return goBack()
     end if
 
     return false
 end function
-
-
-sub updateDebugInfo()
-    m.activeRouteLabel.text = "Active Route: " + rodash.toString(m.activeView.route)
-end sub

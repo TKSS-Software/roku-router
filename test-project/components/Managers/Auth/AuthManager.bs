@@ -1,5 +1,5 @@
-function canActivate(router as Dynamic) as Boolean
-    if m.global.isLoggedIn then
+function canActivate(currentRequest = {} as Object) as Boolean
+    if m.top.isLoggedIn then
         return true
     end if
 
@@ -9,6 +9,6 @@ function canActivate(router as Dynamic) as Boolean
     dialog.message = "Press * To Dismiss"
     m.top.getScene().dialog = dialog
 
-    router@.navigateTo("/?needToLogin=true", {})
+    currentRequest.router@.navigateTo("/?needToLogin=true", {})
     return false
 end function

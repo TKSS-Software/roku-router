@@ -3,13 +3,16 @@ sub init()
     m.top.backgroundUri = ""
 
     m.global.addFields({
-        "isLoggedIn": false
+        "AuthManager": createObject("roSGNode", "AuthManager")
     })
 
-    m.router.observeField("busy", "onRouterBusyChanged")
+    m.mainMenu.router = m.router
+    m.mainMenu@.initialize()
+
+    m.router.observeField("routerState", "onRouterStateChanged")
     m.router@.addRoutes([
         { pattern: "/", component: "WelcomeScreen", isRoot: true },
-        { pattern: "/shows", component: "CatalogScreen", isRoot: true, canActivate: ["AuthManager"] },
+        { pattern: "/shows", component: "CatalogScreen", isRoot: true, canActivate: [m.global.AuthManager] },
         { pattern: "/movies", component: "CatalogScreen", isRoot: true },
         { pattern: "/details/:type/:id", component: "DetailsScreen" },
         { pattern: "/details/:type/:id/cast", component: "CastDetailsScreen" },
@@ -19,13 +22,29 @@ sub init()
     ' Read the sample data from the file. You normally wouldn't want to do this in a real app.
     m.global.update(ParseJSON(ReadAsciiFile("pkg:/assets/sampleData.json")), true)
     m.router@.navigateTo("/?firstLoad=true", {})
+
+    m.router@.setFocus(true)
 end sub
 
-sub onRouterBusyChanged(event as Object)
-    print "Loading Overlay: ", event.getData()
-    m.loadingOverlay.visible = event.getData()
+
+
+sub onRouterStateChanged(event as Object)
+    data = event.getData()
+    print "onRouterStateChanged: ", data
 end sub
 
 function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
+    if press then
+        if key = "back" OR key = "left" then
+            if m.mainMenu.visible then m.mainMenu.setFocus(true)
+            return true
+        else if key = "right" then
+            if NOT m.router@.setFocus(true) then
+                if m.mainMenu.visible then m.mainMenu.setFocus(true)
+            end if
+            return true
+        end if
+    end if
+
     return true
 end function

@@ -1,0 +1,71 @@
+import "pkg:/source/roku_modules/promises/promises.brs"
+
+
+sub init()
+    m.top.update({
+        width: 100
+        height: 1080
+        color: "#0000001A"
+    })
+    m.inFocusChain = false
+    m.top.observeField("focusedChild", "onFocusChildChanged")
+    m.top.observeField("visible", "handleVisibilityChange")
+    handleVisibilityChange()
+end sub
+
+sub initialize(_ = Invalid as Dynamic)
+    m.buttonGroup.buttons = ["Shows", "Movies", "Test Params Change", "Test Hash Change", "Toggle Logged In State"]
+    m.buttonGroup.observeField("buttonSelected", "onButtonPress")
+
+    m.global.AuthManager.observeField("isLoggedIn", "checkLoggedInState")
+    checkLoggedInState()
+end sub
+
+sub handleVisibilityChange(_ = Invalid as Dynamic)
+    m.top.focusable = m.top.visible
+    print m.top
+end sub
+
+sub onFocusChildChanged(event as Object)
+    inFocusChain = event.getData() <> Invalid
+
+    if NOT m.inFocusChain AND inFocusChain then
+        m.inFocusChain = true
+        m.buttonGroup.setFocus(true)
+    else if m.inFocusChain AND NOT inFocusChain then
+        m.inFocusChain = false
+    end if
+end sub
+
+sub checkLoggedInState()
+    if m.global.AuthManager.isLoggedIn then
+        m.label.text = "User is logged in"
+    else
+        m.label.text = "User is not logged in"
+    end if
+end sub
+
+sub onButtonPress(event as Object)
+    button = event.getData()
+    navigateTo = Invalid
+    if button = 0 then
+        navigateTo = m.top.router@.navigateTo("/shows")
+    else if button = 1 then
+        navigateTo = m.top.router@.navigateTo("/movies")
+    else if button = 2 then
+        navigateTo = m.top.router@.navigateTo("/?firstLoad=false", { allowReuse: true })
+    else if button = 3 then
+        navigateTo = m.top.router@.navigateTo("/#hello")
+    else if button = 4 then
+        m.global.AuthManager.isLoggedIn = NOT m.global.AuthManager.isLoggedIn
+    end if
+
+    if navigateTo <> Invalid then
+        promises.chain(navigateTo).then(sub(response as Dynamic)
+            print "Navigation complete"
+            if NOT m.top.router@.setFocus(true) then
+                m.mainMenu.setFocus(true)
+            end if
+        end sub)
+    end if
+end sub

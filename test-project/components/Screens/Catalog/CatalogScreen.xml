@@ -5,7 +5,7 @@
 	</interface>
 
 	<children>
-		<Label id="label" translation="[96, 96]" />
-		<RowList id="rowList" translation="[96, 196]" />
+		<Label id="label" translation="[196, 96]" />
+		<RowList id="rowList" translation="[196, 196]" />
 	</children>
 </component>

@@ -63,12 +63,12 @@ function beforeViewOpen(params = Invalid as Dynamic) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function onViewOpen(params = Invalid as Dynamic) as Dynamic
-    m.rowList.setFocus(true)
-    return promises.resolve(Invalid)
+function handleFocus(data as Object) as Boolean
+    if data.routerFocused then
+        return m.rowList.setFocus(true)
+    end if
+
+    return false
 end function
 
-function onViewResume(content = Invalid as Dynamic) as Dynamic
-    m.rowList.setFocus(true)
-    return promises.resolve(Invalid)
-end function
+

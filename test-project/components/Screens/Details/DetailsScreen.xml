@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component name="DetailsScreen" extends="RouterView">
 	<interface>
-		
+
 	</interface>
 
 	<children>
 		<Poster id="background" opacity="0.4" />
-		<LayoutGroup id="content" translation="[96, 96]" itemSpacings="[40]">
+		<LayoutGroup id="content" translation="[196, 96]" itemSpacings="[40]">
 			<LayoutGroup id="topSection" layoutDirection="horiz" itemSpacings="[40]">
 				<Poster id="poster" width="300" height="450" />
 				<LayoutGroup itemSpacings="[20]">

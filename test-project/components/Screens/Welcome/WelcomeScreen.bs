@@ -1,21 +1,9 @@
 sub init()
+    m.buttonGroup.buttons = ["Login"]
     m.buttonGroup.observeField("buttonSelected", "onButtonPress")
-    m.buttonGroup.buttons = ["Go to Shows Catalog", "Go to Movies Catalog", "Test Params Change", "Test Hash Change", "Toggle Logged In State"]
-
-    checkLoggedInState()
-    m.global.observeField("isLoggedIn", "checkLoggedInState")
 end sub
 
-sub checkLoggedInState()
-    if m.global.isLoggedIn then
-        m.label.text = "User is logged in"
-    else
-        m.label.text = "User is not logged in"
-    end if
-end sub
-
-function onViewOpen(context = Invalid as Dynamic) as Dynamic
-    m.buttonGroup.setFocus(true)
+function onScreenOpen(context = Invalid as Dynamic) as Dynamic
     return promises.resolve(Invalid)
 end function
 
@@ -28,22 +16,19 @@ function beforeViewClose(context = Invalid as Dynamic) as Dynamic
     return promises.resolve(Invalid)
 end function
 
+function handleFocus(data as Object) as Boolean
+    if data.routerFocused then
+        return m.buttonGroup.setFocus(true)
+    end if
+
+    return false
+end function
+
 sub onButtonPress(event as Object)
     button = event.getData()
+    navigateTo = Invalid
     if button = 0 then
-        Router.navigateTo("/shows")
-    else if button = 1 then
-        Router.navigateTo("/movies")
-    else if button = 2 then
-        Router.navigateTo("/?firstLoad=false", { allowReuse: true })
-    else if button = 3 then
-        Router.navigateTo("/#hello")
-    else if button = 4 then
-        m.global.isLoggedIn = NOT m.global.isLoggedIn
+        m.global.AuthManager.isLoggedIn = true
+        navigateTo = m.top.router@.navigateTo("/shows")
     end if
 end sub
-
-function onViewResume(context = Invalid as Dynamic) as Dynamic
-    m.buttonGroup.setFocus(true)
-    return promises.resolve(Invalid)
-end function

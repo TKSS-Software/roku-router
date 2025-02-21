@@ -4,11 +4,11 @@
         <field id="router" type="node" />
         <field id="route" type="assocarray" />
 
-        <function name="_beforeScreenOpen" />
-        <function name="_onScreenOpen" />
-        <function name="_beforeScreenClose" />
+        <function name="_beforeViewOpen" />
+        <function name="_onViewOpen" />
+        <function name="_beforeViewClose" />
         <function name="_onRouteUpdate" />
-        <function name="_onScreenResume" />
-        <function name="_onScreenSuspend" />
+        <function name="_onViewResume" />
+        <function name="_onViewSuspend" />
     </interface>
 </component>

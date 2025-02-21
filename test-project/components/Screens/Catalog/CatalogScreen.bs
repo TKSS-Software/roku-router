@@ -6,7 +6,7 @@ sub init()
   m.rowList.observeField("rowItemSelected", "onItemSelected")
 end sub
 
-function beforeScreenOpen(params = {} as Object) as Dynamic
+function beforeViewOpen(params = {} as Object) as Dynamic
   api = { data: { carousels: [] } }
   title = ""
   m.pageType = rodash.getString(params, "routeConfig.pattern") = "/shows" ? "shows": "movies"
@@ -62,12 +62,12 @@ sub onItemSelected(event as Object)
   Router.getRouter()@.navigateTo(path)
 end sub
 
-function onScreenOpen(context = Invalid as Dynamic) as Dynamic
+function onViewOpen(context = Invalid as Dynamic) as Dynamic
   m.rowList.setFocus(true)
   return promises.resolve(Invalid)
 end function
 
-function onScreenResume(context = Invalid as Dynamic) as Dynamic
+function onViewResume(context = Invalid as Dynamic) as Dynamic
   m.rowList.setFocus(true)
   return promises.resolve(Invalid)
 end function

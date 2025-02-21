@@ -1,4 +1,4 @@
-import "pkg:/source/classes/RedirectCommand.bs"
+import "pkg:/source/router.bs"
 
 function canActivate(currentRequest = {} as Object) as Dynamic
     if m.top.isLoggedIn then
@@ -11,5 +11,5 @@ function canActivate(currentRequest = {} as Object) as Dynamic
     dialog.message = "Press * To Dismiss"
     m.top.getScene().dialog = dialog
 
-    return new Router.RedirectCommand("/login")
+    return Router.createRedirectCommand("/")
 end function

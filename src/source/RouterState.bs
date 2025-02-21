@@ -1,4 +1,4 @@
-enum RouterStates
+enum RouterState
     NavigationStart = "NavigationStart"
     NavigationEnd = "NavigationEnd"
     NavigationCancel = "NavigationCancel"
@@ -6,5 +6,4 @@ enum RouterStates
     GuardsCheckStart = "GuardsCheckStart"
     GuardsCheckEnd = "GuardsCheckEnd"
     GuardResult = "GuardsResult"
-    RedirectCommand = "RedirectCommand"
 end enum

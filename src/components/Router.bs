@@ -86,15 +86,14 @@ end function
 
 ' Function to navigate to a specific route
 function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
-    id = CreateObject("roDeviceInfo").GetRandomUUID()
-    matchedRoute = findMatchingRoute(path, m.routes, id)
+    matchedRoute = findMatchingRoute(path, m.routes)
 
     ' Prepare the function to support a queue
     return promises.chain(dispatchRouterState(RouterStates.NavigationStart, {
-        id: id
+        id: matchedRoute.id
         route: matchedRoute
-    }), { id: id, matchedRoute: matchedRoute, options: options, context: context }).finally(function(context) as Dynamic
-        id = context.id
+    }), { matchedRoute: matchedRoute, options: options, context: context }).finally(function(context) as Dynamic
+        id = context.matchedRoute.id
         matchedRoute = context.matchedRoute
         options = context.options
         context = context.context
@@ -228,7 +227,7 @@ end function
 
 
 ' Helper function to find a matching route
-function findMatchingRoute(path as String, routes as Object, id as String) as RouteObject
+function findMatchingRoute(path as String, routes as Object) as RouteObject
     hash = Router._utils.getHashParam(path)
 
     if rodash.isNonEmptyString(hash) then
@@ -261,7 +260,7 @@ function findMatchingRoute(path as String, routes as Object, id as String) as Ro
                 routeParams: {}
                 queryParams: queryParams
                 hash: hash
-                id: id
+                id: CreateObject("roDeviceInfo").GetRandomUUID()
                 router: m.top
             }
         end if
@@ -302,7 +301,7 @@ function findMatchingRoute(path as String, routes as Object, id as String) as Ro
                     routeParams: matchedParams
                     queryParams: queryParams
                     hash: hash
-                    id: id
+                    id: CreateObject("roDeviceInfo").GetRandomUUID()
                     router: m.top
                 }
             end if

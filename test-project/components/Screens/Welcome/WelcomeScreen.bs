@@ -1,5 +1,5 @@
 sub init()
-    m.buttonGroup.buttons = ["Login"]
+    m.buttonGroup.buttons = ["Login", "Shows (Protected)", "Movies (Protected)"]
     m.buttonGroup.observeField("buttonSelected", "onButtonPress")
 end sub
 
@@ -29,6 +29,14 @@ sub onButtonPress(event as Object)
     navigateTo = Invalid
     if button = 0 then
         m.global.AuthManager.isLoggedIn = true
-        navigateTo = m.top.router@.navigateTo("/shows")
+        return
+    else if button = 1 then
+        navigateTo = "/shows"
+    else if button = 2 then
+        navigateTo = "/movies"
+    end if
+
+    if navigateTo <> Invalid then
+        Router.navigateTo(navigateTo)
     end if
 end sub

@@ -1,29 +1,31 @@
+import "pkg:/source/roku_modules/rodash/rodash.brs"
 import "pkg:/source/roku_modules/promises/promises.brs"
-
 
 sub init()
     m.top.update({
-        width: 100
+        width: 1920
         height: 1080
-        color: "#0000001A"
+        color: "#00000099"
     })
     m.inFocusChain = false
+    m.focusedButton = m.showsButton
     m.top.observeField("focusedChild", "onFocusChildChanged")
     m.top.observeField("visible", "handleVisibilityChange")
     handleVisibilityChange()
 end sub
 
 sub initialize(_ = Invalid as Dynamic)
-    m.buttonGroup.buttons = ["Shows", "Movies", "Test Params Change", "Test Hash Change", "Toggle Logged In State"]
-    m.buttonGroup.observeField("buttonSelected", "onButtonPress")
+    for each button in rodash.getNodeChildren(m.buttonGroup)
+        button.router = m.top.router
+    end for
 
     m.global.AuthManager.observeField("isLoggedIn", "checkLoggedInState")
     checkLoggedInState()
+    onUnfocusState()
 end sub
 
 sub handleVisibilityChange(_ = Invalid as Dynamic)
     m.top.focusable = m.top.visible
-    print m.top
 end sub
 
 sub onFocusChildChanged(event as Object)
@@ -31,41 +33,54 @@ sub onFocusChildChanged(event as Object)
 
     if NOT m.inFocusChain AND inFocusChain then
         m.inFocusChain = true
-        m.buttonGroup.setFocus(true)
+        onFocusState()
+        m.focusedButton.setFocus(true)
     else if m.inFocusChain AND NOT inFocusChain then
         m.inFocusChain = false
+        onUnfocusState()
     end if
+end sub
+
+sub onFocusState()
+    m.top.update({
+        clippingRect: [0, 0, 1920, 1080]
+    })
+end sub
+
+sub onUnfocusState()
+    m.top.update({
+        clippingRect: [0, 0, 120, 1080]
+    })
 end sub
 
 sub checkLoggedInState()
-    if m.global.AuthManager.isLoggedIn then
-        m.label.text = "User is logged in"
-    else
-        m.label.text = "User is not logged in"
-    end if
+    ' if m.global.AuthManager.isLoggedIn then
+    '     m.label.text = "User is logged in"
+    ' else
+    '     m.label.text = "User is not logged in"
+    ' end if
 end sub
 
-sub onButtonPress(event as Object)
-    button = event.getData()
-    navigateTo = Invalid
-    if button = 0 then
-        navigateTo = m.top.router@.navigateTo("/shows")
-    else if button = 1 then
-        navigateTo = m.top.router@.navigateTo("/movies")
-    else if button = 2 then
-        navigateTo = m.top.router@.navigateTo("/?firstLoad=false", { allowReuse: true })
-    else if button = 3 then
-        navigateTo = m.top.router@.navigateTo("/#hello")
-    else if button = 4 then
-        m.global.AuthManager.isLoggedIn = NOT m.global.AuthManager.isLoggedIn
-    end if
-
-    if navigateTo <> Invalid then
-        promises.chain(navigateTo).then(sub(response as Dynamic)
-            print "Navigation complete"
-            if NOT m.top.router@.setFocus(true) then
-                m.mainMenu.setFocus(true)
+function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
+    if press then
+        if key = "up" OR key = "down" then
+            buttons = rodash.getNodeChildren(m.buttonGroup)
+            index = rodash.indexOf(buttons, m.focusedButton)
+            if key = "up" then
+                index = index - 1
+            else
+                index = index + 1
             end if
-        end sub)
+            nextButton = buttons[index]
+            if nextButton <> Invalid then
+                m.focusedButton = nextButton
+                nextButton.setFocus(true)
+                return true
+            end if
+        else if key = "back" then
+            return m.top.router@.setFocus(true)
+        end if
     end if
-end sub
+
+    return false
+end function

@@ -1,0 +1,9 @@
+enum RouterState
+    NavigationStart = "NavigationStart"
+    NavigationEnd = "NavigationEnd"
+    NavigationCancel = "NavigationCancel"
+    NavigationError = "NavigationError"
+    GuardsCheckStart = "GuardsCheckStart"
+    GuardsCheckEnd = "GuardsCheckEnd"
+    GuardResult = "GuardsResult"
+end enum

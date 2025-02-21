@@ -1,7 +1,7 @@
 import "pkg:/source/roku_modules/promises/promises.brs"
 import "pkg:/source/roku_modules/rodash/rodash.brs"
 import "interfaces.bs"
-import "routerStates.bs"
+import "RouterState.bs"
 
 '************************
 '*** This namespace can be used inside any component that is a view, or child of a view
@@ -29,7 +29,16 @@ namespace Router
         return Invalid
     end function
 
-
+    ' This function is used to create a redirect command
+    ' Redirect commands are used to redirect the user to a different screen during a guard check
+    function createRedirectCommand(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
+        return {
+            command: "RedirectCommand"
+            path: path
+            options: options
+            context: context
+        }
+    end function
 
     namespace _utils
         function getCurrentFocusedChain(parent = Invalid as Object, maxDepth = 30 as Integer) as Object

@@ -14,7 +14,7 @@ sub checkLoggedInState()
     end if
 end sub
 
-function onScreenOpen(context = Invalid as Dynamic) as Dynamic
+function onViewOpen(context = Invalid as Dynamic) as Dynamic
     m.buttonGroup.setFocus(true)
     return promises.resolve(Invalid)
 end function
@@ -23,7 +23,7 @@ function onRouteUpdate(event = {} as Object) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function beforeScreenClose(context = Invalid as Dynamic) as Dynamic
+function beforeViewClose(context = Invalid as Dynamic) as Dynamic
     m.buttonGroup.unobserveField("buttonSelected")
     return promises.resolve(Invalid)
 end function
@@ -43,7 +43,7 @@ sub onButtonPress(event as Object)
     end if
 end sub
 
-function onScreenResume(context = Invalid as Dynamic) as Dynamic
+function onViewResume(context = Invalid as Dynamic) as Dynamic
     m.buttonGroup.setFocus(true)
     return promises.resolve(Invalid)
 end function

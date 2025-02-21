@@ -9,21 +9,21 @@ function setRouterBusyState(busy as Boolean) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function _beforeScreenOpen(params = {} as Object) as Dynamic
+function _beforeViewOpen(params = {} as Object) as Dynamic
     return promises.chain(setRouterBusyState(true), params).then(function(response as Dynamic, params as Dynamic) as Dynamic
         if params.routeConfig.isDialog AND NOT m.router.appLaunchComplete then
             m.top.signalBeacon("AppDialogInitiate")
         end if
-        return beforeScreenOpen(params)
+        return beforeViewOpen(params)
     end function).toPromise()
 end function
 
-function beforeScreenOpen(params = {} as Object) as Dynamic
+function beforeViewOpen(params = {} as Object) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function _onScreenOpen(params = {} as Object) as Dynamic
-    return promises.chain(onScreenOpen(params), params).then(function(response as Dynamic, params as Dynamic) as Dynamic
+function _onViewOpen(params = {} as Object) as Dynamic
+    return promises.chain(onViewOpen(params), params).then(function(response as Dynamic, params as Dynamic) as Dynamic
         if NOT params.routeConfig.isDialog AND NOT m.top.router.appLaunchComplete then
             m.top.signalBeacon("AppLaunchComplete")
             m.top.router.appLaunchComplete = true
@@ -34,18 +34,18 @@ function _onScreenOpen(params = {} as Object) as Dynamic
     end function).toPromise()
 end function
 
-function onScreenOpen(params = {} as Object) as Dynamic
+function onViewOpen(params = {} as Object) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function _beforeScreenClose(params = {} as Object) as Dynamic
+function _beforeViewClose(params = {} as Object) as Dynamic
     if params.routeConfig.isDialog AND NOT m.top.router.appLaunchComplete then
         m.top.signalBeacon("AppDialogComplete")
     end if
-    return beforeScreenClose(params)
+    return beforeViewClose(params)
 end function
 
-function beforeScreenClose(params = {} as Object) as Dynamic
+function beforeViewClose(params = {} as Object) as Dynamic
     return promises.resolve(Invalid)
 end function
 
@@ -58,18 +58,18 @@ function onRouteUpdate(event = {} as Object) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function _onScreenResume(_ as Dynamic) as Dynamic
-    return onScreenResume(_)
+function _onViewResume(_ as Dynamic) as Dynamic
+    return onViewResume(_)
 end function
 
-function _onScreenSuspend(_ as Dynamic) as Dynamic
-    return onScreenSuspend(_)
+function _onViewSuspend(_ as Dynamic) as Dynamic
+    return onViewSuspend(_)
 end function
 
-function onScreenResume(_ as Dynamic) as Dynamic
+function onViewResume(_ as Dynamic) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function onScreenSuspend(_ as Dynamic) as Dynamic
+function onViewSuspend(_ as Dynamic) as Dynamic
     return promises.resolve(Invalid)
 end function

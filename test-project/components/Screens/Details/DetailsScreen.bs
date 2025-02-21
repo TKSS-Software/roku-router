@@ -12,7 +12,7 @@ sub onItemSelected(event as Object)
     Router.navigateTo(path)
 end sub
 
-function beforeScreenOpen(params = Invalid as Dynamic) as Dynamic
+function beforeViewOpen(params = Invalid as Dynamic) as Dynamic
     m.pageType = params.routeParams.type
 
     content = util.getContentById(params.routeParams.id)
@@ -63,12 +63,12 @@ function beforeScreenOpen(params = Invalid as Dynamic) as Dynamic
     return promises.resolve(Invalid)
 end function
 
-function onScreenOpen(params = Invalid as Dynamic) as Dynamic
+function onViewOpen(params = Invalid as Dynamic) as Dynamic
     m.rowList.setFocus(true)
     return promises.resolve(Invalid)
 end function
 
-function onScreenResume(content = Invalid as Dynamic) as Dynamic
+function onViewResume(content = Invalid as Dynamic) as Dynamic
     m.rowList.setFocus(true)
     return promises.resolve(Invalid)
 end function

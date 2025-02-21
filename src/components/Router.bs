@@ -196,8 +196,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                 })
                 return promises.resolve(m.activeScreen)
             else
-                isRoot = newRoute.routeConfig.isRoot
-                if isRoot then
+                if newRoute.routeConfig.isRoot then
                     for each screen in rodash.getNodeChildren(m.viewTarget)
                         viewsToRemove.push(screen)
                     end for

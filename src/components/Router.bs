@@ -149,7 +149,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                                     id: id
                                     route: matchedRoute
                                 })
-                                dispatchRouterState(RouterStates.NavigationCancel, {
+                                dispatchRouterState(RouterState.NavigationCancel, {
                                     id: id
                                     route: matchedRoute
                                 })
@@ -196,7 +196,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                         oldRoute: oldRoute
                         newRoute: newRoute
                     })
-                    dispatchRouterState(RouterStates.NavigationEnd, {
+                    dispatchRouterState(RouterState.NavigationEnd, {
                         id: id
                         route: newRoute
                     })
@@ -242,16 +242,17 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
             end for
         end if
 
-        return promises.chain(promises.all(promisesToResolve), context).then(function(_ as Dynamic, context as Dynamic) as Dynamic
-            return promises.chain(showView(context.view), context).then(function(response as Dynamic, context as Dynamic) as Dynamic
-                if rodash.isNonEmptyArray(context.closeViews) then
-                    for each view in context.closeViews
-                        if hideView(view) then rodash.removeNode(view)
-                    end for
-                end if
-                return response
-            end function).toPromise()
-        end function)
+        return promises.all(promisesToResolve)
+    end function).then(function(_ as Dynamic, context as Dynamic) as Dynamic
+        'now that all of the `beforeViewClose` promises have resolved, show the new view
+        return showView(context.view)
+    end function).then(function(response as Dynamic, context as Dynamic) as Dynamic
+        if rodash.isNonEmptyArray(context.closeViews) then
+            for each view in context.closeViews
+                if hideView(view) then rodash.removeNode(view)
+            end for
+        end if
+        return response
     end function).catch(function(error as Dynamic) as Dynamic
         return promises.reject(error)
     end function).toPromise()

@@ -3,15 +3,7 @@ sub init()
     m.buttonGroup.observeField("buttonSelected", "onButtonPress")
 end sub
 
-function onScreenOpen(context = Invalid as Dynamic) as Dynamic
-    return promises.resolve(Invalid)
-end function
-
-function onRouteUpdate(event = {} as Object) as Dynamic
-    return promises.resolve(Invalid)
-end function
-
-function beforeViewClose(context = Invalid as Dynamic) as Dynamic
+function beforeViewClose(params = Invalid as Dynamic) as Dynamic
     m.buttonGroup.unobserveField("buttonSelected")
     return promises.resolve(Invalid)
 end function

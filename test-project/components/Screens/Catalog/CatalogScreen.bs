@@ -9,7 +9,7 @@ end sub
 function beforeViewOpen(params = {} as Object) as Dynamic
   api = { data: { carousels: [] } }
   title = ""
-  m.pageType = rodash.getString(params, "routeConfig.pattern") = "/shows" ? "shows": "movies"
+  m.pageType = rodash.getString(params, "route.routeConfig.pattern") = "/shows" ? "shows": "movies"
   if m.pageType = "shows" then
     title = "Shows"
     genres = util.getGenreNamesForType("shows")

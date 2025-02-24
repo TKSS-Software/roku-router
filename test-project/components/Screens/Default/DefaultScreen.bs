@@ -1,3 +1,0 @@
-function onViewOpen(context = Invalid as Dynamic) as Dynamic
-    return promises.resolve(Invalid)
-end function

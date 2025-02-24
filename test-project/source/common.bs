@@ -81,7 +81,7 @@ namespace util
 
   function getGenreNamesForType(contentType as String) as Object
     genreList = []
-    print source_function_name, contentType, m.global.genres[contentType]
+    ' print source_function_name, contentType, m.global.genres[contentType]
     for each item in m.global.genres[contentType]
       genreList.push(item.name)
     end for

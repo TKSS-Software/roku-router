@@ -30,7 +30,7 @@ sub onFocusChildChanged(event as Object)
 end sub
 
 function setFocus(takeFocus as Boolean) as Boolean
-    print source_function_name, takeFocus
+    ' print source_function_name, takeFocus
     response = false
 
     if m.activeView <> Invalid AND takeFocus AND m.focusRequestMade <> takeFocus then
@@ -98,10 +98,10 @@ function navigateTo(path = "" as String, routeConfigOverrides = {} as Object, co
     })
 
     'sleep until next tick, then continue work
-    return promises.chain(promises.resolve(Invalid), { matchedRoute: matchedRoute, context: context }).finally(function(context as Dynamic) as Dynamic
-        id = context.matchedRoute.id
-        matchedRoute = context.matchedRoute
-        context = context.context
+    return promises.chain(promises.resolve(Invalid), { matchedRoute: matchedRoute, context: context }).finally(function(internalContext as Dynamic) as Dynamic
+        id = internalContext.matchedRoute.id
+        matchedRoute = internalContext.matchedRoute
+        context = internalContext.context
 
         if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
             ' Run guard checks
@@ -207,7 +207,7 @@ function navigateTo(path = "" as String, routeConfigOverrides = {} as Object, co
                 else
                     if newRoute.routeConfig.isRoot then
                         for each view in rodash.getNodeChildren(m.viewTarget)
-                            print "view to remove", view
+                            ' print "view to remove", view
                             viewsToRemove.push(view)
                         end for
                     end if
@@ -253,35 +253,36 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
         view.id = route.id
         view.route = route
         view.router = m.top
-        toResolve = view@._beforeViewOpen(route)
+        toResolve = view@._beforeViewOpen({ route: route })
     end if
 
-    return promises.chain(toResolve, { view: view, closeViews: closeViews, fromSuspend: suspendedRoot <> Invalid }).then(function(response as Dynamic, context as Dynamic) as Dynamic
-        m.viewTarget.appendChild(context.view)
-        context.view.reparent(m.viewTarget, true) ' in the event the view was previously suspended
+    return promises.chain(toResolve, { view: view, closeViews: closeViews, fromSuspend: suspendedRoot <> Invalid }).then(function(response as Dynamic, internalContext as Dynamic) as Dynamic
+        view = internalContext.view
+        m.viewTarget.appendChild(view)
+        view.reparent(m.viewTarget, true) ' in the event the view was previously suspended
         hideView(m.activeView)
 
         promisesToResolve = []
-        if rodash.isNonEmptyArray(context.closeViews) then
-            for each view in context.closeViews
+        if rodash.isNonEmptyArray(internalContext.closeViews) then
+            for each view in internalContext.closeViews
+                params = {
+                    route: view.route
+                }
                 if view.route.routeConfig.isRoot AND view.route.routeConfig.keepRootAlive then
-                    print "_onViewSuspend", view.route.routeConfig
-                    promisesToResolve.push(view@._onViewSuspend(context.view.route))
+                    promisesToResolve.push(view@._onViewSuspend(params))
                 else
-                    print "_beforeViewClose", view.route.routeConfig
-                    promisesToResolve.push(view@._beforeViewClose(context.view.route))
+                    promisesToResolve.push(view@._beforeViewClose(params))
                 end if
             end for
         end if
 
         return promises.all(promisesToResolve)
-    end function).then(function(_ as Dynamic, context as Dynamic) as Dynamic
+    end function).then(function(_ as Dynamic, internalContext as Dynamic) as Dynamic
         'now that all of the `beforeViewClose` promises have resolved, show the new view
-        return showView(context.view, context.fromSuspend)
-    end function).then(function(response as Dynamic, context as Dynamic) as Dynamic
-        if rodash.isNonEmptyArray(context.closeViews) then
-            for each view in context.closeViews
-                print "view.route.routeConfig", view.route.routeConfig
+        return showView(internalContext.view, internalContext.fromSuspend)
+    end function).then(function(response as Dynamic, internalContext as Dynamic) as Dynamic
+        if rodash.isNonEmptyArray(internalContext.closeViews) then
+            for each view in internalContext.closeViews
                 if view.route.routeConfig.isRoot AND view.route.routeConfig.keepRootAlive then
                     if hideView(view) AND view.reparent(m.suspendedRootTarget, true) then
                         m.suspendedRootTarget.appendChild(view)
@@ -448,14 +449,17 @@ function showView(view as Object, onResume = false as Boolean) as Dynamic
         m.activeView = view
 
         response = Invalid
+        params = {
+            route: view.route
+        }
         if onResume then
-            response = view@._onViewResume(view.route)
+            response = view@._onViewResume(params)
         else
-            response = view@._onViewOpen(view.route)
+            response = view@._onViewOpen(params)
         end if
 
         return promises.chain(response, { response: response, view: view }).finally(function(context as Dynamic) as Dynamic
-            print "View opened", m.focusRequestMade
+            ' print "View opened", m.focusRequestMade
             focusSuccess = context.view@._handleFocus({
                 routerFocused: m.focusRequestMade
             })
@@ -481,7 +485,7 @@ function closeView(view = Invalid as Dynamic) as Dynamic
     view.translation = [1000000, 100000]
     view.visible = false
 
-    return promises.onThen(view@._beforeViewClose(view.route), function(response as Dynamic, context as Dynamic) as Dynamic
+    return promises.onThen(view@._beforeViewClose({ route: view.route }), function(response as Dynamic, context as Dynamic) as Dynamic
         if hideView(context.view) then
             rodash.removeNode(context.view)
         end if

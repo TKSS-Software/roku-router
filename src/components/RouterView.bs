@@ -8,7 +8,7 @@ end sub
 
 function _beforeViewOpen(params = {} as Object) as Dynamic
     return promises.chain(beforeViewOpen(params), params).then(function(response as Dynamic, params as Dynamic) as Dynamic
-        if params.routeConfig.isDialog AND NOT m.router.appLaunchComplete then
+        if params.route.routeConfig.isDialog AND NOT m.router.appLaunchComplete then
             m.top.signalBeacon("AppDialogInitiate")
         end if
         return response
@@ -21,7 +21,7 @@ end function
 
 function _onViewOpen(params = {} as Object) as Dynamic
     return promises.chain(onViewOpen(params), params).then(function(response as Dynamic, params as Dynamic) as Dynamic
-        if NOT params.routeConfig.isDialog AND NOT m.top.router.appLaunchComplete then
+        if NOT params.route.routeConfig.isDialog AND NOT m.top.router.appLaunchComplete then
             m.top.signalBeacon("AppLaunchComplete")
             m.top.router.appLaunchComplete = true
         end if
@@ -37,7 +37,7 @@ end function
 
 function _beforeViewClose(params = {} as Object) as Dynamic
     m._allowHandleFocus = false
-    if params.routeConfig.isDialog AND NOT m.top.router.appLaunchComplete then
+    if params.route.routeConfig.isDialog AND NOT m.top.router.appLaunchComplete then
         m.top.signalBeacon("AppDialogComplete")
     end if
     return beforeViewClose(params)
@@ -76,9 +76,9 @@ function _handleFocus(data = {} as Object) as Boolean
     if m._allowHandleFocus then
         handled = handleFocus(data)
         if handled then
-            print "RouterView focused", data
+            ' print "RouterView focused", data
         else
-            print "RouterView not focused", data
+            ' print "RouterView not focused", data
         end if
         return handled
     end if

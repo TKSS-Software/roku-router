@@ -31,11 +31,11 @@ namespace Router
 
     ' This function is used to create a redirect command
     ' Redirect commands are used to redirect the user to a different screen during a guard check
-    function createRedirectCommand(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
+    function createRedirectCommand(path = "" as String, routeConfigOverrides = {} as Object, context = {} as Object) as Dynamic
         return {
             command: "RedirectCommand"
             path: path
-            options: options
+            routeConfigOverrides: routeConfigOverrides
             context: context
         }
     end function

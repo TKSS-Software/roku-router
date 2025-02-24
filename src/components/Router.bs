@@ -84,8 +84,12 @@ sub dispatchRouterState(stateType as String, context = {} as Dynamic)
 end sub
 
 ' Function to navigate to a specific route
-function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
+function navigateTo(path = "" as String, routeConfigOverrides = {} as Object, context = {} as Object) as Dynamic
     matchedRoute = findMatchingRoute(path, m.routes)
+
+    if rodash.isNonEmptyAA(routeConfigOverrides) then
+        matchedRoute.routeConfig.append(routeConfigOverrides)
+    end if
 
     'dispatch the event
     dispatchRouterState(RouterState.NavigationStart, {
@@ -94,10 +98,9 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
     })
 
     'sleep until next tick, then continue work
-    return promises.chain(promises.resolve(Invalid), { matchedRoute: matchedRoute, options: options, context: context }).finally(function(context as Dynamic) as Dynamic
+    return promises.chain(promises.resolve(Invalid), { matchedRoute: matchedRoute, context: context }).finally(function(context as Dynamic) as Dynamic
         id = context.matchedRoute.id
         matchedRoute = context.matchedRoute
-        options = context.options
         context = context.context
 
         if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
@@ -153,7 +156,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                                     id: id
                                     route: matchedRoute
                                 })
-                                return navigateTo(redirectTo, rodash.getAA(canActivateResult, "options"), rodash.getAA(canActivateResult, "context"))
+                                return navigateTo(redirectTo, rodash.getAA(canActivateResult, "routeConfigOverrides"), rodash.getAA(canActivateResult, "context"))
                             end if
                         else
                             return promises.reject(message)
@@ -180,10 +183,10 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
             if m.activeView <> Invalid then
                 oldRoute = m.activeView.route
 
-                ' Reuse the view and call onRouteUpdate if the path or hash is the same, OR if the options allow it
+                ' Reuse the view and call onRouteUpdate if the path or hash is the same, OR if the routeConfig override allows it
                 hasHash = rodash.isNonEmptyString(newRoute.hash)
                 isSamePath = rodash.isEqual(newRoute.path, oldRoute.path)
-                reuse = rodash.getBoolean(options, "allowReuse") OR hasHash OR isSamePath
+                reuse = rodash.getBoolean(newRoute.routeConfig, "allowReuse") OR hasHash OR isSamePath
                 if hasHash then
                     if NOT rodash.isEqual(newRoute.routeConfig, oldRoute.routeConfig) then reuse = false
                 else
@@ -319,6 +322,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
         if normalizePath(routePath) = basePath then
             routeConfig = routes[routePath]
             ' Backfill routeConfig with default values
+            routeConfig.allowReuse = rodash.getBoolean(routeConfig, "allowReuse")
             routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
             routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
             routeConfig.keepRootAlive = rodash.getBoolean(routeConfig, "keepRootAlive")
@@ -361,6 +365,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
             if isMatch then
                 routeConfig = routes[routePath]
                 ' Backfill routeConfig with default values
+                routeConfig.allowReuse = rodash.getBoolean(routeConfig, "allowReuse")
                 routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
                 routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
                 routeConfig.keepRootAlive = rodash.getBoolean(routeConfig, "keepRootAlive")

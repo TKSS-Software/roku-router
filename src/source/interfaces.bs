@@ -11,6 +11,7 @@ interface RouteConfig
     component as String ' "MovieDetailsScreen"
     optional canActivate as Dynamic
     optional isRoot as Boolean ' true
+    optional keepRootAlive as Boolean ' false
     optional isDialog as Boolean ' false
 end interface
 

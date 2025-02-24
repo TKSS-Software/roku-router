@@ -94,7 +94,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
     })
 
     'sleep until next tick, then continue work
-    return promises.chain(promises.resolve(Invalid), { matchedRoute: matchedRoute, options: options, context: context }).finally(function(context as dynamic) as Dynamic
+    return promises.chain(promises.resolve(Invalid), { matchedRoute: matchedRoute, options: options, context: context }).finally(function(context as Dynamic) as Dynamic
         id = context.matchedRoute.id
         matchedRoute = context.matchedRoute
         options = context.options
@@ -204,11 +204,13 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                 else
                     if newRoute.routeConfig.isRoot then
                         for each view in rodash.getNodeChildren(m.viewTarget)
+                            print "view to remove", view
                             viewsToRemove.push(view)
                         end for
                     end if
                 end if
             end if
+
             return addViewToStack(newRoute, viewsToRemove)
         end if
 
@@ -222,34 +224,68 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
 end function
 
 function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
-    componentName = rodash.getString(route, "routeConfig.component")
-    view = rodash.createNode(componentName)
-    if view = Invalid then
-        return promises.reject({ message: `Failed to create view "${componentName}"` })
+    ' Look to see if the root view is suspended
+    suspendedRoot = Invalid
+    for each view in rodash.getNodeChildren(m.suspendedRootTarget)
+        print "view.route.pattern", view.route.path, route.path
+        if view.route.path = route.path then
+            suspendedRoot = view
+            exit for
+        end if
+    end for
+
+    toResolve = Invalid
+    if suspendedRoot <> Invalid then
+        view = suspendedRoot
+        view.id = route.id
+        view.route = route
+        toResolve = promises.resolve(Invalid)
+    else
+        componentName = rodash.getString(route, "routeConfig.component")
+        view = rodash.createNode(componentName)
+        if view = Invalid then
+            return promises.reject({ message: `Failed to create view "${componentName}"` })
+        end if
+
+        view.id = route.id
+        view.route = route
+        view.router = m.top
+        toResolve = view@._beforeViewOpen(route)
     end if
 
-    view.id = route.id
-    view.route = route
-    view.router = m.top
-    return promises.chain(view@._beforeViewOpen(route), { view: view, closeViews: closeViews }).then(function(response as Dynamic, context as Dynamic) as Dynamic
+    return promises.chain(toResolve, { view: view, closeViews: closeViews, fromSuspend: suspendedRoot <> Invalid }).then(function(response as Dynamic, context as Dynamic) as Dynamic
         m.viewTarget.appendChild(context.view)
+        context.view.reparent(m.viewTarget, true) ' in the event the view was previously suspended
         hideView(m.activeView)
 
         promisesToResolve = []
         if rodash.isNonEmptyArray(context.closeViews) then
             for each view in context.closeViews
-                promisesToResolve.push(view@._beforeViewClose(context.view.route))
+                if view.route.routeConfig.isRoot AND view.route.routeConfig.keepRootAlive then
+                    print "_onViewSuspend", view.route.routeConfig
+                    promisesToResolve.push(view@._onViewSuspend(context.view.route))
+                else
+                    print "_beforeViewClose", view.route.routeConfig
+                    promisesToResolve.push(view@._beforeViewClose(context.view.route))
+                end if
             end for
         end if
 
         return promises.all(promisesToResolve)
     end function).then(function(_ as Dynamic, context as Dynamic) as Dynamic
         'now that all of the `beforeViewClose` promises have resolved, show the new view
-        return showView(context.view)
+        return showView(context.view, context.fromSuspend)
     end function).then(function(response as Dynamic, context as Dynamic) as Dynamic
         if rodash.isNonEmptyArray(context.closeViews) then
             for each view in context.closeViews
-                if hideView(view) then rodash.removeNode(view)
+                print "view.route.routeConfig", view.route.routeConfig
+                if view.route.routeConfig.isRoot AND view.route.routeConfig.keepRootAlive then
+                    if hideView(view) AND view.reparent(m.suspendedRootTarget, true) then
+                        m.suspendedRootTarget.appendChild(view)
+                    end if
+                else
+                    if hideView(view) then rodash.removeNode(view)
+                end if
             end for
         end if
         return response
@@ -285,6 +321,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
             ' Backfill routeConfig with default values
             routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
             routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
+            routeConfig.keepRootAlive = rodash.getBoolean(routeConfig, "keepRootAlive")
             routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
 
             return {
@@ -326,6 +363,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
                 ' Backfill routeConfig with default values
                 routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
                 routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
+                routeConfig.keepRootAlive = rodash.getBoolean(routeConfig, "keepRootAlive")
                 routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
 
                 return {

@@ -64,6 +64,11 @@ function goBack(_ = Invalid as Dynamic) as Dynamic
 
     promises.chain(closeView(views.pop()), views.peek()).then(sub(response as Dynamic, view as Dynamic)
         m.focusRequestMade = m.focusRequestMade OR m.processingGoBack
+        view.route.context = rodash.merge(view.route.context, {
+            fromSuspendedRoot: false
+            fromPopState: true
+            fromPushState: false
+        })
         showView(view, true)
     end sub)
 
@@ -210,6 +215,11 @@ function navigateTo(path = "" as String, routeConfigOverrides = {} as Object, co
                 end if
             end if
 
+            newRoute.context = rodash.merge(newRoute.context, {
+                fromPopState: false
+                fromPushState: true
+            })
+
             return addViewToStack(newRoute, viewsToRemove)
         end if
 
@@ -318,6 +328,12 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
     ' Parse the query string if present
     queryParams = parseQueryString(queryString)
 
+    context = {
+        fromSuspendedRoot: false
+        fromPopState: false
+        fromPushState: false
+    }
+
     ' First check for exact matches (static paths)
     for each routePath in routes
         if normalizePath(routePath) = basePath then
@@ -330,7 +346,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
             routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
 
             return {
-                context: {}
+                context: context
                 path: path
                 routeConfig: routeConfig
                 routeParams: {}
@@ -374,7 +390,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
                 routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
 
                 return {
-                    context: {}
+                    context: context
                     path: path
                     routeConfig: routeConfig
                     routeParams: matchedParams
@@ -389,7 +405,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
 
     ' Return Route with empty routeConfig if no match found
     return {
-        context: {}
+        context: context
         path: path
         routeConfig: {}
         routeParams: {}
@@ -438,7 +454,7 @@ function hideView(view as Object, onSuspend = false as Boolean) as Boolean
         view.translation = [10000, 10000]
 
         if onSuspend then
-            view@._onViewSuspend()
+            view@._onViewSuspend({ route: view.route })
         end if
     end if
     return success
@@ -488,9 +504,9 @@ function closeView(view = Invalid as Dynamic) as Dynamic
     view.translation = [1000000, 100000]
     view.visible = false
 
-    return promises.onThen(view@._beforeViewClose({ route: view.route }), function(response as Dynamic, context as Dynamic) as Dynamic
-        if hideView(context.view) then
-            rodash.removeNode(context.view)
+    return promises.onThen(view@._beforeViewClose({ route: view.route }), function(response as Dynamic, internalContext as Dynamic) as Dynamic
+        if hideView(internalContext.view) then
+            rodash.removeNode(internalContext.view)
         end if
 
         return true

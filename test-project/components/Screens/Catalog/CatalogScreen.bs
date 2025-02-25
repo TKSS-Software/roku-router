@@ -53,6 +53,16 @@ function beforeViewOpen(params = {} as Object) as Dynamic
   return promises.resolve(Invalid)
 end function
 
+function onViewResume(params = {} as Object) as Dynamic
+  ' If we are coming from a suspended root, jump to the first item
+  fromSuspendedRoot = params.route.context.fromSuspendedRoot
+  if fromSuspendedRoot <> Invalid AND fromSuspendedRoot then
+    m.rowList.jumpToRowItem = [0, 0]
+  end if
+
+  return promises.resolve(Invalid)
+end function
+
 sub onItemSelected(event as Object)
   itemSelected = event.getRoSGNode().content.getChild(event.getData()[0]).getChild(event.getData()[1])
   contentType = "series"

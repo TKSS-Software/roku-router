@@ -112,7 +112,7 @@ function navigateTo(path = "" as String, routeConfigOverrides = {} as Object, co
                 return guardCheckResponse.redirect
             end if
 
-            promises.reject(Invalid)
+            promises.reject(guardCheckResponse)
         end if
 
         id = internalContext.newRoute.id

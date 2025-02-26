@@ -84,7 +84,7 @@ sub dispatchRouterState(stateType as String, context = {} as Dynamic)
 end sub
 
 ' Function to navigate to a specific route
-function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
+function navigate(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
     matchedRoute = findMatchingRoute(path, m.routes)
 
     'dispatch the event
@@ -153,7 +153,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                                     id: id
                                     route: matchedRoute
                                 })
-                                return navigateTo(redirectTo, rodash.getAA(canActivateResult, "options"), rodash.getAA(canActivateResult, "context"))
+                                return navigate(redirectTo, rodash.getAA(canActivateResult, "options"), rodash.getAA(canActivateResult, "context"))
                             end if
                         else
                             return promises.reject(message)

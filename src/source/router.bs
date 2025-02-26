@@ -8,10 +8,10 @@ import "RouterState.bs"
 '*** DO NOT USE THIS FILE OUTSIDE OF A VIEW COMPONENT, such as the main scene
 '************************
 namespace Router
-    function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
-        r = Router.getRouter()
+    function navigateTo(path = "" as String, options = {} as Object, context = {} as Object, r = Invalid as Dynamic) as Dynamic
+        r = r <> Invalid ? r : Router.getRouter()
         if rodash.isNotInvalid(r) then
-            return r@.navigateTo(path, options, context)
+            return r@.navigate(path, options, context)
         end if
         return promises.resolve(true)
     end function

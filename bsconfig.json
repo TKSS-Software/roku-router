@@ -7,5 +7,5 @@
 	],
 	"emitDefinitions": true,
 	"createPackage": false,
-	"stagingDir": ".tmp"
+	"stagingDir": "dist"
 }

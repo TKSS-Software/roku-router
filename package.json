@@ -1,7 +1,7 @@
 {
   "name": "roku-router",
   "version": "0.0.23",
-  "description": "A lodash inspired utility for Roku development",
+  "description": "A router for the Roku platform",
   "main": "index.js",
   "keywords": [
     "ropm",
@@ -9,7 +9,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/TKSS-Software/roact-router.git"
+    "url": "https://github.com/TKSS-Software/roku-router-router.git"
   },
   "scripts": {
     "preversion": "npm run build",

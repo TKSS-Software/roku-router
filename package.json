@@ -21,9 +21,6 @@
   },
   "author": "TKSS Software",
   "license": "MIT",
-  "files": [
-    "dist/**/*"
-  ],
   "ropm": {
     "packageRootDir": "dist",
     "rootDir": "src"

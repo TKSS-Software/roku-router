@@ -26,9 +26,9 @@ function sanitizeCode(filePath: string) {
         //remove prefixes from function names
         .replace(/function\s*router\_/gi, 'function ')
         //remove prefixes from function calls
-        .replace(/router_/gi, '')
+        .replace(/rokurouter_/gi, '')
         //remove prefixes from namespaces
-        .replace(/\bnamespace router./gi, 'namespace ')
+        .replace(/\bnamespace rokurouter./gi, 'namespace ')
         //remove all trailing whitespace on each line
         .replace(/[ \t]*$/gm, '')
         //remove newlines or blank lines from start of file

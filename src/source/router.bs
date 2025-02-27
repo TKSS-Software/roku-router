@@ -7,9 +7,9 @@ import "RouterState.bs"
 '*** This namespace can be used inside any component that is a view, or child of a view
 '*** DO NOT USE THIS FILE OUTSIDE OF A VIEW COMPONENT, such as the main scene
 '************************
-namespace Router
+namespace rokuRouter
     function navigateTo(path = "" as String, options = {} as Object, context = {} as Object, r = Invalid as Dynamic) as Dynamic
-        r = r <> Invalid ? r : Router.getRouter()
+        r = r <> Invalid ? r : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) then
             return r@.navigate(path, options, context)
         end if
@@ -17,7 +17,7 @@ namespace Router
     end function
 
     function getRouter() as Dynamic
-        currentChain = Router.utils.getCurrentFocusedChain(m.top.getScene())
+        currentChain = rokuRouter.utils.getCurrentFocusedChain(m.top.getScene())
         currentChain.reverse()
 
         for each node in currentChain
@@ -42,7 +42,7 @@ namespace Router
 
 end namespace
 
-namespace Router.utils
+namespace rokuRouter.utils
     function getCurrentFocusedChain(parent = Invalid as Object, maxDepth = 30 as Integer) as Object
         if rodash.isNode(parent) then
             targetNode = parent

@@ -31,6 +31,6 @@ sub onButtonPress(event as Object)
     end if
 
     if navigateTo <> Invalid then
-        Router.navigateTo(navigateTo)
+        rokuRouter.navigateTo(navigateTo)
     end if
 end sub

@@ -72,7 +72,7 @@ sub onItemSelected(event as Object)
 
   path = `/details/${contentType}/${itemSelected.id}`
   print "path", path
-  Router.navigateTo(path)
+  rokuRouter.navigateTo(path)
 end sub
 
 function handleFocus(data as Object) as Boolean

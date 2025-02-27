@@ -1,8 +1,10 @@
 <h1 align="center">Roku Router - Modern View Management</h1>
 <br>
-![image](https://github.com/user-attachments/assets/734ca644-8d42-49be-84b3-2a717e6f3267)
-
-<p align="center"><em>Roku Router is a solution for managing navigation between views in Roku<br> application by mapping URL paths to components. It provides features like route guards<br> and parameter handling to create dynamic applications with smooth user experiences.</em></p>
+<p align="center">
+	<img src="https://github.com/user-attachments/assets/734ca644-8d42-49be-84b3-2a717e6f3267" alt="angular-logo" width="120px" height="149px"/>
+	<br>
+	<em>Roku Router is a solution for managing navigation between views in Roku<br> application by mapping URL paths to components. It provides features like route guards<br> and parameter handling to create dynamic applications with smooth user experiences.</em>
+</p>
 <br>
 
 [![build status](https://img.shields.io/github/workflow/status/TKSS-Software/roku-router/build.yml?logo=github&branch=master)](https://github.com/TKSS-Software/roku-router/actions?query=branch%3Amaster+workflow%3Abuild)

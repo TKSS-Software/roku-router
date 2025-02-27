@@ -4,12 +4,21 @@
         <field id="router" type="node" />
         <field id="route" type="assocarray" />
 
+        <!-- DO NOT CALL CALLFUNCS DIRECTLY-->
         <function name="_beforeViewOpen" />
+        <function name="beforeViewOpen" />
         <function name="_onViewOpen" />
+        <function name="onViewOpen" />
         <function name="_beforeViewClose" />
+        <function name="beforeViewClose" />
         <function name="_onRouteUpdate" />
+        <function name="onRouteUpdate" />
         <function name="_onViewResume" />
+        <function name="onViewResume" />
         <function name="_onViewSuspend" />
+        <function name="onViewSuspend" />
         <function name="_handleFocus" />
+        <function name="handleFocus" />
+        <!-- DO NOT CALL CALLFUNCS DIRECTLY-->
     </interface>
 </component>

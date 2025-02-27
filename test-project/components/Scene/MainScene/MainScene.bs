@@ -30,16 +30,16 @@ sub init()
 
     ' Read the sample data from the file. You normally wouldn't want to do this in a real app.
     m.global.update(ParseJSON(ReadAsciiFile("pkg:/assets/sampleData.json")), true)
-    Router.navigateTo("/#firstLoad=true", {}, {}, m.router)
+    rokuRouter.navigateTo("/#firstLoad=true", {}, {}, m.router)
 
     m.router@.setFocus(true)
 end sub
 
 sub onAuthManagerIsLoggedInChanged(event as Object)
     if event.getData() then
-        Router.navigateTo("/shows", {}, {}, m.router)
+        rokuRouter.navigateTo("/shows", {}, {}, m.router)
     else
-        Router.navigateTo("/", {}, {}, m.router)
+        rokuRouter.navigateTo("/", {}, {}, m.router)
     end if
 end sub
 

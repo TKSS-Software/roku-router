@@ -1,6 +1,11 @@
 import "pkg:/source/router.bs"
 
 sub init()
+    m.router = m.top.findNode("router")
+    m.loadingOverlay = m.top.findNode("loadingOverlay")
+    m.loadingOverlayText = m.loadingOverlay.findNode("loadingOverlayText")
+    m.mainMenu = m.top.findNode("mainMenu")
+
     m.top.backgroundColor = "#000000"
     m.top.backgroundUri = ""
 

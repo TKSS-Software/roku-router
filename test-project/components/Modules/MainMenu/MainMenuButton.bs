@@ -6,6 +6,8 @@ sub init()
     m.top.width = 200
     m.top.height = 80
     m.inFocusChain = false
+    m.icon = m.top.findNode("icon")
+    m.label = m.top.findNode("label")
     m.label.font = "font:MediumBoldSystemFont"
     onUnfocusState()
     m.top.observeField("focusedChild", "onFocusChildChanged")
@@ -36,7 +38,7 @@ end sub
 function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
     if press then
         if key = "OK" then
-            navigateTo = m.top.router@.navigateTo(m.top.link)
+            navigateTo = m.top.router@.navigate(m.top.link)
             if navigateTo <> Invalid then
                 promises.chain(navigateTo).then(sub(response as Dynamic)
                     m.top.router@.setFocus(true)

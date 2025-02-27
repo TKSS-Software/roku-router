@@ -3,6 +3,8 @@ import "../../../source/common.bs"
 
 sub init()
   m.pageType = ""
+  m.label = m.top.findNode("label")
+  m.rowList = m.top.findNode("rowList")
   m.rowList.observeField("rowItemSelected", "onItemSelected")
 end sub
 
@@ -59,7 +61,8 @@ sub onItemSelected(event as Object)
   if m.pageType = "movies" then contentType = "movie"
 
   path = `/details/${contentType}/${itemSelected.id}`
-  Router.getRouter()@.navigateTo(path)
+  print "path", path
+  Router.navigateTo(path)
 end sub
 
 function handleFocus(data as Object) as Boolean

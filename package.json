@@ -37,7 +37,6 @@
     "braintree-jsdoc-template": "^3.3.0",
     "brighterscript": "^0.67.5",
     "brighterscript-jsdocs-plugin": "^0.7.3",
-    "bsc-plugin-auto-findnode": "^0.1.0",
     "bsc-plugin-inline-annotation": "https://github.com/rokucommunity/bsc-plugin-inline-annotation/releases/download/v0.0.0-packages/bsc-plugin-inline-annotation-1.0.0-plugin-logic.20241003135359.tgz",
     "concat": "^1.0.3",
     "copyfiles": "^2.4.1",

@@ -3,6 +3,14 @@ import "../../../source/roku_modules/promises/promises.brs"
 import "../../../source/common.bs"
 
 sub init()
+    m.content = m.top.findNode("content")
+    m.title = m.top.findNode("title")
+    m.description = m.top.findNode("description")
+    m.rating = m.top.findNode("rating")
+    m.poster = m.top.findNode("poster")
+    m.background = m.top.findNode("background")
+    m.topSection = m.top.findNode("topSection")
+    m.rowList = m.top.findNode("rowList")
     m.rowList.observeField("rowItemSelected", "onItemSelected")
 end sub
 

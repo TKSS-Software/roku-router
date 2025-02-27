@@ -69,6 +69,7 @@ function goBack(_ = Invalid as Dynamic) as Dynamic
             fromSuspendedRoot: false
             fromPopState: true
             fromPushState: false
+            fromRedirect: false
         })
         showView(view, true)
     end sub)
@@ -99,8 +100,6 @@ function navigate(path = "" as String, routeConfigOverrides = {} as Object, cont
         newRoute.routeConfig = newRouteConfig
     end if
 
-
-
     'dispatch the event
     dispatchRouterState(RouterState.NavigationStart, {
         id: newRoute.id
@@ -108,78 +107,21 @@ function navigate(path = "" as String, routeConfigOverrides = {} as Object, cont
     })
 
     'sleep until next tick, then continue work
-    return promises.chain(promises.resolve(Invalid), { newRoute: newRoute }).finally(function(internalContext as Dynamic) as Dynamic
+    return promises.chain(promises.resolve(Invalid), { newRoute: newRoute }).then(function(_ as Dynamic, internalContext as Dynamic) as Dynamic
+        return runGuardChecks(internalContext.newRoute)
+    end function).then(function(guardCheckResponse as Dynamic, internalContext as Dynamic) as Dynamic
+        if NOT guardCheckResponse.allow then
+            if guardCheckResponse.redirect <> Invalid then
+                return guardCheckResponse.redirect
+            end if
+
+            promises.reject(guardCheckResponse)
+        end if
+
         id = internalContext.newRoute.id
         newRoute = internalContext.newRoute
 
         if rodash.isNonEmptyAA(newRoute.routeConfig) then
-            ' Run guard checks
-            canActivateGuard = rodash.get(newRoute.routeConfig, "canActivate")
-            dispatchRouterState(RouterState.GuardsCheckStart, {
-                id: id
-                route: newRoute
-            })
-            if rodash.isNonEmptyArray(canActivateGuard) then
-                for each guard in canActivateGuard
-                    guardNode = Invalid
-                    if rodash.isNode(guard) then
-                        guardNode = guard
-                    else if rodash.isString(guard) then
-                        if m.guardInstances[guard] = Invalid then
-                            m.guardInstances[guard] = rodash.createNode(guard)
-                        end if
-
-                        guardNode = m.guardInstances[guard]
-                    end if
-
-                    if guardNode <> Invalid then
-                        canActivateResult = guardNode@.canActivate(newRoute)
-                        print "canActivateResult", canActivateResult
-                        dispatchRouterState(RouterState.GuardResult, {
-                            id: id
-                            route: newRoute
-                            type: "canActivate"
-                            result: canActivateResult
-                        })
-
-                        if rodash.isBoolean(canActivateResult) then
-                            canActivate = canActivateResult
-
-                            if NOT canActivate then
-                                message = { message: `Route "${newRoute.path}" is not accessible` }
-                                print message
-                                dispatchRouterState(RouterState.GuardsCheckEnd, {
-                                    id: id
-                                    route: newRoute
-                                })
-                                return promises.reject(message)
-                            end if
-                        else if rodash.isNonEmptyAA(canActivateResult) then
-                            redirectTo = rodash.getString(canActivateResult, "path")
-                            if rodash.isNonEmptyString(redirectTo) then
-                                dispatchRouterState(RouterState.GuardsCheckEnd, {
-                                    id: id
-                                    route: newRoute
-                                })
-                                dispatchRouterState(RouterState.NavigationCancel, {
-                                    id: id
-                                    route: newRoute
-                                })
-                                return navigate(redirectTo, rodash.getAA(canActivateResult, "routeConfigOverrides"), rodash.getAA(canActivateResult, "context"))
-
-                            end if
-                        else
-                            return promises.reject(message)
-                        end if
-                    end if
-                end for
-            end if
-
-            dispatchRouterState(RouterState.GuardsCheckEnd, {
-                id: id
-                route: newRoute
-            })
-
             if rodash.isEmptyString(rodash.getString(newRoute, "routeConfig.component")) then
                 return promises.reject({ message: `No component for route "${newRoute.path}"` })
             end if
@@ -236,6 +178,76 @@ function navigate(path = "" as String, routeConfigOverrides = {} as Object, cont
     end function).toPromise()
 end function
 
+function runGuardChecks(route as Dynamic) as Dynamic
+    ' Run guard checks
+    canActivateGuard = rodash.get(route.routeConfig, "canActivate")
+    dispatchRouterState(RouterState.GuardsCheckStart, {
+        id: route.id
+        route: route
+    })
+    if rodash.isNonEmptyArray(canActivateGuard) then
+        for each guard in canActivateGuard
+            guardNode = Invalid
+            if rodash.isNode(guard) then
+                guardNode = guard
+            else if rodash.isString(guard) then
+                if m.guardInstances[guard] = Invalid then
+                    m.guardInstances[guard] = rodash.createNode(guard)
+                end if
+
+                guardNode = m.guardInstances[guard]
+            end if
+
+            if guardNode <> Invalid then
+                canActivateResult = guardNode@.canActivate(route)
+                ' print "canActivateResult", canActivateResult
+                dispatchRouterState(RouterState.GuardResult, {
+                    id: route.id
+                    route: route
+                    type: "canActivate"
+                    result: canActivateResult
+                })
+
+                if rodash.isBoolean(canActivateResult) then
+                    canActivate = canActivateResult
+
+                    if NOT canActivate then
+                        message = { allow: false, message: `Route "${route.path}" is not accessible` }
+                        dispatchRouterState(RouterState.GuardsCheckEnd, {
+                            id: route.id
+                            route: route
+                        })
+                        return promises.resolve(message)
+                    end if
+                else if rodash.isNonEmptyAA(canActivateResult) then
+                    redirectTo = rodash.getString(canActivateResult, "path")
+                    if rodash.isNonEmptyString(redirectTo) then
+                        dispatchRouterState(RouterState.GuardsCheckEnd, {
+                            id: route.id
+                            route: route
+                        })
+                        dispatchRouterState(RouterState.NavigationCancel, {
+                            id: route.id
+                            route: route
+                        })
+                        context = rodash.merge({}, [route.context, rodash.getAA(canActivateResult, "context"), { fromRedirect: true }])
+                        return promises.resolve({ allow: false, redirect: navigate(redirectTo, rodash.getAA(canActivateResult, "routeConfigOverrides"), context) })
+                    end if
+                else
+                    message = { allow: false, message: `Invalid Route Guard on "${route.path}"` }
+                    return promises.resolve(message)
+                end if
+            end if
+        end for
+    end if
+
+    dispatchRouterState(RouterState.GuardsCheckEnd, {
+        id: route.id
+        route: route
+    })
+    return promises.resolve({ allow: true })
+end function
+
 function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
     ' Look to see if the root view is suspended
     suspendedRootView = Invalid
@@ -259,14 +271,20 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
         toResolve = promises.resolve(Invalid)
     else
         componentName = rodash.getString(route, "routeConfig.component")
-        view = rodash.createNode(componentName)
+
+        ' Create the view and hide it to prevent using texture memory until it is ready to be shown
+        view = rodash.createNode(componentName, {
+            visible: false
+            translation: [10000, 10000]
+            id: route.id
+            route: route
+            router: m.top
+        })
+
         if view = Invalid then
             return promises.reject({ message: `Failed to create view "${componentName}"` })
         end if
 
-        view.id = route.id
-        view.route = route
-        view.router = m.top
         toResolve = view@._beforeViewOpen({ route: route })
     end if
 
@@ -333,6 +351,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
     queryParams = parseQueryString(queryString)
 
     context = {
+        fromRedirect: false
         fromSuspendedRoot: false
         fromPopState: false
         fromPushState: false

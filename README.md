@@ -1,7 +1,9 @@
 <h1 align="center">Roku Router - Modern View Management</h1>
+<br>
+![image](https://github.com/user-attachments/assets/734ca644-8d42-49be-84b3-2a717e6f3267)
 
-<p>Roku Router is a solution for managing navigation between views in Roku application by mapping URL paths to components. It provides features like route guards and parameter handling to create dynamic applications with smooth user experiences.</p>
-
+<p align="center"><em>Roku Router is a solution for managing navigation between views in Roku<br> application by mapping URL paths to components. It provides features like route guards<br> and parameter handling to create dynamic applications with smooth user experiences.</em></p>
+<br>
 
 [![build status](https://img.shields.io/github/workflow/status/TKSS-Software/roku-router/build.yml?logo=github&branch=master)](https://github.com/TKSS-Software/roku-router/actions?query=branch%3Amaster+workflow%3Abuild)
 [![monthly downloads](https://img.shields.io/npm/dm/@tkss/roku-router.svg?sanitize=true&logo=npm&logoColor=)](https://npmcharts.com/compare/@tkss/roku-router?minimal=true)
@@ -10,7 +12,7 @@
 [![Slack](https://img.shields.io/badge/Slack-RokuCommunity-4A154B?logo=slack)](https://join.slack.com/t/rokudevelopers/shared_invite/zt-4vw7rg6v-NH46oY7hTktpRIBM_zGvwA)
 
 
-
+<hr>
 
 ## Installation
 ### Using [ropm](https://www.npmjs.com/package/roku-router)
@@ -29,7 +31,7 @@ Each route maps a URL path (or pattern) to a specific component. For example, na
 Routes are typically configured in a routing module using an array of route objects. Each route object can specify:
 - `pattern` (required): The URL style pattern that represents the route.
 - `component` (required): The component to render when the route is activated. This component must extend the **RouterView** component.
-- `TODO isRoot` (optional): Views that are defined as root are considered at the top of the view stack. When navigating to a root screen, the stack is cleared and the breadcrumbs are reset.  These could be hub screens such as a Shows or Movie hubs that are top level in your menu.
+- `isRoot` (optional): Views that are defined as root are considered at the top of the view stack. When navigating to a root screen, the stack is cleared and the breadcrumbs are reset.  These could be hub screens such as a Shows or Movie hubs that are top level in your menu.
 - `canActivate` (optional): A route guard that controls access to the route. An example of this would be to validate the user has authenticated before navigating to a screen (particularly useful when using deeplinks).
 - `isDialog` (optional): Defining isDialog will notify the router to fire the dialog beacons. DO WE NEED?
 

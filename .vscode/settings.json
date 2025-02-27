@@ -40,7 +40,7 @@
     ".history/**/*": true,
     "out/**": true,
     "**/out/**": true,
-    "/tmp/**": true,
+    "**/dist/**": true,
   },
   "files.useExperimentalFileWatcher": true,
   "files.watcherExclude": {

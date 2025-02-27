@@ -8,6 +8,10 @@ sub init()
         color: "#00000099"
     })
     m.inFocusChain = false
+    m.showsButton = m.top.findNode("showsButton")
+    m.moviesButton = m.top.findNode("moviesButton")
+    m.buttonGroup = m.top.findNode("buttonGroup")
+
     m.focusedButton = m.showsButton
     m.top.observeField("focusedChild", "onFocusChildChanged")
     m.top.observeField("visible", "handleVisibilityChange")

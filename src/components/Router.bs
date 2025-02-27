@@ -92,7 +92,7 @@ end sub
 ' Function to navigate to a specific route
 function navigate(path = "" as String, routeConfigOverrides = {} as Object, context = {} as Object) as Dynamic
     newRoute = rodash.createNode("Node", findMatchingRoute(path, m.routes))
-    newRoute.context = context
+    newRoute.context = rodash.merge(newRoute.context, context)
 
     if rodash.isNonEmptyAA(routeConfigOverrides) then
         newRouteConfig = rodash.merge(newRoute.routeConfig, routeConfigOverrides)

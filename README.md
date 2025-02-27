@@ -26,6 +26,13 @@ ropm install roku-router@npm:@tkss/roku-router
 #### Route
 A route is a configuration object used by the Roku Router to define navigation paths within the application. Routes allow you to map URL style paths to View components, enabling users to navigate between different Views.
 
+Routes are typically configured in a routing module using an array of route objects. Each route object can specify:
+- `pattern` (required): The URL style pattern that represents the route.
+- `component` (required): The component to render when the route is activated. This component must extend the **RouterView** component.
+- `isRoot` (optional): Views that are defined as root are considered at the top of the view stack. When navigating to a root screen, the stack is cleared and the breadcrumbs are reset.  These could be hub screens such as a Shows or Movie hubs that are top level in your menu.
+- `canActivate` (optional): A route guard that controls access to the route. An example of this would be to validate the user has authenticated before navigating to a screen (particularly useful when using deeplinks).
+- `isDialog` (optional): Defining isDialog will notify the router to fire the dialog beacons. DO WE NEED?
+
 #### View
 Views are components that get rendered based on the active route. They contain the following lifecycle functions. 
 - `beforeViewOpen` - Called before the view loads.  This is where you would perform business logic like API calls and building your UI if you want to delay opening the View until ready.
@@ -36,21 +43,11 @@ Views are components that get rendered based on the active route. They contain t
 - `onResume` - Called when a suspended View is resumed. The most common case for this is when a View above the stack is closed and the suspended View is to take over.
 - `handleFocus` - Called when the View should determine what to do with focus.  This is called immediatley after the active View is opened on resumed.
 
-#### Url Mapping
-Each route maps a URL path (or pattern) to a specific component. For example, navigating to /home could display a HomeComponent.
-<br/><br/>
-## Route Configuration
-Routes are typically configured in a routing module using an array of route objects. Each route object can specify:
-- `pattern` (required): The URL style pattern that represents the route.
-- `component` (required): The component to render when the route is activated. This component must extend the **RouterView** component.
-- `isRoot` (optional): Views that are defined as root are considered at the top of the view stack. When navigating to a root screen, the stack is cleared and the breadcrumbs are reset.  These could be hub screens such as a Shows or Movie hubs that are top level in your menu.
-- `canActivate` (optional): A route guard that controls access to the route. An example of this would be to validate the user has authenticated before navigating to a screen (particularly useful when using deeplinks).
-- `isDialog` (optional): Defining isDialog will notify the router to fire the dialog beacons. DO WE NEED?
-
 <br/><br/>
 ## Example Setup
 #### Scenegraph XML
 ```XML
+<script type="text/brightscript" uri="pkg:/source/roku_modules/rokurouter/router.brs" />
 <component name="MainScene" extends="Scene">
 	<children>
 		<rokurouter_router id="router" />
@@ -72,6 +69,8 @@ sub init()
         {pattern: "/details/movies/:id/cast", component: "CastDetailsScreen"},
         {pattern: "/:screenName", component: "DefaultScreen"}
     ])
+    ' Go to the welcome view
+    rokuRouter.navigateTo("/", {}, {}, m.router)
 end sub
 ```
 

@@ -57,3 +57,4 @@ roku_modules
 
 dist
 docs
+*.tgz

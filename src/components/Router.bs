@@ -12,6 +12,7 @@ sub init()
 
     m.focusRequestMade = false
     m.processingGoBack = false
+    m.viewTarget = m.top.findNode("viewTarget")
 
     m.top.appLaunchComplete = false
 end sub
@@ -84,7 +85,7 @@ sub dispatchRouterState(stateType as String, context = {} as Dynamic)
 end sub
 
 ' Function to navigate to a specific route
-function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
+function navigate(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
     matchedRoute = findMatchingRoute(path, m.routes)
 
     'dispatch the event
@@ -153,7 +154,7 @@ function navigateTo(path = "" as String, options = {} as Object, context = {} as
                                     id: id
                                     route: matchedRoute
                                 })
-                                return navigateTo(redirectTo, rodash.getAA(canActivateResult, "options"), rodash.getAA(canActivateResult, "context"))
+                                return navigate(redirectTo, rodash.getAA(canActivateResult, "options"), rodash.getAA(canActivateResult, "context"))
                             end if
                         else
                             return promises.reject(message)
@@ -261,7 +262,7 @@ end function
 
 ' Helper function to find a matching route
 function findMatchingRoute(path as String, routes as Object) as RouteObject
-    hash = Router._utils.getHashParam(path)
+    hash = getHashParam(path)
 
     if rodash.isNonEmptyString(hash) then
         path = path.replace("#" + hash, "")
@@ -455,4 +456,22 @@ function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
     end if
 
     return false
+end function
+
+function getHashParam(url as String) as String
+    ' Check if the input URL is valid
+    if rodash.isEmptyString(url) then
+        return ""
+    end if
+
+    ' Find the position of the # character in the URL
+    hashIndex = rodash.stringIndexOf(url, "#")
+
+    ' If # is not found, return "Invalid"
+    if hashIndex = -1 then
+        return ""
+    end if
+
+    ' Extract and return the substring after the #
+    return url.mid(hashIndex + 1)
 end function

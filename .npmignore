@@ -1,0 +1,9 @@
+.github
+.tmp
+.vscode
+scripts
+test-project
+src
+roku_modules
+*.tgz
+*.json

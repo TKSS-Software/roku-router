@@ -1,6 +1,6 @@
 {
   "tags": {
-      "allowUnknownTags": true
+    "allowUnknownTags": true
   },
   "plugins": [
     "plugins/markdown",
@@ -15,17 +15,17 @@
     "includePattern": ".+\\.brs"
   },
   "templates": {
-    "referenceTitle": "TKSS roact API Docs",
+    "referenceTitle": "TKSS roku-router API Docs",
     "disableSort": false,
     "collapse": true,
     "search": true,
     "better-docs": {
-      "name": "TKSS roact Documentation",
-      "title": "TKSS roact Documentation",
+      "name": "TKSS roku-router Documentation",
+      "title": "TKSS roku-router Documentation",
       "navLinks": [
         {
           "label": "Github",
-          "href": "https://github.com/TKSS-Software/roact"
+          "href": "https://github.com/TKSS-Software/roku-router"
         }
       ]
     }
@@ -33,7 +33,7 @@
   "opts": {
     "recurse": true,
     "brighterscript-jsdocs-plugin": {
-        "addModule": false
+      "addModule": false
     }
   }
 }

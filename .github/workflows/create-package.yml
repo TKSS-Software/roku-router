@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-node@master
         with:
-          node-version: "14.19.0"
+          node-version: "16.20.2"
       # Get a bot token so the bot's name shows up on all our actions
       - name: Get Token From roku-ci-token Application
         uses: tibdex/github-app-token@v1
@@ -34,6 +34,7 @@ jobs:
           echo "ARTIFACT_URL=$ARTIFACT_URL" >> $GITHUB_ENV
 
       - run: npm ci
+      - run: npx ropm copy
       - run: npm version "$BUILD_VERSION" --no-git-tag-version
       - run: npm pack
 
@@ -53,5 +54,5 @@ jobs:
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: "Hey there! I just built a new temporary npm package based on ${{ github.event.pull_request.head.sha }}. You can download it [here](${{ env.ARTIFACT_URL }}) or install it by running the following command: \n```bash\nnpm install roact@${{ env.ARTIFACT_URL }}\n```"
+                body: "Hey there! I just built a new temporary npm package based on ${{ github.event.pull_request.head.sha }}. You can download it [here](${{ env.ARTIFACT_URL }}) or install it by running the following command: \n```bash\nnpm install ${{ env.ARTIFACT_URL }}\n```"
               });

@@ -1,5 +1,6 @@
 <h1 align="center">Roku Router</h1>
-Simple Router and Stack Management system for Roku
+
+<p>Roku Router is a solution for managing navigation between views in Roku application by mapping URL paths to components. It provides features like route guards and parameter handling to create dynamic applications with smooth user experiences.</p>
 
 
 [![build status](https://img.shields.io/github/workflow/status/TKSS-Software/roku-router/build.yml?logo=github&branch=master)](https://github.com/TKSS-Software/roku-router/actions?query=branch%3Amaster+workflow%3Abuild)

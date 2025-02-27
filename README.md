@@ -24,7 +24,17 @@ ropm install roku-router@npm:@tkss/roku-router
 
 ## Concepts
 #### Route
-A route is a configuration object used by the Roku Router to define navigation paths within the application. Routes allow you to map URL style paths to components, enabling users to navigate between different views.
+A route is a configuration object used by the Roku Router to define navigation paths within the application. Routes allow you to map URL style paths to View components, enabling users to navigate between different Views.
+
+#### View
+Views are components that get rendered based on the active route. They contain the following lifecycle functions. 
+- `beforeViewOpen` - Called before the view loads.  This is where you would perform business logic like API calls and building your UI if you want to delay opening the View until ready.
+- `onViewOpen` - Called after previous view is closed or suspended. This is where you would perform business logic like API calls and building your UI if you want to open your View immediatley and handle the loading UI state manually.
+- `beforeScreenClose` - Called before a screen is destroyed. This does not get called when a new View is added to the stack (see onSuspend).
+- `onRouteUpdate` - Called when a new route is requested that matches the same URL pattern and the Route is configured for `allowReuse` or the same url has been requested with a new hash value.
+- `onSuspend` - Called when a View is suspended. The most common case for this is when a new View is added to the stack.  
+- `onResume` - Called when a suspended View is resumed. The most common case for this is when a View above the stack is closed and the suspended View is to take over.
+- `handleFocus` - Called when the View should determine what to do with focus.  This is called immediatley after the active View is opened on resumed.
 
 #### Url Mapping
 Each route maps a URL path (or pattern) to a specific component. For example, navigating to /home could display a HomeComponent.
@@ -43,7 +53,7 @@ Routes are typically configured in a routing module using an array of route obje
 ```XML
 <component name="MainScene" extends="Scene">
 	<children>
-		<Router id="router" />
+		<rokurouter_router id="router" />
 	</children>
 </component>
 

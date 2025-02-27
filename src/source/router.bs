@@ -8,16 +8,16 @@ import "RouterState.bs"
 '*** DO NOT USE THIS FILE OUTSIDE OF A VIEW COMPONENT, such as the main scene
 '************************
 namespace Router
-    function navigateTo(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
-        r = Router.getRouter()
+    function navigateTo(path = "" as String, options = {} as Object, context = {} as Object, r = Invalid as Dynamic) as Dynamic
+        r = r <> Invalid ? r : Router.getRouter()
         if rodash.isNotInvalid(r) then
-            return r@.navigateTo(path, options, context)
+            return r@.navigate(path, options, context)
         end if
         return promises.resolve(true)
     end function
 
     function getRouter() as Dynamic
-        currentChain = Router._utils.getCurrentFocusedChain(m.top.getScene())
+        currentChain = Router.utils.getCurrentFocusedChain(m.top.getScene())
         currentChain.reverse()
 
         for each node in currentChain
@@ -40,61 +40,34 @@ namespace Router
         }
     end function
 
-    namespace _utils
-        function getCurrentFocusedChain(parent = Invalid as Object, maxDepth = 30 as Integer) as Object
-            if rodash.isNode(parent) then
-                targetNode = parent
-            else
-                targetNode = m.top.getScene()
-            end if
+end namespace
 
-            focusedChild = targetNode.focusedChild
+namespace Router.utils
+    function getCurrentFocusedChain(parent = Invalid as Object, maxDepth = 30 as Integer) as Object
+        if rodash.isNode(parent) then
+            targetNode = parent
+        else
+            targetNode = m.top.getScene()
+        end if
 
-            chain = [targetNode]
+        focusedChild = targetNode.focusedChild
 
-            if rodash.isNode(focusedChild) then
-                while maxDepth > 0 AND NOT rodash.isEqual(focusedChild, targetNode)
-                    targetNode = focusedChild
+        chain = [targetNode]
 
-                    ' There is a chance the chain is incomplete
-                    if targetNode = Invalid then exit while
-                    chain.push(targetNode)
-                    focusedChild = targetNode.focusedChild 'bs:disable-line LINT1005
-                    maxDepth--
-                end while
+        if rodash.isNode(focusedChild) then
+            while maxDepth > 0 AND NOT rodash.isEqual(focusedChild, targetNode)
+                targetNode = focusedChild
 
-                return chain
-            end if
+                ' There is a chance the chain is incomplete
+                if targetNode = Invalid then exit while
+                chain.push(targetNode)
+                focusedChild = targetNode.focusedChild 'bs:disable-line LINT1005
+                maxDepth--
+            end while
 
             return chain
-        end function
+        end if
 
-        function isInFocusChain(node = Invalid as Dynamic) as Boolean
-            currentChain = Router._utils.getCurrentFocusedChain(m.top.getScene())
-            for each chainNode in currentChain
-                if rodash.isEqual(chainNode, node) then
-                    return true
-                end if
-            end for
-            return false
-        end function
-
-        function getHashParam(url as String) as String
-            ' Check if the input URL is valid
-            if rodash.isEmptyString(url) then
-                return ""
-            end if
-
-            ' Find the position of the # character in the URL
-            hashIndex = rodash.stringIndexOf(url, "#")
-
-            ' If # is not found, return "Invalid"
-            if hashIndex = -1 then
-                return ""
-            end if
-
-            ' Extract and return the substring after the #
-            return url.mid(hashIndex + 1)
-        end function
-    end namespace
+        return chain
+    end function
 end namespace

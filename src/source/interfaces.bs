@@ -23,4 +23,3 @@ end interface
 interface RouterState
     type as String
 end interface
-

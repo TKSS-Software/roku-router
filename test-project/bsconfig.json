@@ -20,7 +20,6 @@
 		}
 	],
 	"plugins": [
-		"bsc-plugin-auto-findnode",
 		"bsc-plugin-inline-annotation"
 	]
 }

@@ -100,8 +100,6 @@ function navigate(path = "" as String, routeConfigOverrides = {} as Object, cont
         newRoute.routeConfig = newRouteConfig
     end if
 
-
-
     'dispatch the event
     dispatchRouterState(RouterState.NavigationStart, {
         id: newRoute.id
@@ -109,7 +107,9 @@ function navigate(path = "" as String, routeConfigOverrides = {} as Object, cont
     })
 
     'sleep until next tick, then continue work
-    return promises.chain(runGuardChecks(newRoute), { newRoute: newRoute }).then(function(guardCheckResponse as Dynamic, internalContext as Dynamic) as Dynamic
+    return promises.chain(promises.resolve(Invalid), { newRoute: newRoute }).then(function(_ as Dynamic, internalContext as Dynamic) as Dynamic
+        return runGuardChecks(internalContext.newRoute)
+    end function).then(function(guardCheckResponse as Dynamic, internalContext as Dynamic) as Dynamic
         if NOT guardCheckResponse.allow then
             if guardCheckResponse.redirect <> Invalid then
                 return guardCheckResponse.redirect

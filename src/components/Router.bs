@@ -31,7 +31,7 @@ sub onFocusChildChanged(event as Object)
 end sub
 
 function setFocus(takeFocus as Boolean) as Boolean
-    print source_function_name, takeFocus
+    ' print source_function_name, takeFocus
     response = false
 
     if m.activeView <> Invalid AND takeFocus AND m.focusRequestMade <> takeFocus then
@@ -65,6 +65,11 @@ function goBack(_ = Invalid as Dynamic) as Dynamic
 
     promises.chain(closeView(views.pop()), views.peek()).then(sub(response as Dynamic, view as Dynamic)
         m.focusRequestMade = m.focusRequestMade OR m.processingGoBack
+        view.route.context = rodash.merge(view.route.context, {
+            fromSuspendedRoot: false
+            fromPopState: true
+            fromPushState: false
+        })
         showView(view, true)
     end sub)
 
@@ -85,28 +90,34 @@ sub dispatchRouterState(stateType as String, context = {} as Dynamic)
 end sub
 
 ' Function to navigate to a specific route
-function navigate(path = "" as String, options = {} as Object, context = {} as Object) as Dynamic
-    matchedRoute = findMatchingRoute(path, m.routes)
+function navigate(path = "" as String, routeConfigOverrides = {} as Object, context = {} as Object) as Dynamic
+    newRoute = rodash.createNode("Node", findMatchingRoute(path, m.routes))
+    newRoute.context = rodash.merge(newRoute.context, context)
+
+    if rodash.isNonEmptyAA(routeConfigOverrides) then
+        newRouteConfig = rodash.merge(newRoute.routeConfig, routeConfigOverrides)
+        newRoute.routeConfig = newRouteConfig
+    end if
+
+
 
     'dispatch the event
     dispatchRouterState(RouterState.NavigationStart, {
-        id: matchedRoute.id
-        route: matchedRoute
+        id: newRoute.id
+        route: newRoute
     })
 
     'sleep until next tick, then continue work
-    return promises.chain(promises.resolve(Invalid), { matchedRoute: matchedRoute, options: options, context: context }).finally(function(context as Dynamic) as Dynamic
-        id = context.matchedRoute.id
-        matchedRoute = context.matchedRoute
-        options = context.options
-        context = context.context
+    return promises.chain(promises.resolve(Invalid), { newRoute: newRoute }).finally(function(internalContext as Dynamic) as Dynamic
+        id = internalContext.newRoute.id
+        newRoute = internalContext.newRoute
 
-        if rodash.isNonEmptyAA(matchedRoute.routeConfig) then
+        if rodash.isNonEmptyAA(newRoute.routeConfig) then
             ' Run guard checks
-            canActivateGuard = rodash.get(matchedRoute.routeConfig, "canActivate")
+            canActivateGuard = rodash.get(newRoute.routeConfig, "canActivate")
             dispatchRouterState(RouterState.GuardsCheckStart, {
                 id: id
-                route: matchedRoute
+                route: newRoute
             })
             if rodash.isNonEmptyArray(canActivateGuard) then
                 for each guard in canActivateGuard
@@ -122,11 +133,11 @@ function navigate(path = "" as String, options = {} as Object, context = {} as O
                     end if
 
                     if guardNode <> Invalid then
-                        canActivateResult = guardNode@.canActivate(matchedRoute)
+                        canActivateResult = guardNode@.canActivate(newRoute)
                         print "canActivateResult", canActivateResult
                         dispatchRouterState(RouterState.GuardResult, {
                             id: id
-                            route: matchedRoute
+                            route: newRoute
                             type: "canActivate"
                             result: canActivateResult
                         })
@@ -135,11 +146,11 @@ function navigate(path = "" as String, options = {} as Object, context = {} as O
                             canActivate = canActivateResult
 
                             if NOT canActivate then
-                                message = { message: `Route "${matchedRoute.path}" is not accessible` }
+                                message = { message: `Route "${newRoute.path}" is not accessible` }
                                 print message
                                 dispatchRouterState(RouterState.GuardsCheckEnd, {
                                     id: id
-                                    route: matchedRoute
+                                    route: newRoute
                                 })
                                 return promises.reject(message)
                             end if
@@ -148,13 +159,14 @@ function navigate(path = "" as String, options = {} as Object, context = {} as O
                             if rodash.isNonEmptyString(redirectTo) then
                                 dispatchRouterState(RouterState.GuardsCheckEnd, {
                                     id: id
-                                    route: matchedRoute
+                                    route: newRoute
                                 })
                                 dispatchRouterState(RouterState.NavigationCancel, {
                                     id: id
-                                    route: matchedRoute
+                                    route: newRoute
                                 })
-                                return navigate(redirectTo, rodash.getAA(canActivateResult, "options"), rodash.getAA(canActivateResult, "context"))
+                                return navigate(redirectTo, rodash.getAA(canActivateResult, "routeConfigOverrides"), rodash.getAA(canActivateResult, "context"))
+
                             end if
                         else
                             return promises.reject(message)
@@ -165,26 +177,21 @@ function navigate(path = "" as String, options = {} as Object, context = {} as O
 
             dispatchRouterState(RouterState.GuardsCheckEnd, {
                 id: id
-                route: matchedRoute
+                route: newRoute
             })
 
-            if rodash.isEmptyString(rodash.getString(matchedRoute, "routeConfig.component")) then
-                return promises.reject({ message: `No component for route "${matchedRoute.path}"` })
+            if rodash.isEmptyString(rodash.getString(newRoute, "routeConfig.component")) then
+                return promises.reject({ message: `No component for route "${newRoute.path}"` })
             end if
-
-            newRoute = {
-                context: context
-            }
-            newRoute.append(matchedRoute)
 
             viewsToRemove = []
             if m.activeView <> Invalid then
                 oldRoute = m.activeView.route
 
-                ' Reuse the view and call onRouteUpdate if the path or hash is the same, OR if the options allow it
+                ' Reuse the view and call onRouteUpdate if the path or hash is the same, OR if the routeConfig override allows it
                 hasHash = rodash.isNonEmptyString(newRoute.hash)
                 isSamePath = rodash.isEqual(newRoute.path, oldRoute.path)
-                reuse = rodash.getBoolean(options, "allowReuse") OR hasHash OR isSamePath
+                reuse = rodash.getBoolean(newRoute.routeConfig, "allowReuse") OR hasHash OR isSamePath
                 if hasHash then
                     if NOT rodash.isEqual(newRoute.routeConfig, oldRoute.routeConfig) then reuse = false
                 else
@@ -205,12 +212,17 @@ function navigate(path = "" as String, options = {} as Object, context = {} as O
                 else
                     if newRoute.routeConfig.isRoot then
                         for each view in rodash.getNodeChildren(m.viewTarget)
-                            print "view to remove", view
+                            ' print "view to remove", view
                             viewsToRemove.push(view)
                         end for
                     end if
                 end if
             end if
+
+            newRoute.context = rodash.merge(newRoute.context, {
+                fromPopState: false
+                fromPushState: true
+            })
 
             return addViewToStack(newRoute, viewsToRemove)
         end if
@@ -218,7 +230,7 @@ function navigate(path = "" as String, options = {} as Object, context = {} as O
         dispatchRouterState(RouterState.NavigationError, {
             id: id
         })
-        message = { message: `Route "${matchedRoute.path}" not found` }
+        message = { message: `Route "${newRoute.path}" not found` }
         print message
         return promises.reject(message)
     end function).toPromise()
@@ -226,18 +238,22 @@ end function
 
 function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
     ' Look to see if the root view is suspended
-    suspendedRoot = Invalid
+    suspendedRootView = Invalid
     for each view in rodash.getNodeChildren(m.suspendedRootTarget)
-        print "view.route.pattern", view.route.path, route.path
+        ' print "view.route.pattern", view.route.path, route.path
         if view.route.path = route.path then
-            suspendedRoot = view
+            suspendedRootView = view
+
+            route.context = rodash.merge(route.context, {
+                fromSuspendedRoot: true
+            })
             exit for
         end if
     end for
 
     toResolve = Invalid
-    if suspendedRoot <> Invalid then
-        view = suspendedRoot
+    if suspendedRootView <> Invalid then
+        view = suspendedRootView
         view.id = route.id
         view.route = route
         toResolve = promises.resolve(Invalid)
@@ -251,35 +267,36 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
         view.id = route.id
         view.route = route
         view.router = m.top
-        toResolve = view@._beforeViewOpen(route)
+        toResolve = view@._beforeViewOpen({ route: route })
     end if
 
-    return promises.chain(toResolve, { view: view, closeViews: closeViews, fromSuspend: suspendedRoot <> Invalid }).then(function(response as Dynamic, context as Dynamic) as Dynamic
-        m.viewTarget.appendChild(context.view)
-        context.view.reparent(m.viewTarget, true) ' in the event the view was previously suspended
+    return promises.chain(toResolve, { view: view, closeViews: closeViews, fromSuspend: suspendedRootView <> Invalid }).then(function(response as Dynamic, internalContext as Dynamic) as Dynamic
+        view = internalContext.view
+        m.viewTarget.appendChild(view)
+        view.reparent(m.viewTarget, true) ' in the event the view was previously suspended
         hideView(m.activeView)
 
         promisesToResolve = []
-        if rodash.isNonEmptyArray(context.closeViews) then
-            for each view in context.closeViews
+        if rodash.isNonEmptyArray(internalContext.closeViews) then
+            for each view in internalContext.closeViews
+                params = {
+                    route: view.route
+                }
                 if view.route.routeConfig.isRoot AND view.route.routeConfig.keepRootAlive then
-                    print "_onViewSuspend", view.route.routeConfig
-                    promisesToResolve.push(view@._onViewSuspend(context.view.route))
+                    promisesToResolve.push(view@._onViewSuspend(params))
                 else
-                    print "_beforeViewClose", view.route.routeConfig
-                    promisesToResolve.push(view@._beforeViewClose(context.view.route))
+                    promisesToResolve.push(view@._beforeViewClose(params))
                 end if
             end for
         end if
 
         return promises.all(promisesToResolve)
-    end function).then(function(_ as Dynamic, context as Dynamic) as Dynamic
+    end function).then(function(_ as Dynamic, internalContext as Dynamic) as Dynamic
         'now that all of the `beforeViewClose` promises have resolved, show the new view
-        return showView(context.view, context.fromSuspend)
-    end function).then(function(response as Dynamic, context as Dynamic) as Dynamic
-        if rodash.isNonEmptyArray(context.closeViews) then
-            for each view in context.closeViews
-                print "view.route.routeConfig", view.route.routeConfig
+        return showView(internalContext.view, internalContext.fromSuspend)
+    end function).then(function(response as Dynamic, internalContext as Dynamic) as Dynamic
+        if rodash.isNonEmptyArray(internalContext.closeViews) then
+            for each view in internalContext.closeViews
                 if view.route.routeConfig.isRoot AND view.route.routeConfig.keepRootAlive then
                     if hideView(view) AND view.reparent(m.suspendedRootTarget, true) then
                         m.suspendedRootTarget.appendChild(view)
@@ -315,17 +332,25 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
     ' Parse the query string if present
     queryParams = parseQueryString(queryString)
 
+    context = {
+        fromSuspendedRoot: false
+        fromPopState: false
+        fromPushState: false
+    }
+
     ' First check for exact matches (static paths)
     for each routePath in routes
         if normalizePath(routePath) = basePath then
             routeConfig = routes[routePath]
             ' Backfill routeConfig with default values
+            routeConfig.allowReuse = rodash.getBoolean(routeConfig, "allowReuse")
             routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
             routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
             routeConfig.keepRootAlive = rodash.getBoolean(routeConfig, "keepRootAlive")
             routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
 
             return {
+                context: context
                 path: path
                 routeConfig: routeConfig
                 routeParams: {}
@@ -362,12 +387,14 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
             if isMatch then
                 routeConfig = routes[routePath]
                 ' Backfill routeConfig with default values
+                routeConfig.allowReuse = rodash.getBoolean(routeConfig, "allowReuse")
                 routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
                 routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
                 routeConfig.keepRootAlive = rodash.getBoolean(routeConfig, "keepRootAlive")
                 routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
 
                 return {
+                    context: context
                     path: path
                     routeConfig: routeConfig
                     routeParams: matchedParams
@@ -382,6 +409,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
 
     ' Return Route with empty routeConfig if no match found
     return {
+        context: context
         path: path
         routeConfig: {}
         routeParams: {}
@@ -430,7 +458,7 @@ function hideView(view as Object, onSuspend = false as Boolean) as Boolean
         view.translation = [10000, 10000]
 
         if onSuspend then
-            view@._onViewSuspend()
+            view@._onViewSuspend({ route: view.route })
         end if
     end if
     return success
@@ -444,14 +472,17 @@ function showView(view as Object, onResume = false as Boolean) as Dynamic
         m.activeView = view
 
         response = Invalid
+        params = {
+            route: view.route
+        }
         if onResume then
-            response = view@._onViewResume(view.route)
+            response = view@._onViewResume(params)
         else
-            response = view@._onViewOpen(view.route)
+            response = view@._onViewOpen(params)
         end if
 
         return promises.chain(response, { response: response, view: view }).finally(function(context as Dynamic) as Dynamic
-            print "View opened", m.focusRequestMade
+            ' print "View opened", m.focusRequestMade
             focusSuccess = context.view@._handleFocus({
                 routerFocused: m.focusRequestMade
             })
@@ -477,9 +508,9 @@ function closeView(view = Invalid as Dynamic) as Dynamic
     view.translation = [1000000, 100000]
     view.visible = false
 
-    return promises.onThen(view@._beforeViewClose(view.route), function(response as Dynamic, context as Dynamic) as Dynamic
-        if hideView(context.view) then
-            rodash.removeNode(context.view)
+    return promises.onThen(view@._beforeViewClose({ route: view.route }), function(response as Dynamic, internalContext as Dynamic) as Dynamic
+        if hideView(internalContext.view) then
+            rodash.removeNode(internalContext.view)
         end if
 
         return true

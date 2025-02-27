@@ -21,11 +21,9 @@ sub onItemSelected(event as Object)
 end sub
 
 function beforeViewOpen(params = Invalid as Dynamic) as Dynamic
-    m.pageType = params.routeParams.type
+    m.pageType = params.route.routeParams.type
 
-    content = util.getContentById(params.routeParams.id)
-
-    print "content", content
+    content = util.getContentById(params.route.routeParams.id)
 
     textWidths = 1920 - (m.content.translation[0] * 2) - m.topSection.itemSpacings[0] - m.poster.width
 

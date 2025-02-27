@@ -2,7 +2,7 @@
 <component name="RouterView" extends="Group">
     <interface>
         <field id="router" type="node" />
-        <field id="route" type="assocarray" />
+        <field id="route" type="node" />
 
         <!-- DO NOT CALL CALLFUNCS DIRECTLY-->
         <function name="_beforeViewOpen" />

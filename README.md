@@ -1,4 +1,4 @@
-<h1 align="center">Roku Router</h1>
+<h1 align="center">Roku Router - Modern View Management</h1>
 
 <p>Roku Router is a solution for managing navigation between views in Roku application by mapping URL paths to components. It provides features like route guards and parameter handling to create dynamic applications with smooth user experiences.</p>
 

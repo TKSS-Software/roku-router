@@ -13,6 +13,7 @@ sub init()
     m.focusRequestMade = false
     m.processingGoBack = false
     m.viewTarget = m.top.findNode("viewTarget")
+    m.suspendedRootTarget = m.top.findNode("suspendedRootTarget")
 
     m.top.appLaunchComplete = false
 end sub

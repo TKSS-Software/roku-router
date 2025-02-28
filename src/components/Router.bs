@@ -3,19 +3,18 @@ import "pkg:/source/roku_modules/rodash/rodash.brs"
 import "pkg:/source/router.bs"
 
 sub init()
-    m.top.focusable = true
-    m.top.observeField("focusedChild", "onFocusChildChanged")
+    m.suspendedRootTarget = m.top.findNode("suspendedRootTarget")
+    m.viewTarget = m.top.findNode("viewTarget")
 
     m.activeView = Invalid
-    m.routes = {}
-    m.guardInstances = {}
-
     m.focusRequestMade = false
+    m.guardInstances = {}
     m.processingGoBack = false
-    m.viewTarget = m.top.findNode("viewTarget")
-    m.suspendedRootTarget = m.top.findNode("suspendedRootTarget")
+    m.routes = {}
 
+    m.top.focusable = true
     m.top.appLaunchComplete = false
+    m.top.observeField("focusedChild", "onFocusChildChanged")
 end sub
 
 sub onFocusChildChanged(event as Object)
@@ -122,8 +121,9 @@ function navigate(path = "" as String, routeConfigOverrides = {} as Object, cont
         id = internalContext.newRoute.id
         newRoute = internalContext.newRoute
 
-        if rodash.isNonEmptyAA(newRoute.routeConfig) then
-            if rodash.isEmptyString(rodash.getString(newRoute, "routeConfig.component")) then
+        ' Look for a matched pattern
+        if rodash.isNonEmptyString(newRoute.routeConfig.pattern) then
+            if rodash.isEmptyString(newRoute.routeConfig.component) then
                 return promises.reject({ message: `No component for route "${newRoute.path}"` })
             end if
 
@@ -331,7 +331,6 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
     end function).toPromise()
 end function
 
-
 ' Helper function to find a matching route
 function findMatchingRoute(path as String, routes as Object) as RouteObject
     hash = getHashParam(path)
@@ -351,34 +350,15 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
     ' Parse the query string if present
     queryParams = parseQueryString(queryString)
 
-    context = {
-        fromRedirect: false
-        fromSuspendedRoot: false
-        fromPopState: false
-        fromPushState: false
-    }
-
     ' First check for exact matches (static paths)
     for each routePath in routes
         if normalizePath(routePath) = basePath then
-            routeConfig = routes[routePath]
-            ' Backfill routeConfig with default values
-            routeConfig.allowReuse = rodash.getBoolean(routeConfig, "allowReuse")
-            routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
-            routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
-            routeConfig.keepRootAlive = rodash.getBoolean(routeConfig, "keepRootAlive")
-            routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
-
-            return {
-                context: context
+            return createRouteObject({
                 path: path
-                routeConfig: routeConfig
-                routeParams: {}
+                routeConfig: routes[routePath]
                 queryParams: queryParams
                 hash: hash
-                id: CreateObject("roDeviceInfo").GetRandomUUID()
-                router: m.top
-            }
+            })
         end if
     end for
 
@@ -405,38 +385,51 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
             end for
 
             if isMatch then
-                routeConfig = routes[routePath]
-                ' Backfill routeConfig with default values
-                routeConfig.allowReuse = rodash.getBoolean(routeConfig, "allowReuse")
-                routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
-                routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
-                routeConfig.keepRootAlive = rodash.getBoolean(routeConfig, "keepRootAlive")
-                routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
-
-                return {
-                    context: context
+                return createRouteObject({
                     path: path
-                    routeConfig: routeConfig
+                    routeConfig: routes[routePath]
                     routeParams: matchedParams
                     queryParams: queryParams
                     hash: hash
-                    id: CreateObject("roDeviceInfo").GetRandomUUID()
-                    router: m.top
-                }
+                })
             end if
         end if
     end for
 
-    ' Return Route with empty routeConfig if no match found
-    return {
-        context: context
+    return createRouteObject({
         path: path
-        routeConfig: {}
-        routeParams: {}
         queryParams: queryParams
         hash: hash
+    })
+end function
+
+function createRouteObject(config = {} as Object) as Object
+    return {
+        path: rodash.getString(config, "path")
+        routeConfig: rodash.merge({
+            pattern: ""
+            component: ""
+            allowReuse: false
+            canActivate: []
+            isRoot: false
+            keepRootAlive: false
+            isDialog: false
+        }, rodash.getAA(config, "routeConfig"))
+        context: rodash.merge(createBaseContext(), rodash.getAA(config, "context"))
+        routeParams: rodash.getAA(config, "routeParams")
+        queryParams: rodash.getAA(config, "queryParams")
+        hash: rodash.getString(config, "hash")
         id: CreateObject("roDeviceInfo").GetRandomUUID()
         router: m.top
+    }
+end function
+
+function createBaseContext() as Object
+    return {
+        fromRedirect: false
+        fromSuspendedRoot: false
+        fromPopState: false
+        fromPushState: false
     }
 end function
 

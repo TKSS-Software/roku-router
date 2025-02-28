@@ -30,7 +30,7 @@ A route is a configuration object used by the Roku Router to define navigation p
 
 Routes are typically configured in a routing module using an array of route objects. Each route object can specify:
 * `pattern` (required): The URL style pattern that represents the route.
-* `component` (required): The View component to render when the route is activated.<br>This component must extend the **rokurouter_RouterView** component.<br>They contain the following lifecycle functions. 
+* `component` (required): The View component to render when the route is activated.<br>This component must extend the **rokurouter_View** component.<br>They contain the following lifecycle functions. 
     * `beforeViewOpen` - Called before the view loads.  This is where you would perform business logic like API calls and building your UI if you want to delay opening the View until ready.
     * `onViewOpen` - Called after previous view is closed or suspended. This is where you would perform business logic like API calls and building your UI if you want to open your View immediatley and handle the loading UI state manually.
     * `beforeScreenClose` - Called before a screen is destroyed. This does not get called when a new View is added to the stack (see onSuspend).
@@ -77,7 +77,7 @@ end sub
 ## Example WelcomeView Setup
 #### Scenegraph XML - WelcomeScreen.xml
 ```XML
-<component name="WelcomeScreen" extends="rokuRouter_RouterView">
+<component name="WelcomeScreen" extends="rokuRouter_View">
 	<script type="text/brightscript" uri="pkg:/source/roku_modules/promises/promises.brs" />
 	<script type="text/brightscript" uri="WecomeScreen.bs" />
 	<children>

@@ -18,8 +18,10 @@
 
 ## Installation
 ### Using [ropm](https://www.npmjs.com/package/roku-router)
+#### Required dependency [Roku Promises](https://github.com/rokucommunity/promises)
 ```bash
-ropm install roku-router@npm:@tkss/roku-router
+npx ropm install promises@npm:@rokucommunity/promises
+npx ropm install roku-router@npm:@tkss/roku-router
 ```
 
 ## Concepts
@@ -41,18 +43,19 @@ Routes are typically configured in a routing module using an array of route obje
 * `isDialog` (optional): Defining isDialog will notify the router to fire the dialog beacons. DO WE NEED?
 
 <br/><br/>
-## Example Setup
-#### Scenegraph XML
+## Example Main Scene Setup
+#### Scenegraph XML - MainScene.xml
 ```XML
-<script type="text/brightscript" uri="pkg:/source/roku_modules/rokurouter/router.brs" />
 <component name="MainScene" extends="Scene">
+	<script type="text/brightscript" uri="pkg:/source/roku_modules/rokurouter/router.brs" />
+	<script type="text/brightscript" uri="MainScene.bs" />
 	<children>
 		<rokurouter_router id="router" />
 	</children>
 </component>
 
 ```
-#### Brighterscript
+#### Brighterscript - MainScene.bs
 ```brighterscript
 sub init()
     m.router = m.top.findNode("router")
@@ -71,6 +74,27 @@ sub init()
 end sub
 ```
 
-## Development
+## Example WelcomeView Setup
+#### Scenegraph XML - WelcomeScreen.xml
+```XML
+<component name="WelcomeScreen" extends="rokuRouter_RouterView">
+	<script type="text/brightscript" uri="pkg:/source/roku_modules/promises/promises.brs" />
+	<script type="text/brightscript" uri="WecomeScreen.bs" />
+	<children>
+		<Label id="label" />
+	</children>
+</component>
 
-Currently in development
+```
+#### Brighterscript - WelcomeScreen.bs
+```brighterscript
+sub init()
+    m.label = m.top.findNode("label")
+end sub
+
+' This lifecycle function gets called before the view is shown.
+function beforeScreenOpen(params as dynamic) as dynamic
+    m.label.text = "Hello!"
+    return promises.resolve(invalid)
+end function
+```

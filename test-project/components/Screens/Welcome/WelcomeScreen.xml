@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component name="WelcomeScreen" extends="RouterView">
+<component name="WelcomeScreen" extends="View">
 	<children>
 		<Group translation="[196, 96]">
 			<Label id="label" text="Welcome!" translation="[96, 96]" />

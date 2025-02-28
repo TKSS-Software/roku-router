@@ -76,9 +76,9 @@ function _handleFocus(data = {} as Object) as Boolean
     if m._allowHandleFocus then
         handled = handleFocus(data)
         if handled then
-            ' print "RouterView focused", data
+            ' print "View focused", data
         else
-            ' print "RouterView not focused", data
+            ' print "View not focused", data
         end if
         return handled
     end if

@@ -8,6 +8,14 @@ import "RouterState.bs"
 '*** DO NOT USE THIS FILE OUTSIDE OF A VIEW COMPONENT, such as the main scene
 '************************
 namespace rokuRouter
+    ' This function is used to navigate to a different screen
+    ' It will return a promise that will resolve when the navigation is complete
+    ' @since 0.0.1
+    ' @param path - The path to navigate to
+    ' @param options - The options to pass to the router
+    ' @param context - The context to pass to the router
+    ' @param r - The router to use, if not provided, it will try to find the router in the current chain
+    ' @return - A promise that will resolve when the navigation is complete
     function navigateTo(path = "" as String, options = {} as Object, context = {} as Object, r = Invalid as Dynamic) as Dynamic
         r = r <> Invalid ? r : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) then
@@ -16,6 +24,8 @@ namespace rokuRouter
         return promises.resolve(true)
     end function
 
+    ' This function walks up the chain of nodes to find the router
+    ' @return - The router if found, otherwise Invalid
     function getRouter() as Dynamic
         currentChain = rokuRouter.utils.getCurrentFocusedChain(m.top.getScene())
         currentChain.reverse()
@@ -31,6 +41,11 @@ namespace rokuRouter
 
     ' This function is used to create a redirect command
     ' Redirect commands are used to redirect the user to a different screen during a guard check
+    ' @since 0.0.1
+    ' @param path - The path to redirect to
+    ' @param routeConfigOverrides - The route config overrides to apply to the new route
+    ' @param context - The context to pass to the router
+    ' @return - A redirect command
     function createRedirectCommand(path = "" as String, routeConfigOverrides = {} as Object, context = {} as Object) as Dynamic
         return {
             command: "RedirectCommand"
@@ -43,6 +58,11 @@ namespace rokuRouter
 end namespace
 
 namespace rokuRouter.utils
+    ' This function is used to get the current focused chain of nodes
+    ' @since 0.0.1
+    ' @param parent - The parent node to start the search from
+    ' @param maxDepth - The maximum depth to search
+    ' @return - The chain of nodes
     function getCurrentFocusedChain(parent = Invalid as Object, maxDepth = 30 as Integer) as Object
         if rodash.isNode(parent) then
             targetNode = parent

@@ -53,13 +53,21 @@ end function
 ' @param {Object} routeConfigOverrides - The route config overrides
 ' @param {Object} context - The context to pass to the route
 ' @returns {Dynamic} - The result of the navigation
-function navigate(path = "" as String, routeConfigOverrides = {} as Object, context = {} as Object) as Dynamic
+function navigate(path = "" as String, options = {}) as Dynamic
+    routeConfigOverrides = rodash.getAA(options, "routeConfigOverrides")
+    navigationState = rodash.getAA(options, "navigationState")
+    context = rodash.getAA(options, "context")
     newRoute = rodash.createNode("Node", findMatchingRoute(path, m.routes))
     newRoute.context = rodash.merge(newRoute.context, context)
 
     if rodash.isNonEmptyAA(routeConfigOverrides) then
         newRouteConfig = rodash.merge(newRoute.routeConfig, routeConfigOverrides)
         newRoute.routeConfig = newRouteConfig
+    end if
+
+    if rodash.isNonEmptyAA(navigationState) then
+        newRouteNavigationState = rodash.merge(newRoute.navigationState, navigationState)
+        newRoute.navigationState = newRouteNavigationState
     end if
 
     'dispatch the event
@@ -124,7 +132,7 @@ function navigate(path = "" as String, routeConfigOverrides = {} as Object, cont
                 end if
             end if
 
-            newRoute.context = rodash.merge(newRoute.context, {
+            newRoute.navigationState = rodash.merge(newRoute.navigationState, {
                 fromPopState: false
                 fromPushState: true
             })
@@ -225,8 +233,8 @@ function runGuardChecks(route as Dynamic) as Dynamic
                             id: route.id
                             route: route
                         })
-                        context = rodash.merge({}, [route.context, rodash.getAA(canActivateResult, "context"), { fromRedirect: true }])
-                        return promises.resolve({ allow: false, redirect: navigate(redirectTo, rodash.getAA(canActivateResult, "routeConfigOverrides"), context) })
+                        options = rodash.merge({}, [route.options, rodash.getAA(canActivateResult, "options"), { navigationState: { fromRedirect: true } }])
+                        return promises.resolve({ allow: false, redirect: navigate(redirectTo, options) })
                     end if
                 else
                     message = { allow: false, message: `Invalid Route Guard on "${route.path}"` }
@@ -265,7 +273,7 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
         if view.route.path = route.path then
             suspendedRootView = view
 
-            route.context = rodash.merge(route.context, {
+            route.navigationState = rodash.merge(route.navigationState, {
                 fromSuspendedRoot: true
             })
             exit for
@@ -367,7 +375,7 @@ function goBack(_ = Invalid as Dynamic) as Dynamic
 
     promises.chain(closeView(views.pop()), views.peek()).then(sub(response as Dynamic, view as Dynamic)
         m.focusRequestMade = m.focusRequestMade OR m.processingGoBack
-        view.route.context = rodash.merge(view.route.context, {
+        view.route.navigationState = rodash.merge(view.route.navigationState, {
             fromSuspendedRoot: false
             fromPopState: true
             fromPushState: false
@@ -488,6 +496,7 @@ function createRouteObject(config = {} as Object) as Object
         path: rodash.getString(config, "path")
         routeConfig: rodash.getAA(config, "routeConfig")
         context: rodash.merge(createBaseContext(), rodash.getAA(config, "context"))
+        navigationState: createBaseNavigationState()
         routeParams: rodash.getAA(config, "routeParams")
         queryParams: rodash.getAA(config, "queryParams")
         hash: rodash.getString(config, "hash")
@@ -517,6 +526,10 @@ end sub
 ' @since 0.0.1
 ' @returns {Object} - The base context object
 function createBaseContext() as Object
+    return {}
+end function
+
+function createBaseNavigationState() as Object
     return {
         fromRedirect: false
         fromSuspendedRoot: false

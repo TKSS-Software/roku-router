@@ -16,10 +16,10 @@ namespace rokuRouter
     ' @param context - The context to pass to the router
     ' @param r - The router to use, if not provided, it will try to find the router in the current chain
     ' @return - A promise that will resolve when the navigation is complete
-    function navigateTo(path = "" as String, options = {} as Object, context = {} as Object, r = Invalid as Dynamic) as Dynamic
+    function navigateTo(path = "" as String, options = {} as Object, r = Invalid as Dynamic) as Dynamic
         r = r <> Invalid ? r : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) then
-            return r@.navigate(path, options, context)
+            return r@.navigate(path, options)
         end if
         return promises.resolve(true)
     end function

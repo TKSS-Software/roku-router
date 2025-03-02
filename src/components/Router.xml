@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component name="Router" extends="Group">
+<component name="Outlet" extends="Group">
     <interface>
         <!-- READ ONLY -->
         <field id="appLaunchComplete" type="boolean" />

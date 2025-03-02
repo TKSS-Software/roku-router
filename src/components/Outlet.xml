@@ -2,6 +2,7 @@
 <component name="Outlet" extends="Group">
     <interface>
         <!-- READ ONLY -->
+        <field id="__isRouterOutlet" type="boolean" value="true" />
         <field id="appLaunchComplete" type="boolean" />
         <field id="routerState" type="assocArray" />
         <!-- END READ ONLY -->

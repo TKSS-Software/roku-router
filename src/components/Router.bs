@@ -2,96 +2,50 @@ import "pkg:/source/roku_modules/promises/promises.brs"
 import "pkg:/source/roku_modules/rodash/rodash.brs"
 import "pkg:/source/router.bs"
 
+' Initialize the routersub init()
 sub init()
-    m.top.focusable = true
-    m.top.observeField("focusedChild", "onFocusChildChanged")
+    m.suspendedRootTarget = m.top.findNode("suspendedRootTarget")
+    m.viewTarget = m.top.findNode("viewTarget")
 
     m.activeView = Invalid
-    m.routes = {}
-    m.guardInstances = {}
-
     m.focusRequestMade = false
+    m.guardInstances = {}
     m.processingGoBack = false
-    m.viewTarget = m.top.findNode("viewTarget")
-    m.suspendedRootTarget = m.top.findNode("suspendedRootTarget")
+    m.routes = {}
 
+    m.top.focusable = true
     m.top.appLaunchComplete = false
+    m.top.observeField("focusedChild", "onFocusChildChanged")
 end sub
 
-sub onFocusChildChanged(event as Object)
-    inFocusChain = event.getData() <> Invalid
+'*************************************************************************
+'#region *** PUBLIC Functions
+'*************************************************************************
 
-    if NOT m.processingGoBack AND m.activeView <> Invalid AND NOT inFocusChain AND m.focusRequestMade <> inFocusChain then
-        m.focusRequestMade = inFocusChain
-        m.activeView@._handleFocus({
-            routerFocused: inFocusChain
-        })
-    end if
-
-    m.focusRequestMade = inFocusChain
-end sub
-
-function setFocus(takeFocus as Boolean) as Boolean
-    ' print source_function_name, takeFocus
-    response = false
-
-    if m.activeView <> Invalid AND takeFocus AND m.focusRequestMade <> takeFocus then
-        response = m.activeView@._handleFocus({
-            routerFocused: true
-        })
-    end if
-
-    m.focusRequestMade = true
-
-    return response
-end function
-
+' Function to add routes to the router' @param {Array} routes - The routes to add
 sub addRoutes(routes = [] as Object)
     for each route in routes
-        m.routes[route.pattern] = route
+        m.routes[route.pattern] = rodash.merge({
+            pattern: ""
+            component: ""
+            allowReuse: false
+            canActivate: []
+            isRoot: false
+            keepRootAlive: false
+            isDialog: false
+        }, route)
     end for
 end sub
 
-' Function to get the routes
+' Function to get the routes' @returns {Array} - The routes
 function getRoutes(_ = Invalid as Dynamic) as Dynamic
     return m.routes
 end function
 
-' Function to navigate back in the router history
-function goBack(_ = Invalid as Dynamic) as Dynamic
-    m.processingGoBack = true
-    views = rodash.getNodeChildren(m.viewTarget)
-    numberOfViews = views.count()
-    if numberOfViews <= 1 then return false
-
-    promises.chain(closeView(views.pop()), views.peek()).then(sub(response as Dynamic, view as Dynamic)
-        m.focusRequestMade = m.focusRequestMade OR m.processingGoBack
-        view.route.context = rodash.merge(view.route.context, {
-            fromSuspendedRoot: false
-            fromPopState: true
-            fromPushState: false
-            fromRedirect: false
-        })
-        showView(view, true)
-    end sub)
-
-    return true
-end function
-
-sub dispatchRouterState(stateType as String, context = {} as Dynamic)
-    update = {
-        type: stateType
-        id: rodash.getString(context, "route.id", context.id)
-        route: rodash.get(context, "route")
-    }
-
-    if stateType = RouterState.GuardResult then
-        update.result = rodash.get(context, "result")
-    end if
-    m.top.routerState = update
-end sub
-
-' Function to navigate to a specific route
+' Function to navigate to a specific route' @param {String} path - The path to navigate to
+' @param {Object} routeConfigOverrides - The route config overrides
+' @param {Object} context - The context to pass to the route
+' @returns {Dynamic} - The result of the navigation
 function navigate(path = "" as String, routeConfigOverrides = {} as Object, context = {} as Object) as Dynamic
     newRoute = rodash.createNode("Node", findMatchingRoute(path, m.routes))
     newRoute.context = rodash.merge(newRoute.context, context)
@@ -122,8 +76,9 @@ function navigate(path = "" as String, routeConfigOverrides = {} as Object, cont
         id = internalContext.newRoute.id
         newRoute = internalContext.newRoute
 
-        if rodash.isNonEmptyAA(newRoute.routeConfig) then
-            if rodash.isEmptyString(rodash.getString(newRoute, "routeConfig.component")) then
+        ' Look for a matched pattern
+        if rodash.isNonEmptyString(newRoute.routeConfig.pattern) then
+            if rodash.isEmptyString(newRoute.routeConfig.component) then
                 return promises.reject({ message: `No component for route "${newRoute.path}"` })
             end if
 
@@ -179,6 +134,34 @@ function navigate(path = "" as String, routeConfigOverrides = {} as Object, cont
     end function).toPromise()
 end function
 
+' A public function to set the focus on the router' @param {Boolean} takeFocus - Whether to take focus or not
+' @returns {Boolean} - Whether the active view handled the focus or not
+function setFocus(takeFocus as Boolean) as Boolean
+    ' print source_function_name, takeFocus
+    response = false
+
+    if m.activeView <> Invalid AND takeFocus AND m.focusRequestMade <> takeFocus then
+        response = m.activeView@._handleFocus({
+            routerFocused: true
+        })
+    end if
+
+    m.focusRequestMade = true
+
+    return response
+end function
+
+'*************************************************************************
+'#endregion *** PUBLIC Functions
+'*************************************************************************
+
+
+'*************************************************************************
+'#region *** PRIVATE Guard Functions
+'*************************************************************************
+
+' Function to run guard checks' @param {Dynamic} route - The route to run the guard checks on
+' @returns {Dynamic} - The result of the guard checks
 function runGuardChecks(route as Dynamic) as Dynamic
     ' Run guard checks
     canActivateGuard = rodash.get(route.routeConfig, "canActivate")
@@ -249,6 +232,18 @@ function runGuardChecks(route as Dynamic) as Dynamic
     return promises.resolve({ allow: true })
 end function
 
+'*************************************************************************
+'#endregion *** PRIVATE Guard Functions
+'*************************************************************************
+
+
+'*************************************************************************
+'#region *** PRIVATE View Stack Management Functions
+'*************************************************************************
+
+' Function to add a view to the view stack' @param {Dynamic} route - The route to add to the view stack
+' @param {Array} closeViews - The views to close
+' @returns {Dynamic} - The result of the view stack management
 function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
     ' Look to see if the root view is suspended
     suspendedRootView = Invalid
@@ -331,146 +326,44 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
     end function).toPromise()
 end function
 
+' Function to close a view' @param {Dynamic} view - The view to close
+' @returns {Dynamic} - The result of the view close
+function closeView(view = Invalid as Dynamic) as Dynamic
+    view.translation = [1000000, 100000]
+    view.visible = false
 
-' Helper function to find a matching route
-function findMatchingRoute(path as String, routes as Object) as RouteObject
-    hash = getHashParam(path)
-
-    if rodash.isNonEmptyString(hash) then
-        path = path.replace("#" + hash, "")
-    end if
-
-    ' Separate the path from the query string
-    pathParts = path.split("?")
-    basePath = normalizePath(pathParts[0])
-    queryString = Invalid
-    if pathParts.count() > 1 then
-        queryString = pathParts[1]
-    end if
-
-    ' Parse the query string if present
-    queryParams = parseQueryString(queryString)
-
-    context = {
-        fromRedirect: false
-        fromSuspendedRoot: false
-        fromPopState: false
-        fromPushState: false
-    }
-
-    ' First check for exact matches (static paths)
-    for each routePath in routes
-        if normalizePath(routePath) = basePath then
-            routeConfig = routes[routePath]
-            ' Backfill routeConfig with default values
-            routeConfig.allowReuse = rodash.getBoolean(routeConfig, "allowReuse")
-            routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
-            routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
-            routeConfig.keepRootAlive = rodash.getBoolean(routeConfig, "keepRootAlive")
-            routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
-
-            return {
-                context: context
-                path: path
-                routeConfig: routeConfig
-                routeParams: {}
-                queryParams: queryParams
-                hash: hash
-                id: CreateObject("roDeviceInfo").GetRandomUUID()
-                router: m.top
-            }
+    return promises.onThen(view@._beforeViewClose({ route: view.route }), function(response as Dynamic, internalContext as Dynamic) as Dynamic
+        if hideView(internalContext.view) then
+            rodash.removeNode(internalContext.view)
         end if
-    end for
 
-    ' Then check parameterized matches
-    for each routePath in routes
-        routeParts = normalizePath(routePath).split("/")
-        pathParts = basePath.split("/")
-
-        matchedParams = {}
-        if routeParts.count() = pathParts.count() then
-            matchedParams = {}
-            isMatch = true
-
-            for i = 0 to routeParts.count() - 1
-                if routeParts[i].left(1) = ":" then
-                    ' This is a parameter
-                    paramName = routeParts[i].mid(1)
-                    matchedParams[paramName] = pathParts[i]
-                else if routeParts[i] <> pathParts[i] then
-                    ' If a static part doesn't match, break
-                    isMatch = false
-                    exit for
-                end if
-            end for
-
-            if isMatch then
-                routeConfig = routes[routePath]
-                ' Backfill routeConfig with default values
-                routeConfig.allowReuse = rodash.getBoolean(routeConfig, "allowReuse")
-                routeConfig.canActivate = rodash.getArray(routeConfig, "canActivate")
-                routeConfig.isRoot = rodash.getBoolean(routeConfig, "isRoot")
-                routeConfig.keepRootAlive = rodash.getBoolean(routeConfig, "keepRootAlive")
-                routeConfig.isDialog = rodash.getBoolean(routeConfig, "isDialog")
-
-                return {
-                    context: context
-                    path: path
-                    routeConfig: routeConfig
-                    routeParams: matchedParams
-                    queryParams: queryParams
-                    hash: hash
-                    id: CreateObject("roDeviceInfo").GetRandomUUID()
-                    router: m.top
-                }
-            end if
-        end if
-    end for
-
-    ' Return Route with empty routeConfig if no match found
-    return {
-        context: context
-        path: path
-        routeConfig: {}
-        routeParams: {}
-        queryParams: queryParams
-        hash: hash
-        id: CreateObject("roDeviceInfo").GetRandomUUID()
-        router: m.top
-    }
+        return true
+    end function, { view: view })
 end function
 
-' Helper function to normalize a path
-function normalizePath(path as String) as String
-    path = path.trim()
-    if path.right(1) = "/" then
-        path = path.left(path.len() - 1)
-    end if
-    if path.left(1) <> "/" then
-        path = "/" + path
-    end if
-    return path
+' Function to navigate back in the router history' @returns {Boolean} - Whether the navigation was successful or not
+function goBack(_ = Invalid as Dynamic) as Dynamic
+    m.processingGoBack = true
+    views = rodash.getNodeChildren(m.viewTarget)
+    numberOfViews = views.count()
+    if numberOfViews <= 1 then return false
+
+    promises.chain(closeView(views.pop()), views.peek()).then(sub(response as Dynamic, view as Dynamic)
+        m.focusRequestMade = m.focusRequestMade OR m.processingGoBack
+        view.route.context = rodash.merge(view.route.context, {
+            fromSuspendedRoot: false
+            fromPopState: true
+            fromPushState: false
+            fromRedirect: false
+        })
+        showView(view, true)
+    end sub)
+
+    return true
 end function
 
-' Helper function to parse a query string into an associative array
-function parseQueryString(queryString as Dynamic) as Object
-    if NOT rodash.isNonEmptyString(queryString) then
-        return {}
-    end if
-
-    queryParams = {}
-    pairs = queryString.split("&")
-    for each pair in pairs
-        keyValue = pair.split("=")
-        if keyValue.count() = 2 then
-            key = keyValue[0]
-            value = keyValue[1]
-            queryParams[key] = value
-        end if
-    end for
-    return queryParams
-end function
-
+' Tells the view to hide and fire the onViewSuspend lifecycle method if onSuspend is true' @param {Object} view - The view to hide
+' @param {Boolean} onSuspend - Whether to fire the onViewSuspend lifecycle method
 function hideView(view as Object, onSuspend = false as Boolean) as Boolean
     success = rodash.isNode(view)
     if success then
@@ -484,7 +377,35 @@ function hideView(view as Object, onSuspend = false as Boolean) as Boolean
     return success
 end function
 
-' Tells the view to open and fire the handleFocus lifecycle method
+' Called when the focus chain of the router changes' @param {Object} event - The event object
+sub onFocusChildChanged(event as Object)
+    inFocusChain = event.getData() <> Invalid
+
+    if NOT m.processingGoBack AND m.activeView <> Invalid AND NOT inFocusChain AND m.focusRequestMade <> inFocusChain then
+        m.focusRequestMade = inFocusChain
+        m.activeView@._handleFocus({
+            routerFocused: inFocusChain
+        })
+    end if
+
+    m.focusRequestMade = inFocusChain
+end sub
+
+' Handles the goBack calls when the "back" key is pressed' @param {String} key - The key that was pressed
+' @param {Boolean} press - Whether the key was pressed or released
+' @returns {Boolean} - Whether the view was hidden or not
+function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
+    if NOT press then return true
+
+    if key = "back" then
+        return goBack()
+    end if
+
+    return false
+end function
+
+' Tells the view to open and fire the handleFocus lifecycle method' @param {Object} view - The view to show
+' @param {Boolean} onResume - Whether the view is being resumed
 function showView(view as Object, onResume = false as Boolean) as Dynamic
     if rodash.isNode(view) then
         view.visible = true
@@ -524,29 +445,131 @@ function showView(view as Object, onResume = false as Boolean) as Dynamic
     return promises.reject({ message: "Invalid view" })
 end function
 
-function closeView(view = Invalid as Dynamic) as Dynamic
-    view.translation = [1000000, 100000]
-    view.visible = false
+'*************************************************************************
+'#endregion *** PRIVATE View Stack Management Functions
+'*************************************************************************
 
-    return promises.onThen(view@._beforeViewClose({ route: view.route }), function(response as Dynamic, internalContext as Dynamic) as Dynamic
-        if hideView(internalContext.view) then
-            rodash.removeNode(internalContext.view)
-        end if
 
-        return true
-    end function, { view: view })
+'*************************************************************************
+'#region *** PRIVATE Helper Functions
+'*************************************************************************
+
+' Helper function to create a route object' @param {Object} config - The configuration object
+' @returns {Dynamic} - The result of the view open
+function createRouteObject(config = {} as Object) as Object
+    return {
+        path: rodash.getString(config, "path")
+        routeConfig: rodash.getAA(config, "routeConfig")
+        context: rodash.merge(createBaseContext(), rodash.getAA(config, "context"))
+        routeParams: rodash.getAA(config, "routeParams")
+        queryParams: rodash.getAA(config, "queryParams")
+        hash: rodash.getString(config, "hash")
+        id: CreateObject("roDeviceInfo").GetRandomUUID()
+        router: m.top
+    }
 end function
 
-function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
-    if NOT press then return true
+' Helper function to dispatch a router state' @param {String} stateType - The type of state to dispatch
+' @param {Object} context - The context to pass to the state
+sub dispatchRouterState(stateType as String, context = {} as Dynamic)
+    update = {
+        type: stateType
+        id: rodash.getString(context, "route.id", context.id)
+        route: rodash.get(context, "route")
+    }
 
-    if key = "back" then
-        return goBack()
+    if stateType = RouterState.GuardResult then
+        update.result = rodash.get(context, "result")
+    end if
+    m.top.routerState = update
+end sub
+
+' Helper function to create a base context object' @returns {Object} - The base context object
+function createBaseContext() as Object
+    return {
+        fromRedirect: false
+        fromSuspendedRoot: false
+        fromPopState: false
+        fromPushState: false
+    }
+end function
+
+' Helper function to find a matching route' @param {String} path - The path to find a matching route for
+' @param {Object} routes - The routes to search
+' @returns {Dynamic} - The matching route
+function findMatchingRoute(path as String, routes as Object) as RouteObject
+    hash = getHashParam(path)
+
+    if rodash.isNonEmptyString(hash) then
+        path = path.replace("#" + hash, "")
     end if
 
-    return false
+    ' Separate the path from the query string
+    pathParts = path.split("?")
+    basePath = normalizePath(pathParts[0])
+    queryString = Invalid
+    if pathParts.count() > 1 then
+        queryString = pathParts[1]
+    end if
+
+    ' Parse the query string if present
+    queryParams = parseQueryString(queryString)
+
+    ' First check for exact matches (static paths)
+    for each routePath in routes
+        if normalizePath(routePath) = basePath then
+            return createRouteObject({
+                path: path
+                routeConfig: routes[routePath]
+                queryParams: queryParams
+                hash: hash
+            })
+        end if
+    end for
+
+    ' Then check parameterized matches
+    for each routePath in routes
+        routeParts = normalizePath(routePath).split("/")
+        pathParts = basePath.split("/")
+
+        matchedParams = {}
+        if routeParts.count() = pathParts.count() then
+            matchedParams = {}
+            isMatch = true
+
+            for i = 0 to routeParts.count() - 1
+                if routeParts[i].left(1) = ":" then
+                    ' This is a parameter
+                    paramName = routeParts[i].mid(1)
+                    matchedParams[paramName] = pathParts[i]
+                else if routeParts[i] <> pathParts[i] then
+                    ' If a static part doesn't match, break
+                    isMatch = false
+                    exit for
+                end if
+            end for
+
+            if isMatch then
+                return createRouteObject({
+                    path: path
+                    routeConfig: routes[routePath]
+                    routeParams: matchedParams
+                    queryParams: queryParams
+                    hash: hash
+                })
+            end if
+        end if
+    end for
+
+    return createRouteObject({
+        path: path
+        queryParams: queryParams
+        hash: hash
+    })
 end function
 
+' Helper Function to get the hash parameter from a URL' @param {String} url - The URL to get the hash parameter from
+' @returns {String} - The hash parameter
 function getHashParam(url as String) as String
     ' Check if the input URL is valid
     if rodash.isEmptyString(url) then
@@ -564,3 +587,48 @@ function getHashParam(url as String) as String
     ' Extract and return the substring after the #
     return url.mid(hashIndex + 1)
 end function
+
+' Helper function to normalize a path' @param {String} path - The path to normalize
+' @returns {String} - The normalized path
+function normalizePath(path as String) as String
+    path = path.trim()
+    if path.right(1) = "/" then
+        path = path.left(path.len() - 1)
+    end if
+    if path.left(1) <> "/" then
+        path = "/" + path
+    end if
+    return path
+end function
+
+' Helper function to parse a query string into an associative array' @param {Dynamic} queryString - The query string to parse
+' @returns {Object} - The parsed query string
+function parseQueryString(queryString as Dynamic) as Object
+    if NOT rodash.isNonEmptyString(queryString) then
+        return {}
+    end if
+
+    queryParams = {}
+    pairs = queryString.split("&")
+    for each pair in pairs
+        keyValue = pair.split("=")
+        if keyValue.count() = 2 then
+            key = keyValue[0]
+            value = keyValue[1]
+            queryParams[key] = value
+        end if
+    end for
+    return queryParams
+end function
+
+'*************************************************************************
+'#endregion *** PRIVATE Helper Functions
+'*************************************************************************
+
+
+
+
+
+
+
+

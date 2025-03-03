@@ -3,7 +3,9 @@
 	"autoImportComponentScript": true,
 	"files": [
 		"source/**/*",
-		"components/**/*"
+		"components/**/*",
+		//exclude all test files files.
+		"!**/*.spec.bs"
 	],
 	"emitDefinitions": true,
 	"createPackage": false,

@@ -10,13 +10,17 @@ const transpileDir = `${__dirname}/../dist/`;
 async function run() {
     //sanize the code (remove namespace prefixes, de-indent some lines, etc)
     sanitizeCode(`${transpileDir}/source/router.brs`);
-    sanitizeCode(`${transpileDir}/source/router.d.bs`);
+    sanitizeCode(`${transpileDir}/source/router.d.bs`, true);
 }
 
 /**
  * Sanize the code (remove namespace prefixes, de-indent some lines, etc)
  */
-function sanitizeCode(filePath: string) {
+function sanitizeCode(filePath: string, optional = false) {
+    if (optional && !fsExtra.pathExistsSync(filePath)) {
+        console.warn('File does not exist:', filePath);
+        return;
+    }
     let code = fsExtra.readFileSync(filePath, 'utf8')
         .toString()
         //remove commented-out import statements

@@ -1,0 +1,56 @@
+import "pkg:/source/router.bs"
+
+namespace tests
+
+    @async
+    @SGNode("Group")
+    @suite("rokuRouter namespace")
+    class rokuRouter extends rooibos.BaseTestSuite
+
+        private router = createObject("roSGNode", "Router")
+
+        protected override function beforeEach()
+            globalAA = getGlobalAA()
+            globalAA.top.appendChild(m.router)
+        end function
+
+        @describe("navigateTo")
+
+        @async()
+        @it("navigates to a known path")
+        function _()
+            print "add routes"
+            'register some routes
+            m.router@.addRoutes([
+                { pattern: "/alpha", component: "View" },
+                { pattern: "/beta", component: "View" },
+            ])
+            print "routes added"
+
+            navigatePromise = rokuRouter.navigateTo("/alpha", { router: m.router })
+
+            'navigate to the first route
+            return promises.chain(navigatePromise, m).then(function(_result, m)
+                print "assert equal"
+                m.assertEqual(m.router.routerState.route.path, "/alpha")
+            end function).catch(function(_error = Invalid)
+                print "error", _error
+            end function).toPromise()
+        end function
+
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        @describe("createRedirectCommand")
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        @it("creates a command")
+        function _()
+            command = rokuRouter.createRedirectCommand("alpha/beta")
+            m.assertEqual(command, {
+                command: "RedirectCommand",
+                path: "alpha/beta",
+                context: {},
+                routeConfigOverrides: {}
+            })
+        end function
+    end class
+end namespace

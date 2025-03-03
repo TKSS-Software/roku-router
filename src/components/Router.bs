@@ -246,7 +246,18 @@ function runGuardChecks(route as Dynamic) as Dynamic
                             id: route.id
                             route: route
                         })
-                        options = rodash.merge({}, [route.options, rodash.getAA(canActivateResult, "options"), { navigationState: { fromRedirect: true } }])
+
+                        ' Options to merge
+                        toMerge = []
+                        if rodash.isNonEmptyAA(route.options) then
+                            toMerge.push(route.options)
+                        end if
+                        if rodash.isNonEmptyAA(canActivateResult.options) then
+                            toMerge.push(canActivateResult.options)
+                        end if
+                        toMerge.push({ navigationState: { fromRedirect: true } })
+
+                        options = rodash.merge({}, toMerge)
                         return promises.resolve({ allow: false, redirect: navigate(redirectTo, options) })
                     end if
                 else

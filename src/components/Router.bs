@@ -2,8 +2,7 @@ import "pkg:/source/roku_modules/promises/promises.brs"
 import "pkg:/source/roku_modules/rodash/rodash.brs"
 import "pkg:/source/router.bs"
 
-' Initialize the router
-' @since 0.0.1
+' Initialize the routersub init()
 sub init()
     m.suspendedRootTarget = m.top.findNode("suspendedRootTarget")
     m.viewTarget = m.top.findNode("viewTarget")
@@ -23,9 +22,7 @@ end sub
 '#region *** PUBLIC Functions
 '*************************************************************************
 
-' Function to add routes to the router
-' @since 0.0.1
-' @param {Array} routes - The routes to add
+' Function to add routes to the router' @param {Array} routes - The routes to add
 sub addRoutes(routes = [] as Object)
     for each route in routes
         m.routes[route.pattern] = rodash.merge({
@@ -40,15 +37,13 @@ sub addRoutes(routes = [] as Object)
     end for
 end sub
 
-' Function to get the routes
-' @since 0.0.1
-' @returns {Array} - The routes
+' Function to get the routes' @returns {Array} - The routes
 function getRoutes(_ = Invalid as Dynamic) as Dynamic
     return m.routes
 end function
 
 ' Function to navigate to a specific route
-' @since 0.0.1
+
 ' @param {String} path - The path to navigate to
 ' @param {Object} options - The route config overrides
 ' @returns {Dynamic} - The result of the navigation
@@ -148,9 +143,7 @@ function navigate(path = "" as String, options = {}) as Dynamic
     end function).toPromise()
 end function
 
-' A public function to set the focus on the router
-' @since 0.0.1
-' @param {Boolean} takeFocus - Whether to take focus or not
+' A public function to set the focus on the router' @param {Boolean} takeFocus - Whether to take focus or not
 ' @returns {Boolean} - Whether the active view handled the focus or not
 function setFocus(takeFocus as Boolean) as Boolean
     ' print source_function_name, takeFocus
@@ -176,9 +169,7 @@ end function
 '#region *** PRIVATE Guard Functions
 '*************************************************************************
 
-' Function to run guard checks
-' @since 0.0.1
-' @param {Dynamic} route - The route to run the guard checks on
+' Function to run guard checks' @param {Dynamic} route - The route to run the guard checks on
 ' @returns {Dynamic} - The result of the guard checks
 function runGuardChecks(route as Dynamic) as Dynamic
     ' Run guard checks
@@ -259,9 +250,7 @@ end function
 '#region *** PRIVATE View Stack Management Functions
 '*************************************************************************
 
-' Function to add a view to the view stack
-' @since 0.0.1
-' @param {Dynamic} route - The route to add to the view stack
+' Function to add a view to the view stack' @param {Dynamic} route - The route to add to the view stack
 ' @param {Array} closeViews - The views to close
 ' @returns {Dynamic} - The result of the view stack management
 function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
@@ -346,9 +335,7 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
     end function).toPromise()
 end function
 
-' Function to close a view
-' @since 0.0.1
-' @param {Dynamic} view - The view to close
+' Function to close a view' @param {Dynamic} view - The view to close
 ' @returns {Dynamic} - The result of the view close
 function closeView(view = Invalid as Dynamic) as Dynamic
     view.translation = [1000000, 100000]
@@ -363,9 +350,7 @@ function closeView(view = Invalid as Dynamic) as Dynamic
     end function, { view: view })
 end function
 
-' Function to navigate back in the router history
-' @since 0.0.1
-' @returns {Boolean} - Whether the navigation was successful or not
+' Function to navigate back in the router history' @returns {Boolean} - Whether the navigation was successful or not
 function goBack(_ = Invalid as Dynamic) as Dynamic
     m.processingGoBack = true
     views = rodash.getNodeChildren(m.viewTarget)
@@ -386,9 +371,7 @@ function goBack(_ = Invalid as Dynamic) as Dynamic
     return true
 end function
 
-' Tells the view to hide and fire the onViewSuspend lifecycle method if onSuspend is true
-' @since 0.0.1
-' @param {Object} view - The view to hide
+' Tells the view to hide and fire the onViewSuspend lifecycle method if onSuspend is true' @param {Object} view - The view to hide
 ' @param {Boolean} onSuspend - Whether to fire the onViewSuspend lifecycle method
 function hideView(view as Object, onSuspend = false as Boolean) as Boolean
     success = rodash.isNode(view)
@@ -403,9 +386,7 @@ function hideView(view as Object, onSuspend = false as Boolean) as Boolean
     return success
 end function
 
-' Called when the focus chain of the router changes
-' @since 0.0.1
-' @param {Object} event - The event object
+' Called when the focus chain of the router changes' @param {Object} event - The event object
 sub onFocusChildChanged(event as Object)
     inFocusChain = event.getData() <> Invalid
 
@@ -419,9 +400,7 @@ sub onFocusChildChanged(event as Object)
     m.focusRequestMade = inFocusChain
 end sub
 
-' Handles the goBack calls when the "back" key is pressed
-' @since 0.0.1
-' @param {String} key - The key that was pressed
+' Handles the goBack calls when the "back" key is pressed' @param {String} key - The key that was pressed
 ' @param {Boolean} press - Whether the key was pressed or released
 ' @returns {Boolean} - Whether the view was hidden or not
 function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
@@ -434,9 +413,7 @@ function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
     return false
 end function
 
-' Tells the view to open and fire the handleFocus lifecycle method
-' @since 0.0.1
-' @param {Object} view - The view to show
+' Tells the view to open and fire the handleFocus lifecycle method' @param {Object} view - The view to show
 ' @param {Boolean} onResume - Whether the view is being resumed
 function showView(view as Object, onResume = false as Boolean) as Dynamic
     if rodash.isNode(view) then
@@ -486,9 +463,7 @@ end function
 '#region *** PRIVATE Helper Functions
 '*************************************************************************
 
-' Helper function to create a route object
-' @since 0.0.1
-' @param {Object} config - The configuration object
+' Helper function to create a route object' @param {Object} config - The configuration object
 ' @returns {Dynamic} - The result of the view open
 function createRouteObject(config = {} as Object) as Object
     return {
@@ -504,9 +479,7 @@ function createRouteObject(config = {} as Object) as Object
     }
 end function
 
-' Helper function to dispatch a router state
-' @since 0.0.1
-' @param {String} stateType - The type of state to dispatch
+' Helper function to dispatch a router state' @param {String} stateType - The type of state to dispatch
 ' @param {Object} context - The context to pass to the state
 sub dispatchRouterState(stateType as String, context = {} as Dynamic)
     update = {
@@ -521,9 +494,7 @@ sub dispatchRouterState(stateType as String, context = {} as Dynamic)
     m.top.routerState = update
 end sub
 
-' Helper function to create a base context object
-' @since 0.0.1
-' @returns {Object} - The base context object
+' Helper function to create a base context object' @returns {Object} - The base context object
 function createBaseContext() as Object
     return {}
 end function
@@ -537,9 +508,7 @@ function createBaseNavigationState() as Object
     }
 end function
 
-' Helper function to find a matching route
-' @since 0.0.1
-' @param {String} path - The path to find a matching route for
+' Helper function to find a matching route' @param {String} path - The path to find a matching route for
 ' @param {Object} routes - The routes to search
 ' @returns {Dynamic} - The matching route
 function findMatchingRoute(path as String, routes as Object) as RouteObject
@@ -613,9 +582,7 @@ function findMatchingRoute(path as String, routes as Object) as RouteObject
     })
 end function
 
-' Helper Function to get the hash parameter from a URL
-' @since 0.0.1
-' @param {String} url - The URL to get the hash parameter from
+' Helper Function to get the hash parameter from a URL' @param {String} url - The URL to get the hash parameter from
 ' @returns {String} - The hash parameter
 function getHashParam(url as String) as String
     ' Check if the input URL is valid
@@ -635,9 +602,7 @@ function getHashParam(url as String) as String
     return url.mid(hashIndex + 1)
 end function
 
-' Helper function to normalize a path
-' @since 0.0.1
-' @param {String} path - The path to normalize
+' Helper function to normalize a path' @param {String} path - The path to normalize
 ' @returns {String} - The normalized path
 function normalizePath(path as String) as String
     path = path.trim()
@@ -650,9 +615,7 @@ function normalizePath(path as String) as String
     return path
 end function
 
-' Helper function to parse a query string into an associative array
-' @since 0.0.1
-' @param {Dynamic} queryString - The query string to parse
+' Helper function to parse a query string into an associative array' @param {Dynamic} queryString - The query string to parse
 ' @returns {Object} - The parsed query string
 function parseQueryString(queryString as Dynamic) as Object
     if NOT rodash.isNonEmptyString(queryString) then

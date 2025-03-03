@@ -31,7 +31,7 @@ namespace rokuRouter
         currentChain.reverse()
 
         for each node in currentChain
-            if rodash.isNode(node, "Router") then
+            if rodash.isNode(node) AND node.hasField("__isRouter") then
                 return node
             end if
         end for

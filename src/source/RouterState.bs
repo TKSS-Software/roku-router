@@ -5,5 +5,4 @@ enum RouterState
     NavigationError = "NavigationError"
     GuardsCheckStart = "GuardsCheckStart"
     GuardsCheckEnd = "GuardsCheckEnd"
-    GuardResult = "GuardsResult"
 end enum

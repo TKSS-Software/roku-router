@@ -193,13 +193,6 @@ function runGuardChecks(route as Dynamic) as Dynamic
 
             if guardNode <> Invalid then
                 canActivateResult = guardNode@.canActivate(route)
-                ' print "canActivateResult", canActivateResult
-                dispatchRouterState(RouterState.GuardResult, {
-                    id: route.id
-                    route: route
-                    type: "canActivate"
-                    result: canActivateResult
-                })
 
                 if rodash.isBoolean(canActivateResult) then
                     canActivate = canActivateResult
@@ -488,9 +481,6 @@ sub dispatchRouterState(stateType as String, context = {} as Dynamic)
         route: rodash.get(context, "route")
     }
 
-    if stateType = RouterState.GuardResult then
-        update.result = rodash.get(context, "result")
-    end if
     m.top.routerState = update
 end sub
 

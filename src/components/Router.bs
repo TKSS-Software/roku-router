@@ -133,10 +133,22 @@ function navigate(path = "" as String, options = {}) as Dynamic
                 end if
 
                 if reuse then
+                    dispatchRouterState(RouterState.ResolveStart, {
+                        id: id
+                        route: newRoute
+                    })
                     m.activeView.route = newRoute
                     m.activeView@._onRouteUpdate({
                         oldRoute: oldRoute
                         newRoute: newRoute
+                    })
+                    dispatchRouterState(RouterState.ResolveEnd, {
+                        id: id
+                        route: newRoute
+                    })
+                    dispatchRouterState(RouterState.ActivationEnd, {
+                        id: id
+                        route: newRoute
                     })
                     dispatchRouterState(RouterState.NavigationEnd, {
                         id: id

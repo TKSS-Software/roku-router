@@ -18,14 +18,13 @@ namespace tests
 
         @it("tests adding and getting routes")
         function _()
-            print "add routes"
             'register some routes
             m.router@.addRoutes([
                 { pattern: "/alpha", component: "View" },
                 { pattern: "/beta", component: "View" },
             ])
-            print "routes added"
-            expected = {
+
+            m.assertEqual(m.router@.getRoutes(), {
                 "/alpha": {
                     "allowreuse": false
                     "canactivate": []
@@ -44,9 +43,7 @@ namespace tests
                     "keeprootalive": false
                     "pattern": "/beta"
                 }
-            }
-
-            m.assertEqual(m.router@.getRoutes(), expected)
+            })
         end function
 
         @describe("navigateTo")
@@ -60,13 +57,11 @@ namespace tests
                 { pattern: "/alpha", component: "View" },
                 { pattern: "/beta", component: "View" },
             ])
-            print "routes added"
 
             navigatePromise = rokuRouter.navigateTo("/alpha", { router: m.router })
 
             'navigate to the first route
             return promises.chain(navigatePromise, m).then(function(_result, m)
-                print "assert equal"
                 m.assertEqual(m.router.routerState.route.path, "/alpha")
             end function).catch(function(_error = Invalid)
                 print "error", _error

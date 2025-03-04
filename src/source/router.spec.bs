@@ -14,6 +14,41 @@ namespace tests
             globalAA.top.appendChild(m.router)
         end function
 
+        @describe("addRoutes")
+
+        @it("tests adding and getting routes")
+        function _()
+            print "add routes"
+            'register some routes
+            m.router@.addRoutes([
+                { pattern: "/alpha", component: "View" },
+                { pattern: "/beta", component: "View" },
+            ])
+            print "routes added"
+            expected = {
+                "/alpha": {
+                    "allowreuse": false
+                    "canactivate": []
+                    "component": "View"
+                    "isdialog": false
+                    "isroot": false
+                    "keeprootalive": false
+                    "pattern": "/alpha"
+                },
+                "/beta": {
+                    "allowreuse": false
+                    "canactivate": []
+                    "component": "View"
+                    "isdialog": false
+                    "isroot": false
+                    "keeprootalive": false
+                    "pattern": "/beta"
+                }
+            }
+
+            m.assertEqual(m.router@.getRoutes(), expected)
+        end function
+
         @describe("navigateTo")
 
         @async()

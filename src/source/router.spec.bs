@@ -1,5 +1,11 @@
 import "pkg:/source/router.bs"
 
+function onRouterStateChanged(event as Object)
+    data = event.getData()
+    globalAA = getGlobalAA()
+    globalAA.routerStatesHistory.push(data.type)
+end function
+
 namespace tests
 
     @async
@@ -11,11 +17,14 @@ namespace tests
 
         protected override function beforeEach()
             globalAA = getGlobalAA()
+            globalAA.routerStatesHistory = []
             globalAA.top.appendChild(m.router)
+            m.router.unobserveField("routerState")
         end function
 
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         @describe("addRoutes")
-
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         @it("tests adding and getting routes")
         function _()
             'register some routes
@@ -46,12 +55,15 @@ namespace tests
             })
         end function
 
-        @describe("navigateTo")
 
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        @describe("navigateTo")
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         @async()
         @it("navigates to a known path")
         function _()
-            print "add routes"
+            m.router.observeField("routerState", "onRouterStateChanged")
+
             'register some routes
             m.router@.addRoutes([
                 { pattern: "/alpha", component: "View" },
@@ -62,16 +74,75 @@ namespace tests
 
             'navigate to the first route
             return promises.chain(navigatePromise, m).then(function(_result, m)
-                m.assertEqual(m.router.routerState.route.path, "/alpha")
+                m.assertEqual(m.router.routerState.url, "/alpha")
             end function).catch(function(_error = Invalid)
                 print "error", _error
+            end function).finally(function(m = Invalid)
+                m.assertEqual(getGlobalAA().routerStatesHistory, [
+                    "NavigationStart"
+                    "RoutesRecognized"
+                    "GuardsCheckStart"
+                    "ActivationStart"
+                    "GuardsCheckEnd"
+                    "ResolveStart"
+                    "ActivationEnd"
+                    "ResolveEnd"
+                    "NavigationEnd"
+                ])
             end function).toPromise()
         end function
+
+        @async()
+        @it("navigates to an unknown path")
+        function _()
+            m.router.observeField("routerState", "onRouterStateChanged")
+
+            'register some routes
+            m.router@.addRoutes([
+                { pattern: "/alpha", component: "View" },
+                { pattern: "/beta", component: "View" },
+            ])
+
+            navigatePromise = rokuRouter.navigateTo("/charlie", { router: m.router })
+
+            'navigate to the first route
+            return promises.chain(navigatePromise, m).finally(function(m = Invalid)
+                m.assertEqual(getGlobalAA().routerStatesHistory, [
+                    "NavigationStart"
+                    "NavigationError"
+                ])
+            end function).toPromise()
+        end function
+
+        @async()
+        @it("Route has no View component")
+        function _()
+            m.router.observeField("routerState", "onRouterStateChanged")
+
+            'register some routes
+            m.router@.addRoutes([
+                { pattern: "/alpha" }
+            ])
+
+            navigatePromise = rokuRouter.navigateTo("/alpha", { router: m.router })
+
+            'navigate to the first route
+            return promises.chain(navigatePromise, m).finally(function(m = Invalid)
+                m.assertEqual(getGlobalAA().routerStatesHistory, [
+                    "NavigationStart"
+                    "RoutesRecognized"
+                    "GuardsCheckStart"
+                    "ActivationStart"
+                    "GuardsCheckEnd"
+                    "NavigationError"
+                ])
+            end function).toPromise()
+        end function
+
 
         '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         @describe("createRedirectCommand")
         '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
         @it("creates a command")
         function _()
             command = rokuRouter.createRedirectCommand("alpha/beta")

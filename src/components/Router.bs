@@ -51,24 +51,51 @@ function navigate(path = "" as String, options = {}) as Dynamic
     routeConfigOverrides = rodash.getAA(options, "routeConfigOverrides")
     navigationState = rodash.getAA(options, "navigationState")
     context = rodash.getAA(options, "context")
-    newRoute = rodash.createNode("Node", findMatchingRoute(path, m.routes))
-    newRoute.context = rodash.merge(newRoute.context, context)
 
+    newRoute = rodash.createNode("Node", findMatchingRoute(path, m.routes))
+
+    ' An event triggered when a navigation starts.
+    dispatchRouterState(RouterState.NavigationStart, {
+        id: newRoute.id
+    })
+
+    if NOT rodash.isNonEmptyString(newRoute.routeConfig.pattern) then
+        message = { message: `Route "${newRoute.path}" not found` }
+
+        ' An event triggered when a navigation error occurs.
+        dispatchRouterState(RouterState.NavigationError, {
+            id: newRoute.id
+            error: message
+            route: newRoute
+        })
+
+        return promises.reject(message)
+    end if
+
+    'An event triggered when routes are recognized.
+    dispatchRouterState(RouterState.RoutesRecognized, {
+        id: newRoute.id
+        route: newRoute
+    })
+
+    ' Merge the context
+    if rodash.isNonEmptyAA(context) then
+        newRouteContext = rodash.merge(newRoute.context, context)
+        newRoute.context = newRouteContext
+    end if
+
+    ' Merge the route config overrides
     if rodash.isNonEmptyAA(routeConfigOverrides) then
         newRouteConfig = rodash.merge(newRoute.routeConfig, routeConfigOverrides)
         newRoute.routeConfig = newRouteConfig
     end if
 
+    ' Merge the navigation state
     if rodash.isNonEmptyAA(navigationState) then
         newRouteNavigationState = rodash.merge(newRoute.navigationState, navigationState)
         newRoute.navigationState = newRouteNavigationState
     end if
 
-    'dispatch the event
-    dispatchRouterState(RouterState.NavigationStart, {
-        id: newRoute.id
-        route: newRoute
-    })
 
     'sleep until next tick, then continue work
     return promises.chain(promises.resolve(Invalid), { newRoute: newRoute }).then(function(_ as Dynamic, internalContext as Dynamic) as Dynamic
@@ -88,7 +115,12 @@ function navigate(path = "" as String, options = {}) as Dynamic
         ' Look for a matched pattern
         if rodash.isNonEmptyString(newRoute.routeConfig.pattern) then
             if rodash.isEmptyString(newRoute.routeConfig.component) then
-                return promises.reject({ message: `No component for route "${newRoute.path}"` })
+                message = { message: `No component for route "${newRoute.path}"` }
+                dispatchRouterState(RouterState.NavigationError, {
+                    id: id
+                    error: message
+                })
+                return promises.reject(message)
             end if
 
             viewsToRemove = []
@@ -106,10 +138,22 @@ function navigate(path = "" as String, options = {}) as Dynamic
                 end if
 
                 if reuse then
+                    dispatchRouterState(RouterState.ResolveStart, {
+                        id: id
+                        route: newRoute
+                    })
                     m.activeView.route = newRoute
                     m.activeView@._onRouteUpdate({
                         oldRoute: oldRoute
                         newRoute: newRoute
+                    })
+                    dispatchRouterState(RouterState.ResolveEnd, {
+                        id: id
+                        route: newRoute
+                    })
+                    dispatchRouterState(RouterState.ActivationEnd, {
+                        id: id
+                        route: newRoute
                     })
                     dispatchRouterState(RouterState.NavigationEnd, {
                         id: id
@@ -134,11 +178,12 @@ function navigate(path = "" as String, options = {}) as Dynamic
             return addViewToStack(newRoute, viewsToRemove)
         end if
 
+        message = { message: `Route "${newRoute.path}" not found` }
         dispatchRouterState(RouterState.NavigationError, {
             id: id
+            error: message
         })
-        message = { message: `Route "${newRoute.path}" not found` }
-        print message
+
         return promises.reject(message)
     end function).toPromise()
 end function
@@ -193,13 +238,6 @@ function runGuardChecks(route as Dynamic) as Dynamic
 
             if guardNode <> Invalid then
                 canActivateResult = guardNode@.canActivate(route)
-                ' print "canActivateResult", canActivateResult
-                dispatchRouterState(RouterState.GuardResult, {
-                    id: route.id
-                    route: route
-                    type: "canActivate"
-                    result: canActivateResult
-                })
 
                 if rodash.isBoolean(canActivateResult) then
                     canActivate = canActivateResult
@@ -215,15 +253,29 @@ function runGuardChecks(route as Dynamic) as Dynamic
                 else if rodash.isNonEmptyAA(canActivateResult) then
                     redirectTo = rodash.getString(canActivateResult, "path")
                     if rodash.isNonEmptyString(redirectTo) then
+                        ' An event triggered at the end of the Guard phase of routing.
                         dispatchRouterState(RouterState.GuardsCheckEnd, {
                             id: route.id
                             route: route
                         })
+
+                        ' An event triggered when a navigation is canceled, directly or indirectly. This can happen for several reasons including when a route guard returns false or initiates a redirect.
                         dispatchRouterState(RouterState.NavigationCancel, {
                             id: route.id
                             route: route
                         })
-                        options = rodash.merge({}, [route.options, rodash.getAA(canActivateResult, "options"), { navigationState: { fromRedirect: true } }])
+
+                        ' Options to merge
+                        toMerge = []
+                        if rodash.isNonEmptyAA(route.options) then
+                            toMerge.push(route.options)
+                        end if
+                        if rodash.isNonEmptyAA(canActivateResult.options) then
+                            toMerge.push(canActivateResult.options)
+                        end if
+                        toMerge.push({ navigationState: { fromRedirect: true } })
+
+                        options = rodash.merge({}, toMerge)
                         return promises.resolve({ allow: false, redirect: navigate(redirectTo, options) })
                     end if
                 else
@@ -234,6 +286,13 @@ function runGuardChecks(route as Dynamic) as Dynamic
         end for
     end if
 
+    ' An event triggered at the start of the activation part of the Resolve phase of routing.
+    dispatchRouterState(RouterState.ActivationStart, {
+        id: route.id
+        route: route
+    })
+
+    ' An event triggered at the end of the Guard phase of routing.
     dispatchRouterState(RouterState.GuardsCheckEnd, {
         id: route.id
         route: route
@@ -254,6 +313,12 @@ end function
 ' @param {Array} closeViews - The views to close
 ' @returns {Dynamic} - The result of the view stack management
 function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
+    ' An event triggered at the start of the Resolve phase of routing.
+    dispatchRouterState(RouterState.ResolveStart, {
+        id: route.id
+        route: route
+    })
+
     ' Look to see if the root view is suspended
     suspendedRootView = Invalid
     for each view in rodash.getNodeChildren(m.suspendedRootTarget)
@@ -315,6 +380,18 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
 
         return promises.all(promisesToResolve)
     end function).then(function(_ as Dynamic, internalContext as Dynamic) as Dynamic
+        'An event triggered at the end of the activation part of the Resolve phase of routing.
+        dispatchRouterState(RouterState.ActivationEnd, {
+            id: internalContext.view.id
+            route: internalContext.view.route
+        })
+
+        ' An event triggered at the end of the Resolve phase of routing.
+        dispatchRouterState(RouterState.ResolveEnd, {
+            id: internalContext.view.id
+            route: internalContext.view.route
+        })
+
         'now that all of the `beforeViewClose` promises have resolved, show the new view
         return showView(internalContext.view, internalContext.fromSuspend)
     end function).then(function(response as Dynamic, internalContext as Dynamic) as Dynamic
@@ -329,6 +406,7 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
                 end if
             end for
         end if
+
         return response
     end function).catch(function(error as Dynamic) as Dynamic
         return promises.reject(error)
@@ -485,14 +563,30 @@ sub dispatchRouterState(stateType as String, context = {} as Dynamic)
     update = {
         type: stateType
         id: rodash.getString(context, "route.id", context.id)
-        route: rodash.get(context, "route")
+        state: {}
     }
 
-    if stateType = RouterState.GuardResult then
-        update.result = rodash.get(context, "result")
+    if rodash.isAA(context.error) then
+        update.error = context.error
     end if
+
+    if rodash.isNode(context.route) then
+        route = context.route
+        update.state = createRouteSnapshot(route)
+        update.url = route.path
+    end if
+
     m.top.routerState = update
 end sub
+
+function createRouteSnapshot(route as Object) as Object
+    return {
+        routeConfig: route.routeConfig
+        queryParams: route.queryParams
+        routeParams: route.routeParams
+        hash: route.hash
+    }
+end function
 
 ' Helper function to create a base context object' @returns {Object} - The base context object
 function createBaseContext() as Object

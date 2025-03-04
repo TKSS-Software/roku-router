@@ -14,14 +14,16 @@
   "scripts": {
     "preversion": "npm run build",
     "build": "npm run compile && ts-node ./scripts/createDist.ts",
+    "build-tests": "npm run compile -- --project tests/bsconfig.json",
     "compile": "npx bsc",
     "docs": "npm run build && jsdoc -c jsdoc.json -d docs -t ./node_modules/better-docs",
-    "build-test-project": "cd test-project && npx bsc",
+    "build-sample-project": "cd test-project && npx bsc",
     "createDataSet": "ts-node ./scripts/createDataSet.ts"
   },
   "author": "TKSS Software",
   "license": "MIT",
   "ropm": {
+    "packagePrefix": "rokuRouter",
     "packageRootDir": "dist",
     "rootDir": "src"
   },
@@ -44,6 +46,7 @@
     "merge-files": "^0.1.2",
     "node-fetch": "^2.7.0",
     "replace-in-files": "^3.0.0",
+    "rooibos-roku": "^5.15.4",
     "ropm": "^0.10.25",
     "ts-node": "^10.9.1",
     "typescript": "^4.8.3"

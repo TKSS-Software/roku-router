@@ -4,10 +4,23 @@
 		{
 			"type": "brightscript",
 			"request": "launch",
-			"name": "Debug Tests",
+			"name": "Debug Sample Project",
 			"stopOnEntry": false,
 			"preLaunchTask": "build-test-project",
 			"rootDir": "${workspaceFolder}/test-project/dist",
+			"injectRdbOnDeviceComponent": true,
+			"enableDebugProtocol": true,
+			"files": [
+				"**/*"
+			]
+		},
+		{
+			"type": "brightscript",
+			"request": "launch",
+			"name": "Debug Tests",
+			"stopOnEntry": false,
+			"preLaunchTask": "build-tests",
+			"rootDir": "${workspaceFolder}/dist",
 			"injectRdbOnDeviceComponent": true,
 			"enableDebugProtocol": true,
 			"files": [

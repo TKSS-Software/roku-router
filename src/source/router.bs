@@ -46,15 +46,38 @@ namespace rokuRouter
         return {}
     end function
 
-    ' This function walks up the chain of nodes to find the router
-    ' @return - The router if found, otherwise Invalid
+    ' Gets the router from the global scope. Creates the router if it does not exist.
+    ' @since 0.0.1
+    ' @return - The router
     function getRouter() as Dynamic
-        currentChain = rokuRouter.utils.getCurrentFocusedChain(m.top.getScene())
-        currentChain.reverse()
+        if m.global.__router = Invalid then
+            m.global.addFields({
+                "__router": rodash.createNode("Router", {
+                    "outlet": searchForOutlet()
+                })
+            })
+        end if
 
-        for each node in currentChain
-            if rodash.isNode(node) AND node.hasField("__isRouter") then
-                return node
+        return m.global.__router
+    end function
+
+    function searchForOutlet(parent = Invalid as Dynamic) as Dynamic
+        if parent = Invalid then
+            parent = m.top
+        end if
+
+        outlet = Invalid
+
+        'Look top level
+        for each node in rodash.getNodeChildren(parent)
+            if rodash.isNode(node) AND node.hasField("__isOutlet") then
+                outlet = node
+            else
+                outlet = searchForOutlet(node)
+            end if
+
+            if outlet <> Invalid then
+                return outlet
             end if
         end for
 

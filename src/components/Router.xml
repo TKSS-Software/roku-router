@@ -5,6 +5,7 @@
         <field id="appLaunchComplete" type="boolean" />
         <field id="routerState" type="assocArray" />
         <field id="__isRouter" type="boolean" value="true" />
+        <field id="outlet" type="node" />
         <!-- END READ ONLY -->
 
         <field id="fireSignalBeacons" type="boolean" /> <!-- TODO: Hook into this -->
@@ -13,8 +14,4 @@
         <function name="navigate" />
         <function name="setFocus" />
     </interface>
-    <children>
-        <Group id="suspendedRootTarget" />
-        <Group id="viewTarget" />
-    </children>
 </component>

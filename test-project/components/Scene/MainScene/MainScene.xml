@@ -6,7 +6,7 @@
 	</interface>
 
 	<children>
-		<Router id="router" />
+		<Outlet />
 
 		<Rectangle id="loadingOverlay" visible="false" color="#000000C0" width="1920" height="1080">
 			<Label id="loadingOverlayText" text="Loading..." color="#FFFFFF" width="1920"

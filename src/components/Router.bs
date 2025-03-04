@@ -4,9 +4,6 @@ import "pkg:/source/router.bs"
 
 ' Initialize the routersub init()
 sub init()
-    m.suspendedRootTarget = m.top.findNode("suspendedRootTarget")
-    m.viewTarget = m.top.findNode("viewTarget")
-
     m.activeView = Invalid
     m.focusRequestMade = false
     m.guardInstances = {}
@@ -16,6 +13,15 @@ sub init()
     m.top.focusable = true
     m.top.appLaunchComplete = false
     m.top.observeField("focusedChild", "onFocusChildChanged")
+    m.top.observeField("outlet", "configureTargets")
+end sub
+
+sub configureTargets(_ = Invalid as Object)
+    if m.top.outlet = Invalid then return
+
+    ' Temp for now
+    m.viewTarget = m.top.outlet.findNode("viewTarget")
+    m.suspendedViewTarget = m.top.outlet.findNode("suspendedViewTarget")
 end sub
 
 '*************************************************************************
@@ -321,7 +327,7 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
 
     ' Look to see if the root view is suspended
     suspendedRootView = Invalid
-    for each view in rodash.getNodeChildren(m.suspendedRootTarget)
+    for each view in rodash.getNodeChildren(m.suspendedViewTarget)
         ' print "view.route.pattern", view.route.path, route.path
         if view.route.path = route.path then
             suspendedRootView = view
@@ -398,8 +404,8 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
         if rodash.isNonEmptyArray(internalContext.closeViews) then
             for each view in internalContext.closeViews
                 if view.route.routeConfig.isRoot AND view.route.routeConfig.keepRootAlive then
-                    if hideView(view) AND view.reparent(m.suspendedRootTarget, true) then
-                        m.suspendedRootTarget.appendChild(view)
+                    if hideView(view) AND view.reparent(m.suspendedViewTarget, true) then
+                        m.suspendedViewTarget.appendChild(view)
                     end if
                 else
                     if hideView(view) then rodash.removeNode(view)

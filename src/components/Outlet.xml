@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="Outlet" extends="Group">
+    <interface>
+        <!-- READ ONLY -->
+        <field id="__isOutlet" type="boolean" value="true" />
+        <!-- END READ ONLY -->
+    </interface>
+    <children>
+        <Group id="suspendedViewTarget" />
+        <Group id="viewTarget" />
+    </children>
+</component>

@@ -110,7 +110,6 @@ namespace tests
 
             'navigate to the first route
             return promises.chain(navigatePromise, m).finally(function(m = Invalid)
-                print "routerStatesHistory", getGlobalAA().routerStatesHistory
                 m.assertEqual(getGlobalAA().routerStatesHistory, [
                     "NavigationStart"
                     "NavigationError"

@@ -161,11 +161,12 @@ function navigate(path = "" as String, options = {}) as Dynamic
             return addViewToStack(newRoute, viewsToRemove)
         end if
 
+        message = { message: `Route "${newRoute.path}" not found` }
         dispatchRouterState(RouterState.NavigationError, {
             id: id
+            error: message
         })
-        message = { message: `Route "${newRoute.path}" not found` }
-        print message
+
         return promises.reject(message)
     end function).toPromise()
 end function
@@ -547,6 +548,10 @@ sub dispatchRouterState(stateType as String, context = {} as Dynamic)
         id: rodash.getString(context, "route.id", context.id)
         state: {}
     }
+
+    if rodash.isAA(context.error) then
+        update.error = context.error
+    end if
 
     if rodash.isNode(context.route) then
         route = context.route

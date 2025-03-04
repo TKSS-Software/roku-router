@@ -115,7 +115,12 @@ function navigate(path = "" as String, options = {}) as Dynamic
         ' Look for a matched pattern
         if rodash.isNonEmptyString(newRoute.routeConfig.pattern) then
             if rodash.isEmptyString(newRoute.routeConfig.component) then
-                return promises.reject({ message: `No component for route "${newRoute.path}"` })
+                message = { message: `No component for route "${newRoute.path}"` }
+                dispatchRouterState(RouterState.NavigationError, {
+                    id: id
+                    error: message
+                })
+                return promises.reject(message)
             end if
 
             viewsToRemove = []

@@ -92,9 +92,6 @@ namespace tests
             end function).toPromise()
         end function
 
-        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        @describe("navigateTo error")
-        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         @async()
         @it("navigates to an unknown path")
         function _()
@@ -112,6 +109,31 @@ namespace tests
             return promises.chain(navigatePromise, m).finally(function(m = Invalid)
                 m.assertEqual(getGlobalAA().routerStatesHistory, [
                     "NavigationStart"
+                    "NavigationError"
+                ])
+            end function).toPromise()
+        end function
+
+        @async()
+        @it("Route has no View component")
+        function _()
+            m.router.observeField("routerState", "onRouterStateChanged")
+
+            'register some routes
+            m.router@.addRoutes([
+                { pattern: "/alpha" }
+            ])
+
+            navigatePromise = rokuRouter.navigateTo("/alpha", { router: m.router })
+
+            'navigate to the first route
+            return promises.chain(navigatePromise, m).finally(function(m = Invalid)
+                m.assertEqual(getGlobalAA().routerStatesHistory, [
+                    "NavigationStart"
+                    "RoutesRecognized"
+                    "GuardsCheckStart"
+                    "ActivationStart"
+                    "GuardsCheckEnd"
                     "NavigationError"
                 ])
             end function).toPromise()

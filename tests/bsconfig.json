@@ -1,0 +1,32 @@
+{
+	"rootDir": "../src",
+	"autoImportComponentScript": true,
+	"files": [
+		"**/*"
+	],
+	"plugins": [
+		"rooibos-roku"
+	],
+	"emitDefinitions": false,
+	"createPackage": false,
+	"stagingDir": "../dist",
+	"sourceMap": true,
+	"rooibos": {
+		"isRecordingCodeCoverage": false,
+		"colorizeOutput": true,
+		"testsFilePattern": null,
+		"tags": [
+			"!integration",
+			"!deprecated",
+			"!fixme"
+		],
+		"showOnlyFailures": true,
+		"catchCrashes": true,
+		"lineWidth": 70,
+		"failFast": false,
+		"reporters": [
+			"mocha"
+		],
+		"sendHomeOnFinish": false
+	}
+}

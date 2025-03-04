@@ -13,8 +13,7 @@ namespace rokuRouter
     ' @since 0.0.1
     ' @param path - The path to navigate to
     ' @param options - The options to pass to the router
-    ' @param context - The context to pass to the router
-    ' @param r - The router to use, if not provided, it will try to find the router in the current chain
+    ' @param options.router - The router to use, if not provided, it will try to find the router in the current chain
     ' @return - A promise that will resolve when the navigation is complete
     function navigateTo(path = "" as String, options = {} as Object) as Dynamic
         r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
@@ -22,6 +21,29 @@ namespace rokuRouter
             return r@.navigate(path, options)
         end if
         return promises.resolve(true)
+    end function
+
+    ' This function is used to add routes to the router
+    ' @since 0.0.1
+    ' @param routes - The routes to add
+    ' @param options - The options to pass to the router
+    ' @param options.router - The router to use, if not provided, it will try to find the router in the current chain
+    sub addRoutes(routes = [] as Object, options = {} as Object)
+        r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
+        if rodash.isNotInvalid(r) then
+            r@.addRoutes(routes)
+        end if
+    end sub
+
+    ' This function is used to get all routes from the router
+    ' @since 0.0.1
+    ' @return - All routes from the router
+    function getRoutes(options = {} as Object) as Dynamic
+        r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
+        if rodash.isNotInvalid(r) then
+            return r@.getRoutes()
+        end if
+        return {}
     end function
 
     ' This function walks up the chain of nodes to find the router

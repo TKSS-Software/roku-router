@@ -153,5 +153,37 @@ namespace tests
                 routeConfigOverrides: {}
             })
         end function
+
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        @describe("getRoutes")
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        @it("getsRoutes")
+        function _()
+            rokuRouter.addRoutes([
+                { pattern: "/alpha", component: "View" },
+                { pattern: "/beta", component: "View" },
+            ], { router: m.router })
+
+            m.assertEqual(rokuRouter.getRoutes({ router: m.router }), {
+                "/alpha": {
+                    "allowreuse": false
+                    "canactivate": []
+                    "component": "View"
+                    "isdialog": false
+                    "isroot": false
+                    "keeprootalive": false
+                    "pattern": "/alpha"
+                },
+                "/beta": {
+                    "allowreuse": false
+                    "canactivate": []
+                    "component": "View"
+                    "isdialog": false
+                    "isroot": false
+                    "keeprootalive": false
+                    "pattern": "/beta"
+                }
+            })
+        end function
     end class
 end namespace

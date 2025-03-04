@@ -1,5 +1,11 @@
 import "pkg:/source/router.bs"
 
+function onRouterStateChanged(event as Object)
+    data = event.getData()
+    globalAA = getGlobalAA()
+    globalAA.routerStatesHistory.push(data.type)
+end function
+
 namespace tests
 
     @async
@@ -11,7 +17,9 @@ namespace tests
 
         protected override function beforeEach()
             globalAA = getGlobalAA()
+            globalAA.routerStatesHistory = []
             globalAA.top.appendChild(m.router)
+            m.router.unobserveField("routerState")
         end function
 
         '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -54,7 +62,8 @@ namespace tests
         @async()
         @it("navigates to a known path")
         function _()
-            print "add routes"
+            m.router.observeField("routerState", "onRouterStateChanged")
+
             'register some routes
             m.router@.addRoutes([
                 { pattern: "/alpha", component: "View" },
@@ -66,9 +75,20 @@ namespace tests
             'navigate to the first route
             return promises.chain(navigatePromise, m).then(function(_result, m)
                 m.assertEqual(m.router.routerState.url, "/alpha")
-                m.assertEqual(m.router.routerState.type, "NavigationEnd")
             end function).catch(function(_error = Invalid)
                 print "error", _error
+            end function).finally(function(m = Invalid)
+                m.assertEqual(getGlobalAA().routerStatesHistory, [
+                    "NavigationStart"
+                    "RoutesRecognized"
+                    "GuardsCheckStart"
+                    "ActivationStart"
+                    "GuardsCheckEnd"
+                    "ResolveStart"
+                    "ActivationEnd"
+                    "ResolveEnd"
+                    "NavigationEnd"
+                ])
             end function).toPromise()
         end function
 
@@ -78,6 +98,8 @@ namespace tests
         @async()
         @it("navigates to an unknown path")
         function _()
+            m.router.observeField("routerState", "onRouterStateChanged")
+
             'register some routes
             m.router@.addRoutes([
                 { pattern: "/alpha", component: "View" },
@@ -88,7 +110,11 @@ namespace tests
 
             'navigate to the first route
             return promises.chain(navigatePromise, m).finally(function(m = Invalid)
-                m.assertEqual(m.router.routerState.type, "NavigationError")
+                print "routerStatesHistory", getGlobalAA().routerStatesHistory
+                m.assertEqual(getGlobalAA().routerStatesHistory, [
+                    "NavigationStart"
+                    "NavigationError"
+                ])
             end function).toPromise()
         end function
 

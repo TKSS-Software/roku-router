@@ -51,7 +51,6 @@ end sub
 
 sub onRouterStateChanged(event as Object)
     data = event.getData()
-    print "onRouterStateChanged: ", data, data.state
 
     if data.type = "NavigationEnd" then
         m.mainMenu.visible = data.state.routeConfig.isRoot AND m.global.AuthManager.isLoggedIn

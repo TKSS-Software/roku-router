@@ -62,7 +62,8 @@ namespace tests
 
             'navigate to the first route
             return promises.chain(navigatePromise, m).then(function(_result, m)
-                m.assertEqual(m.router.routerState.route.path, "/alpha")
+                print m.router.routerState
+                m.assertEqual(m.router.routerState.url, "/alpha")
             end function).catch(function(_error = Invalid)
                 print "error", _error
             end function).toPromise()

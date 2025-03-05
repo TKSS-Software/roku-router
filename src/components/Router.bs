@@ -48,7 +48,14 @@ function _goBack(_ = Invalid as Dynamic) as Dynamic
     numberOfViews = views.count()
     if numberOfViews <= 1 then return false
 
-    promises.chain(closeView(views.pop()), views.peek()).then(sub(response as Dynamic, view as Dynamic)
+    viewToClose = views.pop()
+    viewToOpen = views.peek()
+
+    ' An event triggered when a navigation starts.
+    dispatchRouterState(RouterState.NavigationStart, {
+        id: viewToOpen.route.id
+    })
+    promises.chain(closeView(viewToClose), viewToOpen).then(sub(response as Dynamic, view as Dynamic)
         m.__router_focusRequestMade = m.__router_focusRequestMade OR m.__router_processingGoBack
         view.route.navigationState = rodash.merge(view.route.navigationState, {
             fromSuspendedRoot: false

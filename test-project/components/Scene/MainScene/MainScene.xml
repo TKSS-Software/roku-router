@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component name="MainScene" extends="Scene">
+<component name="MainScene" extends="Router">
 	<interface>
 		<field id="closeApp" type="boolean" alwaysNotify="true" />
 		<field id="isReadyToStartTests" type="boolean" value="false" />

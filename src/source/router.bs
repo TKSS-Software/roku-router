@@ -23,6 +23,14 @@ namespace rokuRouter
         return promises.resolve(true)
     end function
 
+    function goBack(options = {} as Object) as Dynamic
+        r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
+        if rodash.isNotInvalid(r) then
+            return r@.goBack(Invalid)
+        end if
+        return false
+    end function
+
     ' This function is used to add routes to the router
     ' @since 0.0.1
     ' @param routes - The routes to add
@@ -50,15 +58,11 @@ namespace rokuRouter
     ' @since 0.0.1
     ' @return - The router
     function getRouter() as Dynamic
-        if m.global.__router = Invalid then
-            m.global.addFields({
-                "__router": rodash.createNode("Router", {
-                    "outlet": searchForOutlet()
-                })
-            })
+        if rodash.isNode(m.top) AND m.top.hasField("__isRouter") then
+            return m.top
         end if
 
-        return m.global.__router
+        return m.top.getScene()
     end function
 
     function searchForOutlet(parent = Invalid as Dynamic) as Dynamic

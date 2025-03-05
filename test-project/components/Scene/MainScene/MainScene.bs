@@ -1,6 +1,10 @@
 import "pkg:/source/router.bs"
 
 sub init()
+    'initialize the router
+    rokuRouter.initialize({
+        outlet: m.top.findNode("outlet")
+    })
 
     m.appLaunchComplete = false
     ' Read the sample data from the file. You normally wouldn't want to do this in a real app.

@@ -19,9 +19,23 @@ end sub
 '#region *** PUBLIC Functions
 '*************************************************************************
 
+function _initialize(params = {} as Object) as Dynamic
+    m.__router_outlet = params.outlet
+
+    if m.__router_outlet <> Invalid then
+        m.__router_outlet.unobserveField("focusedChild")
+        m.__router_outlet.observeField("focusedChild", "onFocusChildChanged")
+
+        ' Temp for now
+        m.__router_viewTarget = m.__router_outlet.findNode("viewTarget")
+        m.__router_suspendedViewTarget = m.__router_outlet.findNode("suspendedViewTarget")
+    end if
+
+    return m.top
+end function
+
 ' Function to add routes to the router' @param {Array} routes - The routes to add
 sub _addRoutes(routes = [] as Object)
-    configureTargets()
 
     routeStructure = {
         pattern: ""
@@ -33,6 +47,7 @@ sub _addRoutes(routes = [] as Object)
         isDialog: false
         children: []
     }
+
 
     for each route in routes
         pattern = normalizePath(route.pattern)
@@ -589,18 +604,6 @@ end function
 '#region *** PRIVATE Helper Functions
 '*************************************************************************
 
-' Function to configure the router targets
-sub configureTargets()
-    m.__router_outlet = rokuRouter.searchForOutlet(m.top)
-    if m.__router_outlet <> Invalid then
-        m.__router_outlet.unobserveField("focusedChild")
-        m.__router_outlet.observeField("focusedChild", "onFocusChildChanged")
-
-        ' Temp for now
-        m.__router_viewTarget = m.__router_outlet.findNode("viewTarget")
-        m.__router_suspendedViewTarget = m.__router_outlet.findNode("suspendedViewTarget")
-    end if
-end sub
 
 ' Helper function to create a route object' @param {Object} config - The configuration object
 ' @returns {Dynamic} - The result of the view open

@@ -50,16 +50,17 @@ Routes are typically configured in a routing module using an array of route obje
 	<script type="text/brightscript" uri="pkg:/source/roku_modules/rokurouter/router.brs" />
 	<script type="text/brightscript" uri="MainScene.bs" />
 	<children>
-            <rokurouter_Router>
-                <rokurouter_Outlet />
-            </rokurouter_Router>
-        </children>
+        <rokurouter_Outlet id="myOutlet" />
+    </children>
 </component>
 
 ```
 #### Brighterscript - MainScene.bs
 ```brighterscript
 sub init()
+    ' initialize wherever you main outlet lives
+    rokuRouter.initialize({outlet: m.top.findNode("myOutlet")})
+
     rokuRouter.addRoutes([
         {pattern: "/", component: "WelcomeScreen"},
         {pattern: "/shows", component: "CatalogScreen", root: true},

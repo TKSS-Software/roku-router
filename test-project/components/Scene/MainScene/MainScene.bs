@@ -50,7 +50,8 @@ sub init()
     ])
 
     ' navigate to the first screen
-    rokuRouter.navigateTo("/parent/one")
+    ' rokuRouter.navigateTo("/parent/one")
+    rokuRouter.navigateTo("/")
 
     ' set the focus to the router
     rokuRouter.setFocus({ focus: true })

@@ -3,6 +3,7 @@
     <interface>
         <!-- READ ONLY -->
         <field id="__isOutlet" type="boolean" value="true" />
+        <field id="activeView" type="node" />
         <!-- END READ ONLY -->
     </interface>
     <children>

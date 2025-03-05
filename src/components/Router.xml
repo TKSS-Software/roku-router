@@ -6,6 +6,7 @@
         <field id="__isRouter" type="boolean" value="true" />
         <!-- END READ ONLY -->
 
+        <function name="_initialize" />
         <function name="_addRoutes" />
         <function name="_getRoutes" />
         <function name="_navigateTo" />

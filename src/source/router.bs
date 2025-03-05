@@ -8,6 +8,28 @@ import "RouterState.bs"
 '*** DO NOT USE THIS FILE OUTSIDE OF A VIEW COMPONENT, such as the main scene
 '************************
 namespace rokuRouter
+
+    function initialize(params = {} as Object) as Dynamic
+        routerObject = Invalid
+        if params.router = Invalid then
+            routerObject = createObject("roSGNode", "Router")
+        else
+            routerObject = params.router
+        end if
+
+        if params.outlet = Invalid then
+            params.outlet = rokuRouter.searchForOutlet(m.top.getScene())
+        end if
+
+        ' Validate the outlet
+        if rodash.isNode(routerObject) AND routerObject.hasField("__isRouter") AND rodash.isNode(params.outlet) AND params.outlet.hasField("__isOutlet") then
+            m.top.getScene().addFields({ __router: routerObject })
+            return routerObject@._initialize(params)
+        end if
+
+        return Invalid
+    end function
+
     ' This function is used to navigate to a different screen
     ' It will return a promise that will resolve when the navigation is complete
     ' @since 0.0.1
@@ -57,32 +79,22 @@ namespace rokuRouter
     ' Gets the router from the global scope. Creates the router if it does not exist.
     ' @since 0.0.1
     ' @return - The router
-    function getRouter(parent = Invalid as Dynamic) as Dynamic
-        if parent = Invalid then
-            parent = m.top.getScene()
-        end if
-
-        outlet = Invalid
-
-        'Look top level
-        for each node in rodash.getNodeChildren(parent)
-            if rodash.isNode(node) AND node.hasField("__isRouter") then
-                outlet = node
-            else
-                outlet = searchForOutlet(node)
-            end if
-
-            if outlet <> Invalid then
-                return outlet
-            end if
-        end for
-
-        return Invalid
+    function getRouter() as Dynamic
+        return m.top.getScene().__router
     end function
 
-    function searchForOutlet(parent = Invalid as Dynamic) as Dynamic
+    function searchForOutlet(parent = Invalid as Dynamic, depth = 0 as Integer) as Dynamic
+        ' Stop if too deep
+        if depth > 30 then
+            return Invalid
+        end if
+
         if parent = Invalid then
             parent = m.top
+        end if
+
+        if rodash.isNode(parent) AND parent.hasField("__isOutlet") then
+            return node
         end if
 
         outlet = Invalid
@@ -92,7 +104,7 @@ namespace rokuRouter
             if rodash.isNode(node) AND node.hasField("__isOutlet") then
                 outlet = node
             else
-                outlet = searchForOutlet(node)
+                outlet = searchForOutlet(node, depth + 1)
             end if
 
             if outlet <> Invalid then

@@ -23,16 +23,36 @@ end sub
 sub _addRoutes(routes = [] as Object)
     configureTargets()
 
+    routeStructure = {
+        pattern: ""
+        component: ""
+        allowReuse: false
+        canActivate: []
+        isRoot: false
+        keepRootAlive: false
+        isDialog: false
+        children: []
+    }
+
     for each route in routes
-        m.__router_routes[route.pattern] = rodash.merge({
-            pattern: ""
-            component: ""
-            allowReuse: false
-            canActivate: []
-            isRoot: false
-            keepRootAlive: false
-            isDialog: false
-        }, route)
+        pattern = normalizePath(route.pattern)
+        m.__router_routes[pattern] = rodash.merge({}, [routeStructure, route, {
+                pattern: normalizePath(pattern)
+        }])
+
+        if rodash.isNonEmptyArray(route.children) then
+            children = []
+            for each child in route.children
+                childPattern = pattern + normalizePath(child.pattern)
+                m.__router_routes[childPattern] = rodash.merge({}, [routeStructure, child, {
+                        pattern: childPattern
+                        parent: route.pattern
+                        children: [] ' Currently, we don't support children of children
+                }])
+                children.push(childPattern)
+            end for
+            route.children = children
+        end if
     end for
 end sub
 
@@ -376,7 +396,31 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
         view.route = route
         toResolve = promises.resolve(Invalid)
     else
-        componentName = rodash.getString(route, "routeConfig.component")
+        parent = route.routeConfig.parent
+        componentSource = route
+
+        if rodash.isNonEmptyString(parent) then
+            parentRoute = findMatchingRoute(parent, m.__router_routes)
+
+            if parentRoute = Invalid then
+                return promises.reject({ message: `Parent route "${parent}" not found` })
+
+                error = { message: `Parent route "${parent}" not found` }
+                dispatchRouterState(RouterState.NavigationError, {
+                    id: route.id
+                    error: error
+                    route: route
+                })
+                return promises.reject(error)
+            else
+                componentSource = parentRoute
+            end if
+
+
+        end if
+
+        componentName = rodash.getString(componentSource, "routeConfig.component")
+
 
         ' Create the view and hide it to prevent using texture memory until it is ready to be shown
         view = rodash.createNode(componentName, {

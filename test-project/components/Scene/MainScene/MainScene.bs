@@ -6,9 +6,6 @@ sub init()
     ' Read the sample data from the file. You normally wouldn't want to do this in a real app.
     m.global.update(ParseJSON(ReadAsciiFile("pkg:/assets/sampleData.json")), true)
 
-    ' create a reference to the router
-    m.router = rokuRouter.getRouter()
-
     ' create a reference to the main menu
     m.mainMenu = m.top.findNode("mainMenu")
 
@@ -32,10 +29,10 @@ sub init()
     m.mainMenu@.initialize()
 
     ' observe the routerState field on the router
-    m.router.observeField("routerState", "onRouterStateChanged")
+    rokuRouter.getRouter().observeField("routerState", "onRouterStateChanged")
 
     ' add the routes to the router
-    m.router@.addRoutes([
+    rokuRouter.addRoutes([
         { pattern: "/", component: "WelcomeScreen", isRoot: true },
         { pattern: "/shows", component: "CatalogScreen", isRoot: true, canActivate: [m.global.AuthManager] },
         { pattern: "/movies", component: "CatalogScreen", isRoot: true, keepRootAlive: true, canActivate: [m.global.AuthManager] },
@@ -48,7 +45,7 @@ sub init()
     rokuRouter.navigateTo("/#firstLoad=true")
 
     ' set the focus to the router
-    m.router@.setFocus(true)
+    rokuRouter.setFocus({ focus: true })
 end sub
 
 ' This function is called when the isLoggedIn field on the AuthManager changes

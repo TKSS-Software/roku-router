@@ -103,6 +103,14 @@ namespace rokuRouter
         return Invalid
     end function
 
+    function setFocus(options = {} as Object) as Boolean
+        r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
+        if rodash.isNotInvalid(r) AND rodash.isBoolean(options.focus) then
+            return r@._setFocus(options.focus)
+        end if
+        return false
+    end function
+
     ' This function is used to create a redirect command
     ' Redirect commands are used to redirect the user to a different screen during a guard check
     ' @since 0.0.1

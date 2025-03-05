@@ -16,7 +16,6 @@ end sub
 
 sub configureTargets()
     m.outlet = rokuRouter.searchForOutlet(m.top)
-    print "m.outlet", m.outlet
     if m.outlet <> Invalid then
         m.outlet.unobserveField("focusedChild")
         m.outlet.observeField("focusedChild", "onFocusChildChanged")
@@ -443,7 +442,6 @@ end function
 function goBack(_ = Invalid as Dynamic) as Dynamic
     m.processingGoBack = true
     views = rodash.getNodeChildren(m.viewTarget)
-    print source_function_name, views.count(), views
     numberOfViews = views.count()
     if numberOfViews <= 1 then return false
 
@@ -479,7 +477,6 @@ end function
 ' Called when the focus chain of the router changes' @param {Object} event - The event object
 sub onFocusChildChanged(event as Object)
     inFocusChain = event.getData() <> Invalid
-    print source_function_name, inFocusChain, m.activeView, m.focusRequestMade
 
     if NOT m.processingGoBack AND m.activeView <> Invalid AND NOT inFocusChain AND m.focusRequestMade <> inFocusChain then
         m.focusRequestMade = inFocusChain

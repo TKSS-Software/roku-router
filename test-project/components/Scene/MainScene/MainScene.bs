@@ -1,12 +1,20 @@
 import "pkg:/source/router.bs"
 
 sub init()
+    ' Read the sample data from the file. You normally wouldn't want to do this in a real app.
+    m.global.update(ParseJSON(ReadAsciiFile("pkg:/assets/sampleData.json")), true)
+
+    ' create a reference to the router, in this case, the router is mapped to m.top
     m.router = rokuRouter.getRouter()
 
-    m.loadingOverlay = m.top.findNode("loadingOverlay")
-    m.loadingOverlayText = m.loadingOverlay.findNode("loadingOverlayText")
+    ' create a reference to the main menu
     m.mainMenu = m.top.findNode("mainMenu")
 
+    ' create a reference to the loading overlay
+    m.loadingOverlay = m.top.findNode("loadingOverlay")
+    m.loadingOverlayText = m.loadingOverlay.findNode("loadingOverlayText")
+
+    ' set the background color
     m.top.backgroundColor = "#000000"
     m.top.backgroundUri = ""
 
@@ -14,12 +22,17 @@ sub init()
         "AuthManager": createObject("roSGNode", "AuthManager")
     })
 
+    ' observe the isLoggedIn field on the AuthManager
     m.global.AuthManager.observeField("isLoggedIn", "onAuthManagerIsLoggedInChanged")
 
+    ' initialize the main menu
     m.mainMenu.router = m.router
     m.mainMenu@.initialize()
 
+    ' observe the routerState field on the router
     m.router.observeField("routerState", "onRouterStateChanged")
+
+    ' add the routes to the router
     m.router@.addRoutes([
         { pattern: "/", component: "WelcomeScreen", isRoot: true },
         { pattern: "/shows", component: "CatalogScreen", isRoot: true, canActivate: [m.global.AuthManager] },
@@ -29,15 +42,16 @@ sub init()
         { pattern: "/:screenName", component: "DefaultScreen" }
     ])
 
-    ' Read the sample data from the file. You normally wouldn't want to do this in a real app.
-    m.global.update(ParseJSON(ReadAsciiFile("pkg:/assets/sampleData.json")), true)
+    ' navigate to the first screen
     rokuRouter.navigateTo("/#firstLoad=true", {
         router: m.router
     })
 
+    ' set the focus to the router
     m.router@.setFocus(true)
 end sub
 
+' This function is called when the isLoggedIn field on the AuthManager changes
 sub onAuthManagerIsLoggedInChanged(event as Object)
     if event.getData() then
         rokuRouter.navigateTo("/shows", {
@@ -50,8 +64,11 @@ sub onAuthManagerIsLoggedInChanged(event as Object)
     end if
 end sub
 
+' This function is called when the routerState field on the router changes
 sub onRouterStateChanged(event as Object)
     data = event.getData()
+
+    ' Some logging to show the router state
     print `onRouterStateChanged: ${data.id} ${data.type}`
 
     if data.type = "NavigationEnd" then
@@ -64,6 +81,7 @@ sub onRouterStateChanged(event as Object)
     end if
 end sub
 
+' Handles the key events
 function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
     if press then
         if key = "back" OR key = "left" then

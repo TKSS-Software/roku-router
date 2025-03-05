@@ -12,12 +12,17 @@ namespace tests
     @SGNode("Group")
     @suite("rokuRouter namespace")
     class rokuRouter extends rooibos.BaseTestSuite
-
         private router = createObject("roSGNode", "Router")
+        private outlet = createObject("roSGNode", "Outlet")
 
         protected override function beforeEach()
             globalAA = getGlobalAA()
             globalAA.routerStatesHistory = []
+
+            children = m.router.getChildren(-1, 0)
+            m.router.removeChildren(children)
+
+            m.router.appendChild(m.outlet)
             globalAA.top.appendChild(m.router)
             m.router.unobserveField("routerState")
         end function

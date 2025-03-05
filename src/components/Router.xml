@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component name="Router" extends="Scene">
+<component name="Router" extends="Group">
     <interface>
         <!-- READ ONLY -->
-        <field id="appLaunchComplete" type="boolean" />
         <field id="routerState" type="assocArray" />
         <field id="__isRouter" type="boolean" value="true" />
         <!-- END READ ONLY -->
 
-        <field id="fireSignalBeacons" type="boolean" /> <!-- TODO: Hook into this -->
         <function name="addRoutes" />
         <function name="getRoutes" />
         <function name="navigate" />

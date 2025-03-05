@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component name="MainScene" extends="Router">
+<component name="MainScene" extends="Scene">
 	<interface>
 		<field id="closeApp" type="boolean" alwaysNotify="true" />
 		<field id="isReadyToStartTests" type="boolean" value="false" />
 	</interface>
 
 	<children>
-		<Outlet />
+		<Router>
+			<Outlet />
+		</Router>
 
 		<Rectangle id="loadingOverlay" visible="false" color="#000000C0" width="1920" height="1080">
 			<Label id="loadingOverlayText" text="Loading..." color="#FFFFFF" width="1920"

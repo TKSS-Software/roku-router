@@ -1,10 +1,12 @@
 import "pkg:/source/router.bs"
 
 sub init()
+
+    m.appLaunchComplete = false
     ' Read the sample data from the file. You normally wouldn't want to do this in a real app.
     m.global.update(ParseJSON(ReadAsciiFile("pkg:/assets/sampleData.json")), true)
 
-    ' create a reference to the router, in this case, the router is mapped to m.top
+    ' create a reference to the router
     m.router = rokuRouter.getRouter()
 
     ' create a reference to the main menu
@@ -43,9 +45,7 @@ sub init()
     ])
 
     ' navigate to the first screen
-    rokuRouter.navigateTo("/#firstLoad=true", {
-        router: m.router
-    })
+    rokuRouter.navigateTo("/#firstLoad=true")
 
     ' set the focus to the router
     m.router@.setFocus(true)
@@ -54,13 +54,9 @@ end sub
 ' This function is called when the isLoggedIn field on the AuthManager changes
 sub onAuthManagerIsLoggedInChanged(event as Object)
     if event.getData() then
-        rokuRouter.navigateTo("/shows", {
-            router: m.router
-        })
+        rokuRouter.navigateTo("/shows")
     else
-        rokuRouter.navigateTo("/", {
-            router: m.router
-        })
+        rokuRouter.navigateTo("/")
     end if
 end sub
 
@@ -74,6 +70,13 @@ sub onRouterStateChanged(event as Object)
     if data.type = "NavigationEnd" then
         m.mainMenu.visible = data.state.routeConfig.isRoot AND m.global.AuthManager.isLoggedIn
         m.loadingOverlay.visible = false
+
+        ' signal the beacon that the app has launched
+        if NOT m.appLaunchComplete then
+            m.appLaunchComplete = true
+            m.top.signalBeacon("AppLaunchComplete")
+        end if
+
     else if data.type = "NavigationStart" then
         m.loadingOverlay.visible = true
     else if data.type = "NavigationError" OR data.type = "NavigationCancel" then

@@ -57,12 +57,27 @@ namespace rokuRouter
     ' Gets the router from the global scope. Creates the router if it does not exist.
     ' @since 0.0.1
     ' @return - The router
-    function getRouter() as Dynamic
-        if rodash.isNode(m.top) AND m.top.hasField("__isRouter") then
-            return m.top
+    function getRouter(parent = Invalid as Dynamic) as Dynamic
+        if parent = Invalid then
+            parent = m.top.getScene()
         end if
 
-        return m.top.getScene()
+        outlet = Invalid
+
+        'Look top level
+        for each node in rodash.getNodeChildren(parent)
+            if rodash.isNode(node) AND node.hasField("__isRouter") then
+                outlet = node
+            else
+                outlet = searchForOutlet(node)
+            end if
+
+            if outlet <> Invalid then
+                return outlet
+            end if
+        end for
+
+        return Invalid
     end function
 
     function searchForOutlet(parent = Invalid as Dynamic) as Dynamic

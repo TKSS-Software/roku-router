@@ -1,3 +1,9 @@
 sub init()
 
 end sub
+
+
+function beforeViewOpen(params = Invalid as Dynamic) as Dynamic
+    print "TestChildView beforeViewOpen"
+    return promises.resolve(Invalid)
+end function

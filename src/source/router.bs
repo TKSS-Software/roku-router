@@ -93,10 +93,6 @@ namespace rokuRouter
             parent = m.top
         end if
 
-        if rodash.isNode(parent) AND parent.hasField("__isOutlet") then
-            return node
-        end if
-
         outlet = Invalid
 
         'Look top level

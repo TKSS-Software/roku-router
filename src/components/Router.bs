@@ -36,7 +36,6 @@ end function
 
 ' Function to add routes to the router' @param {Array} routes - The routes to add
 sub _addRoutes(routes = [] as Object)
-
     routeStructure = {
         pattern: ""
         component: ""

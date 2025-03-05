@@ -6,10 +6,10 @@
         <field id="__isRouter" type="boolean" value="true" />
         <!-- END READ ONLY -->
 
-        <function name="addRoutes" />
-        <function name="getRoutes" />
-        <function name="navigate" />
-        <function name="goBack" />
-        <function name="setFocus" />
+        <function name="_addRoutes" />
+        <function name="_getRoutes" />
+        <function name="_navigateTo" />
+        <function name="_goBack" />
+        <function name="_setFocus" />
     </interface>
 </component>

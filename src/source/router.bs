@@ -18,7 +18,7 @@ namespace rokuRouter
     function navigateTo(path = "" as String, options = {} as Object) as Dynamic
         r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) then
-            return r@.navigate(path, options)
+            return r@._navigateTo(path, options)
         end if
         return promises.resolve(true)
     end function
@@ -26,7 +26,7 @@ namespace rokuRouter
     function goBack(options = {} as Object) as Dynamic
         r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) then
-            return r@.goBack(Invalid)
+            return r@._goBack(Invalid)
         end if
         return false
     end function
@@ -39,7 +39,7 @@ namespace rokuRouter
     sub addRoutes(routes = [] as Object, options = {} as Object)
         r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) then
-            r@.addRoutes(routes)
+            r@._addRoutes(routes)
         end if
     end sub
 
@@ -49,7 +49,7 @@ namespace rokuRouter
     function getRoutes(options = {} as Object) as Dynamic
         r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) then
-            return r@.getRoutes()
+            return r@._getRoutes()
         end if
         return {}
     end function

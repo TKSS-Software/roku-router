@@ -20,7 +20,7 @@ end sub
 '*************************************************************************
 
 ' Function to add routes to the router' @param {Array} routes - The routes to add
-sub addRoutes(routes = [] as Object)
+sub _addRoutes(routes = [] as Object)
     configureTargets()
 
     for each route in routes
@@ -37,12 +37,12 @@ sub addRoutes(routes = [] as Object)
 end sub
 
 ' Function to get the routes' @returns {Array} - The routes
-function getRoutes(_ = Invalid as Dynamic) as Dynamic
+function _getRoutes(_ = Invalid as Dynamic) as Dynamic
     return m.__router_routes
 end function
 
 ' Function to navigate back in the router history' @returns {Boolean} - Whether the navigation was successful or not
-function goBack(_ = Invalid as Dynamic) as Dynamic
+function _goBack(_ = Invalid as Dynamic) as Dynamic
     m.__router_processingGoBack = true
     views = rodash.getNodeChildren(m.__router_viewTarget)
     numberOfViews = views.count()
@@ -66,7 +66,7 @@ end function
 ' @param {String} path - The path to navigate to
 ' @param {Object} options - The route config overrides
 ' @returns {Dynamic} - The result of the navigation
-function navigate(path = "" as String, options = {}) as Dynamic
+function _navigateTo(path = "" as String, options = {}) as Dynamic
     routeConfigOverrides = rodash.getAA(options, "routeConfigOverrides")
     navigationState = rodash.getAA(options, "navigationState")
     context = rodash.getAA(options, "context")
@@ -220,7 +220,7 @@ end function
 
 ' A public function to set the focus on the router' @param {Boolean} takeFocus - Whether to take focus or not
 ' @returns {Boolean} - Whether the active view handled the focus or not
-function setFocus(takeFocus as Boolean) as Boolean
+function _setFocus(takeFocus as Boolean) as Boolean
     response = false
 
     if m.__router_activeView <> Invalid AND takeFocus AND m.__router_focusRequestMade <> takeFocus then
@@ -305,7 +305,7 @@ function runGuardChecks(route as Dynamic) as Dynamic
                         toMerge.push({ navigationState: { fromRedirect: true } })
 
                         options = rodash.merge({}, toMerge)
-                        return promises.resolve({ allow: false, redirect: navigate(redirectTo, options) })
+                        return promises.resolve({ allow: false, redirect: _navigateTo(redirectTo, options) })
                     end if
                 else
                     message = { allow: false, message: `Invalid Route Guard on "${route.path}"` }

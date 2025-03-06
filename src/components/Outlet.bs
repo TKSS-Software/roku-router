@@ -12,7 +12,7 @@ function onRouterFocusRequestMade(event as Object)
     m.focusRequestMade = event.getData()
 end function
 
-function _processNavigation(newRoute as Dynamic) as Dynamic
+function _processNavigation(newRoute as Dynamic, childJourney = false as Boolean) as Dynamic
     if NOT m.firstRequestMade then
         m.firstRequestMade = true
 
@@ -26,10 +26,12 @@ function _processNavigation(newRoute as Dynamic) as Dynamic
     if rodash.isNonEmptyString(newRoute.routeConfig.pattern) then
         if rodash.isEmptyString(newRoute.routeConfig.component) then
             message = { message: `No component for route "${newRoute.path}"` }
-            rokuRouter.utils.dispatchRouterState(RouterState.NavigationError, {
-                id: id
-                error: message
-            })
+            if NOT childJourney then
+                rokuRouter.utils.dispatchRouterState(RouterState.NavigationError, {
+                    id: id
+                    error: message
+                })
+            end if
             return promises.reject(message)
         end if
 
@@ -40,7 +42,9 @@ function _processNavigation(newRoute as Dynamic) as Dynamic
             ' Reuse the view and call onRouteUpdate if the path or hash is the same, OR if the routeConfig override allows it
             hasHash = rodash.isNonEmptyString(newRoute.hash)
             isSamePath = rodash.isEqual(newRoute.path, oldRoute.path)
-            reuse = rodash.getBoolean(newRoute.routeConfig, "allowReuse") OR hasHash OR isSamePath
+            hasSameParent = newRoute.routeConfig.parent <> "" AND rodash.isEqual(newRoute.routeConfig.parent, oldRoute.routeConfig.parent)
+            hasSameSyncId = rodash.isEqual(newRoute.syncId, oldRoute.syncId)
+            reuse = rodash.getBoolean(newRoute.routeConfig, "allowReuse") OR hasHash OR isSamePath OR (hasSameParent AND NOT hasSameSyncId)
             if hasHash then
                 if NOT rodash.isEqual(newRoute.routeConfig, oldRoute.routeConfig) then reuse = false
             else
@@ -48,30 +52,34 @@ function _processNavigation(newRoute as Dynamic) as Dynamic
             end if
 
             if reuse then
-                rokuRouter.utils.dispatchRouterState(RouterState.ResolveStart, {
-                    id: id
-                    route: newRoute
-                })
+                if NOT childJourney then
+                    rokuRouter.utils.dispatchRouterState(RouterState.ResolveStart, {
+                        id: id
+                        route: newRoute
+                    })
+                end if
                 m.top.activeView.route = newRoute
                 m.top.activeView@._onRouteUpdate({
                     oldRoute: oldRoute
                     newRoute: newRoute
                 })
-                rokuRouter.utils.dispatchRouterState(RouterState.ResolveEnd, {
-                    id: id
-                    route: newRoute
-                })
-                rokuRouter.utils.dispatchRouterState(RouterState.ActivationEnd, {
-                    id: id
-                    route: newRoute
-                })
-                rokuRouter.utils.dispatchRouterState(RouterState.NavigationEnd, {
-                    id: id
-                    route: newRoute
-                })
+                if NOT childJourney then
+                    rokuRouter.utils.dispatchRouterState(RouterState.ResolveEnd, {
+                        id: id
+                        route: newRoute
+                    })
+                    rokuRouter.utils.dispatchRouterState(RouterState.ActivationEnd, {
+                        id: id
+                        route: newRoute
+                    })
+                    rokuRouter.utils.dispatchRouterState(RouterState.NavigationEnd, {
+                        id: id
+                        route: newRoute
+                    })
+                end if
                 return promises.resolve(m.top.activeView)
             else
-                if newRoute.routeConfig.isRoot then
+                if rodash.getBoolean(newRoute, "routeConfig.isRoot") then
                     for each view in rodash.getNodeChildren(m.viewTarget)
                         ' print "view to remove", view
                         viewsToRemove.push(view)
@@ -85,14 +93,16 @@ function _processNavigation(newRoute as Dynamic) as Dynamic
             fromPushState: true
         })
 
-        return addViewToStack(newRoute, viewsToRemove)
+        return addViewToStack(newRoute, viewsToRemove, childJourney)
     end if
 
     message = { message: `Route "${newRoute.path}" not found` }
-    rokuRouter.utils.dispatchRouterState(RouterState.NavigationError, {
-        id: id
-        error: message
-    })
+    if NOT childJourney then
+        rokuRouter.utils.dispatchRouterState(RouterState.NavigationError, {
+            id: id
+            error: message
+        })
+    end if
 
     return promises.reject(message)
 end function
@@ -100,12 +110,14 @@ end function
 ' Function to add a view to the view stack' @param {Dynamic} route - The route to add to the view stack
 ' @param {Array} closeViews - The views to close
 ' @returns {Dynamic} - The result of the view stack management
-function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
+function addViewToStack(route as Dynamic, closeViews = [] as Object, childJourney = false as Boolean) as Dynamic
     ' An event triggered at the start of the Resolve phase of routing.
-    rokuRouter.utils.dispatchRouterState(RouterState.ResolveStart, {
-        id: route.id
-        route: route
-    })
+    if NOT childJourney then
+        rokuRouter.utils.dispatchRouterState(RouterState.ResolveStart, {
+            id: route.id
+            route: route
+        })
+    end if
 
     ' Look to see if the root view is suspended
     suspendedRootView = Invalid
@@ -126,25 +138,25 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
         view = suspendedRootView
         view.id = route.id
         view.route = route
-        toResolve = promises.resolve(Invalid)
+        toResolve = promises.resolve(true)
     else
         parent = route.routeConfig.parent
         componentSource = route
 
-        if rodash.isNonEmptyString(parent) then
+        if route.parentRendered = false AND rodash.isNonEmptyString(parent) then
             routes = rokuRouter.getRoutes()
-            print routes
             parentRoute = rokuRouter.utils.findMatchingRoute(parent, rokuRouter.getRoutes())
 
             if parentRoute = Invalid then
-                return promises.reject({ message: `Parent route "${parent}" not found` })
-
                 error = { message: `Parent route "${parent}" not found` }
-                rokuRouter.utils.dispatchRouterState(RouterState.NavigationError, {
-                    id: route.id
-                    error: error
-                    route: route
-                })
+                if NOT childJourney then
+                    rokuRouter.utils.dispatchRouterState(RouterState.NavigationError, {
+                        id: route.id
+                        error: error
+                        route: route
+                    })
+                end if
+                print error
                 return promises.reject(error)
             else
                 componentSource = parentRoute
@@ -172,7 +184,7 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
         toResolve = view@._beforeViewOpen({ route: route })
     end if
 
-    return promises.chain(toResolve, { view: view, closeViews: closeViews, fromSuspend: suspendedRootView <> Invalid }).then(function(response as Dynamic, internalContext as Dynamic) as Dynamic
+    return promises.chain(toResolve, { view: view, closeViews: closeViews, fromSuspend: suspendedRootView <> Invalid, childJourney: childJourney }).then(function(response as Dynamic, internalContext as Dynamic) as Dynamic
         view = internalContext.view
         m.viewTarget.appendChild(view)
         view.reparent(m.viewTarget, true) ' in the event the view was previously suspended
@@ -194,17 +206,19 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object) as Dynamic
 
         return promises.all(promisesToResolve)
     end function).then(function(_ as Dynamic, internalContext as Dynamic) as Dynamic
-        'An event triggered at the end of the activation part of the Resolve phase of routing.
-        rokuRouter.utils.dispatchRouterState(RouterState.ActivationEnd, {
-            id: internalContext.view.id
-            route: internalContext.view.route
-        })
+        if NOT internalContext.childJourney then
+            'An event triggered at the end of the activation part of the Resolve phase of routing.
+            rokuRouter.utils.dispatchRouterState(RouterState.ActivationEnd, {
+                id: internalContext.view.id
+                route: internalContext.view.route
+            })
 
-        ' An event triggered at the end of the Resolve phase of routing.
-        rokuRouter.utils.dispatchRouterState(RouterState.ResolveEnd, {
-            id: internalContext.view.id
-            route: internalContext.view.route
-        })
+            ' An event triggered at the end of the Resolve phase of routing.
+            rokuRouter.utils.dispatchRouterState(RouterState.ResolveEnd, {
+                id: internalContext.view.id
+                route: internalContext.view.route
+            })
+        end if
 
         'now that all of the `beforeViewClose` promises have resolved, show the new view
         return showView(internalContext.view, internalContext.fromSuspend)
@@ -275,18 +289,20 @@ function showView(view as Object, onResume = false as Boolean) as Dynamic
             response = view@._onViewOpen(params)
         end if
 
-        return promises.chain(response, { response: response, view: view }).finally(function(context as Dynamic) as Dynamic
-            ' print "View opened", m.focusRequestMade
-            focusSuccess = context.view@._handleFocus({
-                routerFocused: m.focusRequestMade
-            })
+        return promises.chain(response, { response: response, view: view, onResume: onResume }).finally(function(context as Dynamic) as Dynamic
+            if context.onResume OR NOT rokuRouter.getRouter().processingRouteUpdate then
+                ' print "View opened", m.focusRequestMade
+                focusSuccess = context.view@._handleFocus({
+                    routerFocused: m.focusRequestMade
+                })
 
-            ' Return focus to the top node if the view didn't handle focus
-            if m.focusRequestMade AND NOT focusSuccess then
-                m.top.setFocus(true)
+                ' Return focus to the top node if the view didn't handle focus
+                if m.focusRequestMade AND NOT focusSuccess then
+                    print "Error giving focus. Don't do anything"
+                end if
             end if
 
-            m.top.processingGoBack = false
+            rokuRouter.getRouter().processingGoBack = false
             rokuRouter.utils.dispatchRouterState(RouterState.NavigationEnd, {
                 id: context.view.id
                 route: context.view.route
@@ -304,24 +320,55 @@ end function
 
 function _handleFocus(data = {} as Object) as Boolean
     if m.top.activeView = Invalid then return false
-    return m.top.activeView@.handleFocus(data)
+    return m.top.activeView@._handleFocus(data)
 end function
 
-function _goBack(_ = Invalid as Dynamic) as Dynamic
-    m.top.processingGoBack = true
-    views = rodash.getNodeChildren(m.viewTarget)
-    numberOfViews = views.count()
-    if numberOfViews <= 1 then return false
+function _goBack(fromParent = false as Boolean) as Dynamic
+    ' Do not allow goBack if a route is updating.
+    ' Perhaps we should allow this in the future, but for now, it's a bit too complex.
+    if rokuRouter.getRouter().processingRouteUpdate AND NOT fromParent then return true
+    rokuRouter.getRouter().processingGoBack = true
 
-    viewToClose = views.pop()
-    viewToOpen = views.peek()
+    viewToClose = Invalid
+    viewToOpen = Invalid
+    activeView = m.top.activeView
+    childOutlet = activeView.childOutlet
+    if rodash.isNode(childOutlet) then
+        views = rodash.getNodeChildren(childOutlet.findNode("viewTarget"))
+        numberOfViews = views.count()
+
+        if numberOfViews > 1 then
+            viewToClose = views.pop()
+            viewToOpen = views.peek()
+
+            viewToOpen.route.navigationState = rodash.merge(viewToOpen.route.navigationState, {
+                fromSuspendedRoot: false
+                fromPopState: true
+                fromPushState: false
+                fromRedirect: false
+            })
+            activeView@._onRouteUpdate({
+                oldRoute: viewToClose.route
+                newRoute: viewToOpen.route
+            })
+        end if
+    end if
+
+    if viewToOpen = Invalid AND viewToClose = Invalid then
+        views = rodash.getNodeChildren(m.viewTarget)
+        numberOfViews = views.count()
+        if numberOfViews <= 1 then return false
+
+        viewToClose = views.pop()
+        viewToOpen = views.peek()
+    end if
 
     ' An event triggered when a navigation starts.
     rokuRouter.utils.dispatchRouterState(RouterState.NavigationStart, {
         id: viewToOpen.route.id
     })
     promises.chain(closeView(viewToClose), viewToOpen).then(sub(response as Dynamic, view as Dynamic)
-        m.focusRequestMade = m.focusRequestMade OR m.top.processingGoBack
+        m.focusRequestMade = m.focusRequestMade OR rokuRouter.getRouter().processingGoBack
         view.route.navigationState = rodash.merge(view.route.navigationState, {
             fromSuspendedRoot: false
             fromPopState: true

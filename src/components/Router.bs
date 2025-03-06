@@ -23,10 +23,6 @@ function _initialize(params = {} as Object) as Dynamic
     if m.__router_outlet <> Invalid then
         m.__router_outlet.unobserveField("focusedChild")
         m.__router_outlet.observeField("focusedChild", "onFocusChildChanged")
-
-        ' Temp for now
-        m.__router_viewTarget = m.__router_outlet.findNode("viewTarget")
-        m.__router_suspendedViewTarget = m.__router_outlet.findNode("suspendedViewTarget")
     end if
 
     return m.top
@@ -42,7 +38,9 @@ sub _addRoutes(routes = [] as Object)
         isRoot: false
         keepRootAlive: false
         isDialog: false
+        isChild: false
         children: []
+        parent: ""
     }
 
 
@@ -59,6 +57,8 @@ sub _addRoutes(routes = [] as Object)
                 m.__router_routes[childPattern] = rodash.merge({}, [routeStructure, child, {
                         pattern: childPattern
                         parent: route.pattern
+                        isChild: true
+                        isRoot: rodash.get(m.__router_routes[pattern], "isRoot")
                         children: [] ' Currently, we don't support children of children
                 }])
                 children.push(childPattern)
@@ -142,7 +142,7 @@ function _navigateTo(path = "" as String, options = {}) as Dynamic
 
 
     'sleep until next tick, then continue work
-    return promises.chain(promises.resolve(Invalid), { newRoute: newRoute }).then(function(_ as Dynamic, internalContext as Dynamic) as Dynamic
+    return promises.chain(promises.resolve(true), { newRoute: newRoute }).then(function(_ as Dynamic, internalContext as Dynamic) as Dynamic
         return runGuardChecks(internalContext.newRoute)
     end function).then(function(guardCheckResponse as Dynamic, internalContext as Dynamic) as Dynamic
         if NOT guardCheckResponse.allow then
@@ -155,6 +155,7 @@ function _navigateTo(path = "" as String, options = {}) as Dynamic
 
         newRoute = internalContext.newRoute
 
+        m.top.processingRouteUpdate = false
         return m.__router_outlet@._processNavigation(newRoute)
     end function).toPromise()
 end function
@@ -289,11 +290,10 @@ end function
 sub onFocusChildChanged(event as Object)
     inFocusChain = event.getData() <> Invalid
 
-    if NOT m.__router_outlet.processingGoBack AND m.__router_outlet.activeView <> Invalid AND NOT inFocusChain AND m.top.focusRequestMade <> inFocusChain then
+    if m.top.processingGoBack AND m.__router_outlet.activeView <> Invalid AND NOT inFocusChain AND m.top.focusRequestMade <> inFocusChain then
         m.__router_outlet@._handleFocus({
             routerFocused: inFocusChain
         })
-
     end if
 
     m.top.focusRequestMade = inFocusChain

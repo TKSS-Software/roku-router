@@ -4,7 +4,6 @@
         <!-- READ ONLY -->
         <field id="__isOutlet" type="boolean" value="true" />
         <field id="activeView" type="node" />
-        <field id="processingGoBack" type="boolean" />
         <!-- END READ ONLY -->
 
         <function name="_handleFocus" />

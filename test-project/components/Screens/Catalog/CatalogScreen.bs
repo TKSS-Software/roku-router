@@ -52,7 +52,7 @@ function beforeViewOpen(params = {} as Object) as Dynamic
   m.rowList.rowItemSpacing = [20, 20]
   m.rowList.content = rowListContent
 
-  return promises.resolve(Invalid)
+  return promises.resolve(true)
 end function
 
 function onViewResume(params = {} as Object) as Dynamic
@@ -62,7 +62,7 @@ function onViewResume(params = {} as Object) as Dynamic
     m.rowList.jumpToRowItem = [0, 0]
   end if
 
-  return promises.resolve(Invalid)
+  return promises.resolve(true)
 end function
 
 sub onItemSelected(event as Object)
@@ -70,7 +70,7 @@ sub onItemSelected(event as Object)
   contentType = "series"
   if m.pageType = "movies" then contentType = "movie"
 
-  path = `/details/${contentType}/${itemSelected.id}`
+  path = `/details/${contentType}/${itemSelected.id}/about`
   print "path", path
   rokuRouter.navigateTo(path)
 end sub

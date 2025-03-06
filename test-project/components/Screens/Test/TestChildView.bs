@@ -4,6 +4,7 @@ end sub
 
 
 function beforeViewOpen(params = Invalid as Dynamic) as Dynamic
-    print "TestChildView beforeViewOpen"
-    return promises.resolve(Invalid)
+    print "TestChildView beforeViewOpen", params.route.path
+    m.top.findNode("label").text = "TEST CHILD VIEW" + params.route.path
+    return promises.resolve(true)
 end function

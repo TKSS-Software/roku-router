@@ -6,16 +6,17 @@
 
 	<children>
 		<Poster id="background" opacity="0.4" />
-		<LayoutGroup id="content" translation="[196, 96]" itemSpacings="[40]">
-			<LayoutGroup id="topSection" layoutDirection="horiz" itemSpacings="[40]">
+		<LayoutGroup id="container" translation="[196, 96]" layoutDirection="horiz"
+			itemSpacings="[40]">
+			<LayoutGroup>
 				<Poster id="poster" width="300" height="450" />
-				<LayoutGroup itemSpacings="[20]">
-					<Label id="title" wrap="true" />
-					<Label id="description" wrap="true" maxLines="6" />
-					<Label id="rating" />
-				</LayoutGroup>
+				<ButtonGroup id="buttonGroup" />
 			</LayoutGroup>
-			<Rowlist id="rowlist" />
+			<LayoutGroup itemSpacings="[20]">
+				<Label id="title" wrap="true" />
+				<Rectangle id="divider" height="6" color="#e4e4e4" />
+				<Outlet />
+			</LayoutGroup>
 		</LayoutGroup>
 	</children>
 </component>

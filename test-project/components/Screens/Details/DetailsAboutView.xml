@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="DetailsAboutView" extends="View">
+    <interface>
+
+    </interface>
+
+    <children>
+        <LayoutGroup itemSpacings="[20]">
+            <Label id="description" wrap="true" maxLines="6" />
+            <Label id="rating" />
+        </LayoutGroup>
+    </children>
+</component>

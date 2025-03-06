@@ -8,7 +8,6 @@ import "RouterState.bs"
 '*** DO NOT USE THIS FILE OUTSIDE OF A VIEW COMPONENT, such as the main scene
 '************************
 namespace rokuRouter
-
     function initialize(params = {} as Object) as Dynamic
         routerObject = Invalid
         if params.router = Invalid then
@@ -172,6 +171,7 @@ namespace rokuRouter.utils
     ' Helper function to create a route object' @param {Object} config - The configuration object
     ' @returns {Dynamic} - The result of the view open
     function createRouteObject(config = {} as Object) as Object
+        id = CreateObject("roDeviceInfo").GetRandomUUID()
         return {
             path: rodash.getString(config, "path")
             routeConfig: rodash.getAA(config, "routeConfig")
@@ -180,7 +180,9 @@ namespace rokuRouter.utils
             routeParams: rodash.getAA(config, "routeParams")
             queryParams: rodash.getAA(config, "queryParams")
             hash: rodash.getString(config, "hash")
-            id: CreateObject("roDeviceInfo").GetRandomUUID()
+            id: id
+            syncId: id
+            parentRendered: false
             router: m.top
         }
     end function

@@ -40,9 +40,11 @@ sub init()
         { pattern: "/", component: "WelcomeScreen", isRoot: true },
         { pattern: "/shows", component: "CatalogScreen", isRoot: true, canActivate: [m.global.AuthManager] },
         { pattern: "/movies", component: "CatalogScreen", isRoot: true, keepRootAlive: true, canActivate: [m.global.AuthManager] },
-        { pattern: "/details/:type/:id", component: "DetailsScreen", canActivate: [m.global.AuthManager] },
-        { pattern: "/details/:type/:id/cast", component: "CastDetailsScreen", canActivate: [m.global.AuthManager] },
-        { pattern: "/movie/:movieId/", component: "TestParentScreen", children: [
+        { pattern: "/details/:type/:id", component: "DetailsScreen", canActivate: [m.global.AuthManager], children: [
+                { pattern: "about", component: "DetailsAboutView" }
+                { pattern: "related", component: "DetailsRelatedView" }
+        ] },
+        { pattern: "/movie/:movieId/", isRoot: true, component: "TestParentScreen", children: [
                 { pattern: "details", component: "TestChildView" }
                 { pattern: "cast", component: "TestChildView" }
         ] },
@@ -50,7 +52,6 @@ sub init()
     ])
 
     ' navigate to the first screen
-    ' rokuRouter.navigateTo("/movie/1/details")
     rokuRouter.navigateTo("/")
 
     ' set the focus to the router

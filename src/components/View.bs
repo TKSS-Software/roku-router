@@ -4,26 +4,21 @@ import "pkg:/source/roku_modules/promises/promises.brs"
 
 sub init()
     m._allowHandleFocus = false
-    m.childOutlet = Invalid
+    m.top.childOutlet = Invalid
 end sub
 
-function _beforeViewOpen(params = {} as Object, isChildView = false as Boolean) as Dynamic
-    return promises.chain(beforeViewOpen(params), { params: params, isChildView: isChildView }).then(function(response as Dynamic, context as Dynamic) as Dynamic
+function _beforeViewOpen(params = {} as Object) as Dynamic
+    return promises.chain(beforeViewOpen(params), { params: params }).then(function(response as Dynamic, context as Dynamic) as Dynamic
         params = context.params
-        isChildView = context.isChildView
 
-        if NOT isChildView AND params.route.routeConfig.parent <> "" then
-            m.childOutlet = rokuRouter.searchForOutlet(m.top)
-            if m.childOutlet <> Invalid then
-                m.childOutlet.visible = false
-                view = rodash.createNode(params.route.routeConfig.component, {
-                    id: params.route.id
-                    route: params.route
-                    router: m.top.router
-                })
-                m.childOutlet.findNode("viewTarget").appendChild(view)
+        if params.route.parentRendered = false AND params.route.routeConfig.parent <> "" then
+            m.top.childOutlet = rokuRouter.searchForOutlet(m.top)
+            if m.top.childOutlet <> Invalid then
+                m.top.childOutlet.visible = false
 
-                return promises.chain(view@._beforeViewOpen(params, true), response).then(function(response as Dynamic, parentResponse as Dynamic) as Dynamic
+                params.route.parentRendered = true
+
+                return promises.chain(m.top.childOutlet@._processNavigation(params.route, true), response).then(function(response as Dynamic, parentResponse as Dynamic) as Dynamic
                     return parentResponse
                 end function).toPromise()
             end if
@@ -34,33 +29,21 @@ function _beforeViewOpen(params = {} as Object, isChildView = false as Boolean) 
 end function
 
 function beforeViewOpen(params = {} as Object) as Dynamic
-    return promises.resolve(Invalid)
+    return promises.resolve(true)
 end function
 
-function _onViewOpen(params = {} as Object, isChildView = false as Boolean) as Dynamic
-    toResolve = promises.resolve(Invalid)
-
-    return promises.chain(onViewOpen(params), { params: params, isChildView: isChildView }).then(function(response as Dynamic, context as Dynamic) as Dynamic
+function _onViewOpen(params = {} as Object) as Dynamic
+    return promises.chain(onViewOpen(params)).then(function(response as Dynamic) as Dynamic
         m._allowHandleFocus = true
-        params = context.params
-        isChildView = context.isChildView
-
-        if NOT isChildView AND m.childOutlet <> Invalid then
-            ' TODO: BETTER COMMUNICATION BETWEEN PARENT AND CHILD VIEWS
-            view = m.childOutlet.findNode("viewTarget").getChild(0)
-            print "view", m.childOutlet, m.childOutlet.findNode("viewTarget"), view
-            return promises.chain(view@._onViewOpen(params, true), response).then(function(response as Dynamic, parentResponse as Dynamic) as Dynamic
-                m.childOutlet.visible = true
-                return parentResponse
-            end function).toPromise()
+        if m.top.childOutlet <> Invalid then
+            m.top.childOutlet.visible = true
         end if
-
         return response
     end function).toPromise()
 end function
 
 function onViewOpen(params = {} as Object) as Dynamic
-    return promises.resolve(Invalid)
+    return promises.resolve(true)
 end function
 
 function _beforeViewClose(params = {} as Object) as Dynamic
@@ -69,16 +52,35 @@ function _beforeViewClose(params = {} as Object) as Dynamic
 end function
 
 function beforeViewClose(params = {} as Object) as Dynamic
-    return promises.resolve(Invalid)
+    return promises.resolve(true)
 end function
 
 function _onRouteUpdate(event as RouteUpdateEvent) as Dynamic
     print "Route is updating", event.oldRoute, event.newRoute 'bs:disable-line 1001 LINT3012
+    if NOT event.newRoute.navigationState.fromPopState then
+        rokuRouter.getRouter().processingRouteUpdate = true
+        hasSameParent = event.oldRoute.routeConfig.parent = event.newRoute.routeConfig.parent
+        if hasSameParent AND m.top.childOutlet <> Invalid then
+            syncId = CreateObject("roDeviceInfo").GetRandomUUID()
+            event.oldRoute.syncId = syncId
+            event.newRoute.syncId = syncId
+            event.newRoute.parentRendered = event.oldRoute.parentRendered
+
+            return promises.chain(m.top.childOutlet@._processNavigation(event.newRoute, true), event).then(function(response as Dynamic, context as Dynamic) as Dynamic
+                return onRouteUpdate(context)
+            end function).finally(function(_ = Invalid)
+                rokuRouter.getRouter().processingRouteUpdate = false
+            end function).toPromise()
+        end if
+
+        rokuRouter.getRouter().processingRouteUpdate = false
+    end if
+
     return onRouteUpdate(event)
 end function
 
 function onRouteUpdate(event = {} as Object) as Dynamic
-    return promises.resolve(Invalid)
+    return promises.resolve(true)
 end function
 
 function _onViewResume(_ as Dynamic, applyFocus = false as Boolean) as Dynamic
@@ -90,11 +92,11 @@ function _onViewSuspend(_ as Dynamic) as Dynamic
 end function
 
 function onViewResume(_ as Dynamic) as Dynamic
-    return promises.resolve(Invalid)
+    return promises.resolve(true)
 end function
 
 function onViewSuspend(_ as Dynamic) as Dynamic
-    return promises.resolve(Invalid)
+    return promises.resolve(true)
 end function
 
 function _handleFocus(data = {} as Object) as Boolean

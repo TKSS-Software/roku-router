@@ -5,6 +5,7 @@
         <field id="routerState" type="assocArray" />
         <field id="focusRequestMade" type="boolean" />
         <field id="processingGoBack" type="boolean" />
+        <field id="processingRouteUpdate" type="boolean" />
         <field id="__isRouter" type="boolean" value="true" />
         <!-- END READ ONLY -->
 

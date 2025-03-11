@@ -7,7 +7,7 @@ end sub
 
 sub onItemSelected(event as Object)
     itemSelected = event.getRoSGNode().content.getChild(event.getData()[0]).getChild(event.getData()[1])
-    path = `/details/${m.pageType}/${itemSelected.id}/details`
+    path = `/details/${m.pageType}/${itemSelected.id}/about`
     rokuRouter.navigateTo(path)
 end sub
 
@@ -43,4 +43,13 @@ function beforeViewOpen(params = Invalid as Dynamic) as Dynamic
     m.rowList.rowItemSpacing = [20, 20]
     m.rowList.content = rowListContent
     return promises.resolve(true)
+end function
+
+
+function handleFocus(data as Object) as Boolean
+    if data.routerHasFocus then
+        return m.rowList.setFocus(true)
+    end if
+
+    return false
 end function

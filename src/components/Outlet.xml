@@ -3,12 +3,16 @@
     <interface>
         <!-- READ ONLY -->
         <field id="__isOutlet" type="boolean" value="true" />
+        <field id="breadcrumbs" type="array" />
+        <field id="inFocusChain" type="boolean" />
         <field id="activeView" type="node" />
+        <field id="isTopOutlet" type="boolean" />
         <!-- END READ ONLY -->
 
         <function name="_handleFocus" />
         <function name="_processNavigation" />
         <function name="_goBack" />
+        <function name="setFocus" />
     </interface>
     <children>
         <Group id="suspendedViewTarget" />

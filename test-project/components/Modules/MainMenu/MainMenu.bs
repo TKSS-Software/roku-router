@@ -67,24 +67,24 @@ sub checkLoggedInState()
 end sub
 
 function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
-    if press then
-        if key = "up" OR key = "down" then
-            buttons = rodash.getNodeChildren(m.buttonGroup)
-            index = rodash.indexOf(buttons, m.focusedButton)
-            if key = "up" then
-                index = index - 1
-            else
-                index = index + 1
-            end if
-            nextButton = buttons[index]
-            if nextButton <> Invalid then
-                m.focusedButton = nextButton
-                nextButton.setFocus(true)
-                return true
-            end if
-        else if key = "back" then
-            return rokuRouter.setFocus({ focus: true })
+    if NOT press then return true
+
+    if key = "up" OR key = "down" then
+        buttons = rodash.getNodeChildren(m.buttonGroup)
+        index = rodash.indexOf(buttons, m.focusedButton)
+        if key = "up" then
+            index = index - 1
+        else
+            index = index + 1
         end if
+        nextButton = buttons[index]
+        if nextButton <> Invalid then
+            m.focusedButton = nextButton
+            nextButton.setFocus(true)
+            return true
+        end if
+    else if key = "back" then
+        return rokuRouter.setFocus({ focus: true })
     end if
 
     return false

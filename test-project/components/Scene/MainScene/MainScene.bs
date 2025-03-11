@@ -93,16 +93,16 @@ end sub
 
 ' Handles the key events
 function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
-    if press then
-        if key = "back" OR key = "left" then
+    if NOT press then return true
+
+    if key = "back" OR key = "left" then
+        if m.mainMenu.visible then m.mainMenu.setFocus(true)
+        return true
+    else if key = "right" then
+        if NOT rokuRouter.setFocus({ focus: true }) then
             if m.mainMenu.visible then m.mainMenu.setFocus(true)
-            return true
-        else if key = "right" then
-            if NOT rokuRouter.setFocus({ focus: true }) then
-                if m.mainMenu.visible then m.mainMenu.setFocus(true)
-            end if
-            return true
         end if
+        return true
     end if
 
     return true

@@ -44,7 +44,7 @@ namespace rokuRouter
         return promises.resolve(true)
     end function
 
-    function goBack(options = {} as Object) as Dynamic
+    function goBack(options = {} as Object) as Boolean
         r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) then
             return r@._goBack(Invalid)
@@ -113,7 +113,7 @@ namespace rokuRouter
     function setFocus(options = {} as Object) as Boolean
         r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) AND rodash.isBoolean(options.focus) then
-            return r@._setFocus(options.focus)
+            return r@._setFocus(rodash.getBoolean(options, "focus"))
         end if
         return false
     end function
@@ -174,6 +174,7 @@ namespace rokuRouter.utils
         id = CreateObject("roDeviceInfo").GetRandomUUID()
         return {
             path: rodash.getString(config, "path")
+            parentPath: rodash.getString(config, "parentPath")
             routeConfig: rodash.getAA(config, "routeConfig")
             context: rodash.merge(createBaseContext(), rodash.getAA(config, "context"))
             navigationState: createBaseNavigationState()
@@ -257,13 +258,23 @@ namespace rokuRouter.utils
                 end for
 
                 if isMatch then
-                    return createRouteObject({
+                    obj = {
                         path: path
                         routeConfig: routes[routePath]
                         routeParams: matchedParams
                         queryParams: queryParams
                         hash: hash
-                    })
+                    }
+
+                    if routes[routePath].parent <> "" then
+                        parentPath = routes[routePath].parent
+                        for each key in obj.routeParams
+                            parentPath = parentPath.replace(":" + key, obj.routeParams[key])
+                        end for
+                        obj.parentPath = parentPath
+                    end if
+
+                    return createRouteObject(obj)
                 end if
             end if
         end for

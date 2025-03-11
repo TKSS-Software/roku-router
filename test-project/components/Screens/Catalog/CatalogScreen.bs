@@ -76,7 +76,7 @@ sub onItemSelected(event as Object)
 end sub
 
 function handleFocus(data as Object) as Boolean
-  if data.routerFocused then
+  if data.routerHasFocus then
     return m.rowList.setFocus(true)
   end if
 

@@ -11,7 +11,7 @@ function beforeViewClose(params = Invalid as Dynamic) as Dynamic
 end function
 
 function handleFocus(data as Object) as Boolean
-    if data.routerFocused then
+    if data.routerHasFocus then
         return m.buttonGroup.setFocus(true)
     end if
 

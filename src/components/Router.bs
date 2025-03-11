@@ -4,11 +4,10 @@ import "pkg:/source/router.bs"
 
 ' Initialize the router
 sub init()
-    m.top.focusRequestMade = false
+    m.top.inFocusChain = false
     m.__router_guardInstances = {}
     m.__router_outlet = Invalid
     m.__router_routes = {}
-
     m.top.focusable = true
 end sub
 
@@ -21,6 +20,7 @@ function _initialize(params = {} as Object) as Dynamic
     m.__router_outlet = params.outlet
 
     if m.__router_outlet <> Invalid then
+        m.__router_outlet.isTopOutlet = true
         m.__router_outlet.unobserveField("focusedChild")
         m.__router_outlet.observeField("focusedChild", "onFocusChildChanged")
     end if
@@ -80,7 +80,7 @@ end function
 ' @param {String} path - The path to navigate to
 ' @param {Object} options - The route config overrides
 ' @returns {Dynamic} - The result of the navigation
-function _navigateTo(path = "" as String, options = {}) as Dynamic
+function _navigateTo(path = "" as String, options = {} as Dynamic) as Dynamic
     routeConfigOverrides = rodash.getAA(options, "routeConfigOverrides")
     navigationState = rodash.getAA(options, "navigationState")
     context = rodash.getAA(options, "context")
@@ -150,19 +150,19 @@ function _navigateTo(path = "" as String, options = {}) as Dynamic
                 return guardCheckResponse.redirect
             end if
 
-            promises.reject(guardCheckResponse)
+            return promises.reject(guardCheckResponse)
         end if
 
-        newRoute = internalContext.newRoute
-
         m.top.processingRouteUpdate = false
-        return m.__router_outlet@._processNavigation(newRoute)
+        return m.__router_outlet@._processNavigation(internalContext.newRoute)
     end function).toPromise()
 end function
 
-function _goBack(_ = Invalid as Dynamic) as Dynamic
+' Don't talk to directly, use rokuRouter.goBack() instead
+' @returns {Boolean} - Whether the navigation was successful or not
+function _goBack(_ = Invalid as Dynamic) as Boolean
     if m.__router_outlet <> Invalid then
-        return m.__router_outlet@.goBack()
+        return m.__router_outlet@._goBack()
     end if
 
     return false
@@ -173,12 +173,14 @@ end function
 function _setFocus(takeFocus as Boolean) as Boolean
     response = false
 
-    if m.__router_outlet.activeView <> Invalid AND takeFocus AND m.top.focusRequestMade <> takeFocus then
+    if takeFocus then
         response = m.__router_outlet@._handleFocus({
-            routerFocused: true
+            routerHasFocus: takeFocus
+            outletInFocusChain: true
         })
+        m.top.inFocusChain = takeFocus
     end if
-    m.top.focusRequestMade = true
+
     return response
 end function
 
@@ -288,15 +290,18 @@ end function
 
 ' Called when the focus chain of the router changes' @param {Object} event - The event object
 sub onFocusChildChanged(event as Object)
-    inFocusChain = event.getData() <> Invalid
+    inFocusChain = m.__router_outlet.focusedChild <> Invalid
+    if (m.top.processingRouteUpdate OR m.top.processingGoBack) AND NOT inFocusChain then return
 
-    if m.top.processingGoBack AND m.__router_outlet.activeView <> Invalid AND NOT inFocusChain AND m.top.focusRequestMade <> inFocusChain then
+    if m.top.processingGoBack then return
+
+    if m.top.inFocusChain <> inFocusChain then
         m.__router_outlet@._handleFocus({
-            routerFocused: inFocusChain
+            outletInFocusChain: inFocusChain
         })
+        m.top.inFocusChain = inFocusChain
     end if
 
-    m.top.focusRequestMade = inFocusChain
 end sub
 
 '*************************************************************************

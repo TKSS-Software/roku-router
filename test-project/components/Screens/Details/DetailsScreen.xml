@@ -15,7 +15,7 @@
 			<LayoutGroup itemSpacings="[20]">
 				<Label id="title" wrap="true" />
 				<Rectangle id="divider" height="6" color="#e4e4e4" />
-				<Outlet />
+				<Outlet id="childOutlet" />
 			</LayoutGroup>
 		</LayoutGroup>
 	</children>

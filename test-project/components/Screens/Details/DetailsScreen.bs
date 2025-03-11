@@ -27,7 +27,7 @@ sub onButtonPress(event as Object)
     if navigateTo <> Invalid then
         promises.chain(rokuRouter.navigateTo(navigateTo)).then(function(response as Dynamic)
             m.buttonGroup.setFocus(true)
-        end function)
+        end function).toPromise()
     end if
 end sub
 
@@ -50,8 +50,18 @@ function beforeViewOpen(params = Invalid as Dynamic) as Dynamic
     return promises.resolve(true)
 end function
 
+function onKeyEvent(key as String, press as Boolean) as Boolean
+    if NOT press then return true
+
+    if key = "right" then
+        return m.top.findNode("childOutlet")@.setFocus(true)
+    end if
+
+    return false
+end function
+
 function handleFocus(data as Object) as Boolean
-    if data.routerFocused then
+    if data.routerHasFocus then
         return m.buttonGroup.setFocus(true)
     end if
 

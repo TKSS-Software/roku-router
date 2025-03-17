@@ -3,6 +3,10 @@
     <interface>
         <!-- READ ONLY -->
         <field id="routerState" type="assocArray" />
+        <field id="processingGoBack" type="boolean" />
+        <field id="processingRouteUpdate" type="boolean" />
+
+        <field id="inFocusChain" type="boolean" />
         <field id="__isRouter" type="boolean" value="true" />
         <!-- END READ ONLY -->
 

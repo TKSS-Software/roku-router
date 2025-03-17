@@ -3,75 +3,84 @@ import "../../../source/roku_modules/promises/promises.brs"
 import "../../../source/common.bs"
 
 sub init()
-    m.content = m.top.findNode("content")
+    m.content = Invalid
+    m.childOutlet = m.top.findNode("childOutlet")
+    m.container = m.top.findNode("container")
+    m.textWidths = 0
     m.title = m.top.findNode("title")
-    m.description = m.top.findNode("description")
-    m.rating = m.top.findNode("rating")
     m.poster = m.top.findNode("poster")
     m.background = m.top.findNode("background")
-    m.topSection = m.top.findNode("topSection")
-    m.rowList = m.top.findNode("rowList")
-    m.rowList.observeField("rowItemSelected", "onItemSelected")
+    m.buttonGroup = m.top.findNode("buttonGroup")
+    m.buttonGroup.buttons = ["About", "Related"]
+    m.buttonGroup.observeField("buttonSelected", "onButtonPress")
+
+    m.aboutUrl = ""
+    m.relatedUrl = ""
+    m.lastFocused = m.buttonGroup
 end sub
 
-sub onItemSelected(event as Object)
-    itemSelected = event.getRoSGNode().content.getChild(event.getData()[0]).getChild(event.getData()[1])
-    path = `/details/${m.pageType}/${itemSelected.id}`
-    rokuRouter.navigateTo(path)
+sub onButtonPress(event as Object)
+    button = event.getData()
+    navigateTo = Invalid
+
+    if button = 0 then
+        navigateTo = m.aboutUrl
+    else if button = 1 then
+        navigateTo = m.relatedUrl
+    end if
+
+    if navigateTo <> Invalid then
+        promises.chain(rokuRouter.navigateTo(navigateTo)).then(function(response as Dynamic)
+            m.buttonGroup.setFocus(true)
+        end function).toPromise()
+    end if
 end sub
 
 function beforeViewOpen(params = Invalid as Dynamic) as Dynamic
     m.pageType = params.route.routeParams.type
+    m.pageId = params.route.routeParams.id
+    m.content = util.getContentById(params.route.routeParams.id)
 
-    content = util.getContentById(params.route.routeParams.id)
-
-    textWidths = 1920 - (m.content.translation[0] * 2) - m.topSection.itemSpacings[0] - m.poster.width
+    m.textWidths = 1920 - (m.container.translation[0] * 2) - m.container.itemSpacings[0] - m.poster.width
+    m.top.findNode("divider").width = m.textWidths
 
     m.title.font = "font:MediumBoldSystemFont"
-    m.title.width = textWidths
-    m.title.text = rodash.getString(content, "name")
+    m.title.width = m.textWidths
+    date = CreateObject("roDateTime")
+    m.title.text = `${rodash.getString(m.content, "name")} - Page Created at ${date.asTimeStringLoc("h:mm")}:${date.GetSeconds()}`
 
-    m.description.text = rodash.getString(content, "overview")
-    m.description.width = textWidths
+    m.poster.uri = rodash.getString(m.content, "poster_path").replace("/original/", `/w${m.poster.width}_and_h${m.poster.height}_multi_faces/`)
+    m.background.uri = rodash.getString(m.content, "backdrop_path").replace("/original/", `/w1920_and_h1080_multi_faces/`)
 
-    m.rating.font = "font:SmallestSystemFont"
-    m.rating.text = `Rating: ${rodash.get(content, "vote_average")}`
+    m.aboutUrl = `/details/${m.pageType}/${m.pageId}/about`
+    m.relatedUrl = `/details/${m.pageType}/${m.pageId}/related`
 
-    m.poster.uri = rodash.getString(content, "poster_path").replace("/original/", `/w${m.poster.width}_and_h${m.poster.height}_multi_faces/`)
-    m.background.uri = rodash.getString(content, "backdrop_path").replace("/original/", `/w1920_and_h1080_multi_faces/`)
+    return promises.resolve(true)
+end function
 
-    api = { data: { carousels: [] } }
-    api.data.carousels.push(util.getRelatedCarousel(content, m.pageType))
+function onKeyEvent(key as String, press as Boolean) as Boolean
+    if NOT press then return true
 
-    rowListContent = rodash.createNode("ContentNode")
-    if rodash.isNonEmptyAA(api) then
-        for each carousel in api["data"]["carousels"]
-            if rodash.isNonEmptyArray(carousel["items"]) then
-                row = rodash.createNode("ContentNode", {
-                    "title": carousel["title"],
-                })
-                for each item in carousel["items"]
-                    content = rodash.createNode("ContentNode", item)
-                    row.appendChild(content)
-                end for
-                rowListContent.appendChild(row)
-            end if
-        end for
+    if key = "right" then
+        m.lastFocused = m.childOutlet
+        return m.childOutlet@.setFocus(true)
+    else if key = "left" then
+        m.lastFocused = m.buttonGroup
+        return m.buttonGroup.setFocus(true)
     end if
-    m.rowList.itemComponentName = "CatalogScreenItem"
-    m.rowList.itemSize = [1800, 440]
-    m.rowList.rowItemSize = [[220, 330]]
-    m.rowList.rowLabelOffset = [0, 20]
-    m.rowList.showRowLabel = [true]
-    m.rowList.numRows = 3
-    m.rowList.rowItemSpacing = [20, 20]
-    m.rowList.content = rowListContent
-    return promises.resolve(Invalid)
+
+    return false
 end function
 
 function handleFocus(data as Object) as Boolean
-    if data.routerFocused then
-        return m.rowList.setFocus(true)
+    if data.routerHasFocus then
+        m.buttonGroup.focusButton = m.top.route.path.endsWith("related") ? 1 : 0
+
+        if rodash.isEqual(m.lastFocused, m.buttonGroup) then
+            return m.buttonGroup.setFocus(true)
+        else
+            return m.childOutlet@.setFocus(true)
+        end if
     end if
 
     return false

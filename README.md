@@ -33,7 +33,7 @@ Routes are typically configured in a routing module using an array of route obje
 * `component` (required): The View component to render when the route is activated.<br>This component must extend the **rokurouter_View** component.<br>They contain the following lifecycle functions. 
     * `beforeViewOpen` - Called before the view loads.  This is where you would perform business logic like API calls and building your UI if you want to delay opening the View until ready.
     * `onViewOpen` - Called after previous view is closed or suspended. This is where you would perform business logic like API calls and building your UI if you want to open your View immediatley and handle the loading UI state manually.
-    * `beforeScreenClose` - Called before a screen is destroyed. This does not get called when a new View is added to the stack (see onSuspend).
+    * `beforeViewClose` - Called before a screen is destroyed. This does not get called when a new View is added to the stack (see onSuspend).
     * `onRouteUpdate` - Called when a new route is requested that matches the same URL pattern and the Route is configured for `allowReuse` or the same url has been requested with a new hash value.
     * `onSuspend` - Called when a View is suspended. The most common case for this is when a new View is added to the stack.  
     * `onResume` - Called when a suspended View is resumed. The most common case for this is when a View above the stack is closed and the suspended View is to take over.
@@ -95,8 +95,8 @@ sub init()
 end sub
 
 ' This lifecycle function gets called before the view is shown.
-function beforeScreenOpen(params as dynamic) as dynamic
+function beforeViewOpen(params as dynamic) as dynamic
     m.label.text = "Hello!"
-    return promises.resolve(invalid)
+    return promises.resolve(true)
 end function
 ```

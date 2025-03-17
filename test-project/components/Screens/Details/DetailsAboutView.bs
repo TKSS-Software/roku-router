@@ -1,0 +1,20 @@
+import "../../../source/common.bs"
+
+function init()
+    m.description = m.top.findNode("description")
+    m.rating = m.top.findNode("rating")
+end function
+
+function beforeViewOpen(params = Invalid as Dynamic) as Dynamic
+    m.pageType = params.route.routeParams.type
+
+    content = util.getContentById(params.route.routeParams.id)
+
+    m.description.text = rodash.getString(content, "overview")
+    m.description.width = 1188
+
+    m.rating.font = "font:SmallestSystemFont"
+    m.rating.text = `Rating: ${rodash.get(content, "vote_average")}`
+
+    return promises.resolve(true)
+end function

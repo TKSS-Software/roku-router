@@ -1,17 +1,17 @@
 sub init()
     m.label = m.top.findNode("label")
     m.buttonGroup = m.top.findNode("buttonGroup")
-    m.buttonGroup.buttons = ["Login", "Shows (Protected)", "Movies (Protected)"]
+    m.buttonGroup.buttons = ["Login", "Shows (Protected)", "Movies (Protected)", "Movie Details", "Movie Cast"]
     m.buttonGroup.observeField("buttonSelected", "onButtonPress")
 end sub
 
 function beforeViewClose(params = Invalid as Dynamic) as Dynamic
     m.buttonGroup.unobserveField("buttonSelected")
-    return promises.resolve(Invalid)
+    return promises.resolve(true)
 end function
 
 function handleFocus(data as Object) as Boolean
-    if data.routerFocused then
+    if data.routerHasFocus then
         return m.buttonGroup.setFocus(true)
     end if
 
@@ -28,6 +28,10 @@ sub onButtonPress(event as Object)
         navigateTo = "/shows"
     else if button = 2 then
         navigateTo = "/movies"
+    else if button = 3 then
+        navigateTo = "/movie/1/details"
+    else if button = 4 then
+        navigateTo = "/movie/1/cast"
     end if
 
     if navigateTo <> Invalid then

@@ -36,9 +36,9 @@ function _processNavigation(newRoute as Dynamic) as Dynamic
             ' Reuse the view and call onRouteUpdate if the path or hash is the same, OR if the routeConfig override allows it
             hasHash = rodash.isNonEmptyString(newRoute.hash)
             isSamePath = rodash.isEqual(newRoute.path, oldRoute.path)
-            hasSameParent = newRoute.parentRendered AND newRoute.parentPath <> "" AND rodash.isEqual(newRoute.parentPath, oldRoute.parentPath)
+            hasSameParent = oldRoute.parentRendered AND newRoute.parentPath <> "" AND rodash.isEqual(newRoute.parentPath, oldRoute.parentPath)
             hasSameSyncId = rodash.isEqual(newRoute.syncId, oldRoute.syncId)
-            reuse = rodash.getBoolean(newRoute.routeConfig, "allowReuse") OR hasHash OR isSamePath OR (hasSameParent AND NOT hasSameSyncId)
+            reuse = rodash.getBoolean(newRoute.routeConfig, "allowReuse") OR hasHash OR isSamePath OR (hasSameParent AND NOT hasSameSyncId) ' Both have same parent but we gotta get smarter
             if hasHash then
                 if NOT rodash.isEqual(newRoute.routeConfig, oldRoute.routeConfig) then reuse = false
             else
@@ -53,7 +53,7 @@ function _processNavigation(newRoute as Dynamic) as Dynamic
                     })
                 end if
 
-                ' m.top.activeView.route = newRoute TYLER CHECK!
+                ' m.top.activeView.route = newRoute
                 return promises.chain(m.top.activeView@._onRouteUpdate({ oldRoute: oldRoute, newRoute: newRoute }), newRoute).then(function(response as Dynamic, route as Dynamic) as Dynamic
                     if m.top.isTopOutlet then
                         rokuRouter.utils.dispatchRouterState(RouterState.ResolveEnd, {
@@ -75,7 +75,6 @@ function _processNavigation(newRoute as Dynamic) as Dynamic
             else
                 if rodash.getBoolean(newRoute, "routeConfig.isRoot") then
                     for each view in rodash.getNodeChildren(m.viewTarget)
-                        ' print "view to remove", view
                         viewsToRemove.push(view)
                     end for
                 end if
@@ -98,7 +97,7 @@ function _processNavigation(newRoute as Dynamic) as Dynamic
             end if
 
             return response
-        end function).toPromise
+        end function).toPromise()
     end if
 
     message = { message: `Route "${newRoute.path}" not found` }
@@ -304,10 +303,12 @@ function showView(view as Object, onResume = false as Boolean) as Dynamic
                 print "Error giving focus. Don't do anything"
             end if
 
-            rokuRouter.utils.dispatchRouterState(RouterState.NavigationEnd, {
-                id: context.view.id
-                route: context.view.route
-            })
+            if m.top.isTopOutlet OR context.onResume then
+                rokuRouter.utils.dispatchRouterState(RouterState.NavigationEnd, {
+                    id: context.view.id
+                    route: context.view.route
+                })
+            end if
             rokuRouter.getRouter().processingGoBack = false
             return context.response
         end function).toPromise()

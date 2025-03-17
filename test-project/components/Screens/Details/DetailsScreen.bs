@@ -4,6 +4,7 @@ import "../../../source/common.bs"
 
 sub init()
     m.content = Invalid
+    m.childOutlet = m.top.findNode("childOutlet")
     m.container = m.top.findNode("container")
     m.textWidths = 0
     m.title = m.top.findNode("title")
@@ -12,6 +13,10 @@ sub init()
     m.buttonGroup = m.top.findNode("buttonGroup")
     m.buttonGroup.buttons = ["About", "Related"]
     m.buttonGroup.observeField("buttonSelected", "onButtonPress")
+
+    m.aboutUrl = ""
+    m.relatedUrl = ""
+    m.lastFocused = m.buttonGroup
 end sub
 
 sub onButtonPress(event as Object)
@@ -19,9 +24,9 @@ sub onButtonPress(event as Object)
     navigateTo = Invalid
 
     if button = 0 then
-        navigateTo = `/details/${m.pageType}/${m.pageId}/about`
+        navigateTo = m.aboutUrl
     else if button = 1 then
-        navigateTo = `/details/${m.pageType}/${m.pageId}/related`
+        navigateTo = m.relatedUrl
     end if
 
     if navigateTo <> Invalid then
@@ -47,6 +52,9 @@ function beforeViewOpen(params = Invalid as Dynamic) as Dynamic
     m.poster.uri = rodash.getString(m.content, "poster_path").replace("/original/", `/w${m.poster.width}_and_h${m.poster.height}_multi_faces/`)
     m.background.uri = rodash.getString(m.content, "backdrop_path").replace("/original/", `/w1920_and_h1080_multi_faces/`)
 
+    m.aboutUrl = `/details/${m.pageType}/${m.pageId}/about`
+    m.relatedUrl = `/details/${m.pageType}/${m.pageId}/related`
+
     return promises.resolve(true)
 end function
 
@@ -54,7 +62,11 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
     if NOT press then return true
 
     if key = "right" then
-        return m.top.findNode("childOutlet")@.setFocus(true)
+        m.lastFocused = m.childOutlet
+        return m.childOutlet@.setFocus(true)
+    else if key = "left" then
+        m.lastFocused = m.buttonGroup
+        return m.buttonGroup.setFocus(true)
     end if
 
     return false
@@ -62,7 +74,13 @@ end function
 
 function handleFocus(data as Object) as Boolean
     if data.routerHasFocus then
-        return m.buttonGroup.setFocus(true)
+        m.buttonGroup.focusButton = m.top.route.path.endsWith("related") ? 1 : 0
+
+        if rodash.isEqual(m.lastFocused, m.buttonGroup) then
+            return m.buttonGroup.setFocus(true)
+        else
+            return m.childOutlet@.setFocus(true)
+        end if
     end if
 
     return false

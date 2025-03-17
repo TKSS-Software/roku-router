@@ -47,7 +47,7 @@ end function
 
 
 function handleFocus(data as Object) as Boolean
-    if data.routerHasFocus then
+    if data.routerHasFocus AND data.outletinfocuschain then
         return m.rowList.setFocus(true)
     end if
 

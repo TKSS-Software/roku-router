@@ -22,7 +22,7 @@ namespace rokuRouter
         end if
 
         ' Validate the outlet
-        if rodash.isNode(routerObject) AND routerObject.hasField("__isRouter") AND rodash.isNode(params.outlet) AND params.outlet.hasField("__isOutlet") then
+        if rodash.isNode(routerObject) AND routerObject.hasField("__isRouter") AND rokuRouter.utils.isOutlet(params.outlet) then
             m.top.getScene().addFields({ __router: routerObject })
             return routerObject@._initialize(params)
         end if
@@ -83,34 +83,26 @@ namespace rokuRouter
         return m.top.getScene().__router
     end function
 
-    function searchForOutlet(parent = Invalid as Dynamic, depth = 0 as Integer) as Dynamic
-        ' Stop if too deep
-        if depth > 30 then
-            return Invalid
-        end if
-
+    function searchForOutlet(parent = Invalid as Dynamic) as Dynamic
         if parent = Invalid then
             parent = m.top
         end if
 
-        if rodash.isNode(parent) AND parent.hasField("__isOutlet") then
+        ' Check to see if you are in the outlet
+        if rokuRouter.utils.isOutlet(parent) then
             return node
         end if
 
-        outlet = Invalid
-
-        'Look top level
-        for each node in rodash.getNodeChildren(parent)
-            if rodash.isNode(node) AND node.hasField("__isOutlet") then
-                outlet = node
+        nodes = rodash.getNodeChildren(parent)
+        while nodes.count() > 0
+            node = nodes.Shift()
+            if rokuRouter.utils.isOutlet(node) then
+                return node
             else
-                outlet = searchForOutlet(node, depth + 1)
+                'push all of this node's children to be searched in the future
+                nodes.append(rodash.getNodeChildren(node))
             end if
-
-            if outlet <> Invalid then
-                return outlet
-            end if
-        end for
+        end while
 
         return Invalid
     end function
@@ -142,6 +134,10 @@ namespace rokuRouter
 end namespace
 
 namespace rokuRouter.utils
+    function isOutlet(node = Invalid as Object) as Boolean
+        return rodash.isNode(node) AND node.hasField("__isOutlet")
+    end function
+
     ' This function is used to get the current focused chain of nodes
     ' @since 0.0.1
     ' @param parent - The parent node to start the search from

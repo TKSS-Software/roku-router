@@ -93,8 +93,8 @@ sub init()
 end sub
 
 ' This lifecycle function gets called before the view is shown.
-function beforeScreenOpen(params as dynamic) as dynamic
+function beforeViewOpen(params as dynamic) as dynamic
     m.label.text = "Hello!"
-    return promises.resolve(invalid)
+    return promises.resolve(true)
 end function
 ```

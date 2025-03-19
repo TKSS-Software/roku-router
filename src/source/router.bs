@@ -22,7 +22,7 @@ namespace rokuRouter
         end if
 
         ' Validate the outlet
-        if rodash.isNode(routerObject) AND routerObject.hasField("__isRouter") AND rokuRouter.utils.isOutlet(params.outlet) then
+        if rokuRouter.utils.isRouter(routerObject) AND rokuRouter.utils.isOutlet(params.outlet) then
             m.top.getScene().addFields({ __router: routerObject })
             return routerObject@._initialize(params)
         end if
@@ -136,6 +136,10 @@ end namespace
 namespace rokuRouter.utils
     function isOutlet(node = Invalid as Object) as Boolean
         return rodash.isNode(node) AND node.hasField("__isOutlet")
+    end function
+
+    function isRouter(node = Invalid as Object) as Boolean
+        return rodash.isNode(node) AND node.hasField("__isRouter")
     end function
 
     ' This function is used to get the current focused chain of nodes

@@ -1,11 +1,23 @@
 import "pkg:/source/router.bs"
 
 sub init()
-    m.router = m.top.findNode("router")
-    m.loadingOverlay = m.top.findNode("loadingOverlay")
-    m.loadingOverlayText = m.loadingOverlay.findNode("loadingOverlayText")
+    'initialize the router
+    rokuRouter.initialize({
+        outlet: m.top.findNode("outlet")
+    })
+
+    m.appLaunchComplete = false
+    ' Read the sample data from the file. You normally wouldn't want to do this in a real app.
+    m.global.update(ParseJSON(ReadAsciiFile("pkg:/assets/sampleData.json")), true)
+
+    ' create a reference to the main menu
     m.mainMenu = m.top.findNode("mainMenu")
 
+    ' create a reference to the loading overlay
+    m.loadingOverlay = m.top.findNode("loadingOverlay")
+    m.loadingOverlayText = m.loadingOverlay.findNode("loadingOverlayText")
+
+    ' set the background color
     m.top.backgroundColor = "#000000"
     m.top.backgroundUri = ""
 
@@ -13,13 +25,18 @@ sub init()
         "AuthManager": createObject("roSGNode", "AuthManager")
     })
 
+    ' observe the isLoggedIn field on the AuthManager
     m.global.AuthManager.observeField("isLoggedIn", "onAuthManagerIsLoggedInChanged")
 
-    m.mainMenu.router = m.router
+    ' initialize the main menu
+    m.mainMenu.router = rokuRouter.getRouter()
     m.mainMenu@.initialize()
 
-    m.router.observeField("routerState", "onRouterStateChanged")
-    m.router@.addRoutes([
+    ' observe the routerState field on the router
+    rokuRouter.getRouter().observeField("routerState", "onRouterStateChanged")
+
+    ' add the routes to the router
+    rokuRouter.addRoutes([
         { pattern: "/", component: "WelcomeScreen", isRoot: true },
         { pattern: "/shows", component: "CatalogScreen", isRoot: true, canActivate: [m.global.AuthManager] },
         { pattern: "/movies", component: "CatalogScreen", isRoot: true, keepRootAlive: true, canActivate: [m.global.AuthManager] },
@@ -28,34 +45,39 @@ sub init()
         { pattern: "/:screenName", component: "DefaultScreen" }
     ])
 
-    ' Read the sample data from the file. You normally wouldn't want to do this in a real app.
-    m.global.update(ParseJSON(ReadAsciiFile("pkg:/assets/sampleData.json")), true)
-    rokuRouter.navigateTo("/#firstLoad=true", {
-        router: m.router
-    })
+    ' navigate to the first screen
+    rokuRouter.navigateTo("/#firstLoad=true")
 
-    m.router@.setFocus(true)
+    ' set the focus to the router
+    rokuRouter.setFocus({ focus: true })
 end sub
 
+' This function is called when the isLoggedIn field on the AuthManager changes
 sub onAuthManagerIsLoggedInChanged(event as Object)
     if event.getData() then
-        rokuRouter.navigateTo("/shows", {
-            router: m.router
-        })
+        rokuRouter.navigateTo("/shows")
     else
-        rokuRouter.navigateTo("/", {
-            router: m.router
-        })
+        rokuRouter.navigateTo("/")
     end if
 end sub
 
+' This function is called when the routerState field on the router changes
 sub onRouterStateChanged(event as Object)
     data = event.getData()
+
+    ' Some logging to show the router state
     print `onRouterStateChanged: ${data.id} ${data.type}`
 
     if data.type = "NavigationEnd" then
         m.mainMenu.visible = data.state.routeConfig.isRoot AND m.global.AuthManager.isLoggedIn
         m.loadingOverlay.visible = false
+
+        ' signal the beacon that the app has launched
+        if NOT m.appLaunchComplete then
+            m.appLaunchComplete = true
+            m.top.signalBeacon("AppLaunchComplete")
+        end if
+
     else if data.type = "NavigationStart" then
         m.loadingOverlay.visible = true
     else if data.type = "NavigationError" OR data.type = "NavigationCancel" then
@@ -63,13 +85,14 @@ sub onRouterStateChanged(event as Object)
     end if
 end sub
 
+' Handles the key events
 function onKeyEvent(key = "" as String, press = false as Boolean) as Boolean
     if press then
         if key = "back" OR key = "left" then
             if m.mainMenu.visible then m.mainMenu.setFocus(true)
             return true
         else if key = "right" then
-            if NOT m.router@.setFocus(true) then
+            if NOT rokuRouter.setFocus({ focus: true }) then
                 if m.mainMenu.visible then m.mainMenu.setFocus(true)
             end if
             return true

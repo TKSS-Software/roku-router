@@ -37,15 +37,13 @@ end function
 ' Function to add routes to the router' @param {Array} routes - The routes to add
 sub _addRoutes(routes = [] as Object)
     for each route in routes
-        m.__router_routes[route.pattern] = rodash.merge({
-            pattern: ""
-            component: ""
-            allowReuse: false
-            canActivate: []
-            isRoot: false
-            keepRootAlive: false
-            isDialog: false
-        }, route)
+        if NOT rodash.isNonEmptyString(route.pattern) then
+            print "Invalid route pattern"
+        else if NOT rodash.isNonEmptyString(route.component) then
+            print "Invalid route component"
+        else
+            m.__router_routes[route.pattern] = route
+        end if
     end for
 end sub
 
@@ -91,7 +89,7 @@ function _navigateTo(path = "" as String, options = {}) as Dynamic
     navigationState = rodash.getAA(options, "navigationState")
     context = rodash.getAA(options, "context")
 
-    newRoute = rodash.createNode("Node", findMatchingRoute(path, m.__router_routes))
+    newRoute = rodash.createNode("Node", rokuRouter.utils.findMatchingRoute(path, m.__router_routes))
 
     ' An event triggered when a navigation starts.
     dispatchRouterState(RouterState.NavigationStart, {
@@ -478,7 +476,6 @@ function closeView(view = Invalid as Dynamic) as Dynamic
 end function
 
 
-
 ' Tells the view to hide and fire the onViewSuspend lifecycle method if onSuspend is true' @param {Object} view - The view to hide
 ' @param {Boolean} onSuspend - Whether to fire the onViewSuspend lifecycle method
 function hideView(view as Object, onSuspend = false as Boolean) as Boolean
@@ -559,22 +556,6 @@ end function
 '*************************************************************************
 
 
-' Helper function to create a route object' @param {Object} config - The configuration object
-' @returns {Dynamic} - The result of the view open
-function createRouteObject(config = {} as Object) as Object
-    return {
-        path: rodash.getString(config, "path")
-        routeConfig: rodash.getAA(config, "routeConfig")
-        context: rodash.merge(createBaseContext(), rodash.getAA(config, "context"))
-        navigationState: createBaseNavigationState()
-        routeParams: rodash.getAA(config, "routeParams")
-        queryParams: rodash.getAA(config, "queryParams")
-        hash: rodash.getString(config, "hash")
-        id: CreateObject("roDeviceInfo").GetRandomUUID()
-        router: m.top
-    }
-end function
-
 ' Helper function to dispatch a router state' @param {String} stateType - The type of state to dispatch
 ' @param {Object} context - The context to pass to the state
 sub dispatchRouterState(stateType as String, context = {} as Dynamic)
@@ -606,146 +587,7 @@ function createRouteSnapshot(route as Object) as Object
     }
 end function
 
-' Helper function to create a base context object' @returns {Object} - The base context object
-function createBaseContext() as Object
-    return {}
-end function
 
-function createBaseNavigationState() as Object
-    return {
-        fromRedirect: false
-        fromSuspendedRoot: false
-        fromPopState: false
-        fromPushState: false
-    }
-end function
-
-' Helper function to find a matching route' @param {String} path - The path to find a matching route for
-' @param {Object} routes - The routes to search
-' @returns {Dynamic} - The matching route
-function findMatchingRoute(path as String, routes as Object) as RouteObject
-    hash = getHashParam(path)
-
-    if rodash.isNonEmptyString(hash) then
-        path = path.replace("#" + hash, "")
-    end if
-
-    ' Separate the path from the query string
-    pathParts = path.split("?")
-    basePath = normalizePath(pathParts[0])
-    queryString = Invalid
-    if pathParts.count() > 1 then
-        queryString = pathParts[1]
-    end if
-
-    ' Parse the query string if present
-    queryParams = parseQueryString(queryString)
-
-    ' First check for exact matches (static paths)
-    for each routePath in routes
-        if normalizePath(routePath) = basePath then
-            return createRouteObject({
-                path: path
-                routeConfig: routes[routePath]
-                queryParams: queryParams
-                hash: hash
-            })
-        end if
-    end for
-
-    ' Then check parameterized matches
-    for each routePath in routes
-        routeParts = normalizePath(routePath).split("/")
-        pathParts = basePath.split("/")
-
-        matchedParams = {}
-        if routeParts.count() = pathParts.count() then
-            matchedParams = {}
-            isMatch = true
-
-            for i = 0 to routeParts.count() - 1
-                if routeParts[i].left(1) = ":" then
-                    ' This is a parameter
-                    paramName = routeParts[i].mid(1)
-                    matchedParams[paramName] = pathParts[i]
-                else if routeParts[i] <> pathParts[i] then
-                    ' If a static part doesn't match, break
-                    isMatch = false
-                    exit for
-                end if
-            end for
-
-            if isMatch then
-                return createRouteObject({
-                    path: path
-                    routeConfig: routes[routePath]
-                    routeParams: matchedParams
-                    queryParams: queryParams
-                    hash: hash
-                })
-            end if
-        end if
-    end for
-
-    return createRouteObject({
-        path: path
-        queryParams: queryParams
-        hash: hash
-    })
-end function
-
-' Helper Function to get the hash parameter from a URL' @param {String} url - The URL to get the hash parameter from
-' @returns {String} - The hash parameter
-function getHashParam(url as String) as String
-    ' Check if the input URL is valid
-    if rodash.isEmptyString(url) then
-        return ""
-    end if
-
-    ' Find the position of the # character in the URL
-    hashIndex = rodash.stringIndexOf(url, "#")
-
-    ' If # is not found, return "Invalid"
-    if hashIndex = -1 then
-        return ""
-    end if
-
-    ' Extract and return the substring after the #
-    return url.mid(hashIndex + 1)
-end function
-
-' Helper function to normalize a path' @param {String} path - The path to normalize
-' @returns {String} - The normalized path
-function normalizePath(path as String) as String
-    path = path.trim()
-    if path.right(1) = "/" then
-        path = path.left(path.len() - 1)
-    end if
-    if path.left(1) <> "/" then
-        path = "/" + path
-    end if
-    return path
-end function
-
-' Helper function to parse a query string into an associative array' @param {Dynamic} queryString - The query string to parse
-' @returns {Object} - The parsed query string
-function parseQueryString(queryString as Dynamic) as Object
-    if NOT rodash.isNonEmptyString(queryString) then
-        return {}
-    end if
-
-    queryParams = {}
-    pairs = queryString.split("&")
-    for each pair in pairs
-        keyValue = pair.split("=")
-        if keyValue.count() = 2 then
-            key = keyValue[0]
-            value = keyValue[1]
-            queryParams[key] = value
-        end if
-    end for
-    return queryParams
-end function
 
 '*************************************************************************
 '#endregion *** PRIVATE Helper Functions

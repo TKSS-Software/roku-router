@@ -37,19 +37,61 @@ end function
 ' Function to add routes to the router' @param {Array} routes - The routes to add
 sub _addRoutes(routes = [] as Object)
     for each route in routes
-        if NOT rodash.isNonEmptyString(route.pattern) then
-            print "Invalid route pattern"
-        else if NOT rodash.isNonEmptyString(route.component) then
-            print "Invalid route component"
-        else
+        if isValidRoute(route) then
             m.__router_routes[route.pattern] = route
         end if
     end for
+
+    print "Routes added", m.__router_routes
 end sub
+
+function isValidRoute(route as Object) as Boolean
+    if rodash.isNonEmptyString(route.pattern) AND rodash.isNonEmptyString(route.component) then return true
+
+    print "Invalid route", route
+    return false
+end function
 
 ' Function to get the routes' @returns {Array} - The routes
 function _getRoutes(_ = Invalid as Dynamic) as Dynamic
     return m.__router_routes
+end function
+
+' Function to get the flattened routes' @returns {Array} - The flattened routes
+' @returns {Array} - The flattened routes
+function getFlattenedRoutes(_ = Invalid as Dynamic) as Dynamic
+    flattedRoutesObject = {}
+    for each key in m.__router_routes
+        flattenRoute(m.__router_routes[key], "", flattedRoutesObject)
+    end for
+    return flattedRoutesObject
+end function
+
+' Function to flatten a route' @param {Object} route - The route to flatten
+' @param {Object} route - The route to flatten
+' @param {String} parentPattern - The parent pattern
+' @param {Object} flattedRoutesObject - The flatted routes object to merge
+' @returns {Object} - The flatted routes object
+function flattenRoute(route = {} as Object, parentPattern = "" as String, flattedRoutesObject = {} as Object) as Object
+    if isValidRoute(route) then
+        route.pattern = parentPattern + rokuRouter.utils.normalizePath(route.pattern)
+
+        if rodash.isNonEmptyArray(route.children) then
+            children = route.children
+            route.delete("children")
+
+            while children.count() > 0
+                flattenRoute(rodash.merge({}, [route, children.Shift(), {
+                        parent: route.pattern
+                }]), route.pattern, flattedRoutesObject)
+            end while
+        end if
+
+        route.delete("children")
+        flattedRoutesObject[route.pattern] = route
+    end if
+
+    return flattedRoutesObject
 end function
 
 ' Function to navigate back in the router history' @returns {Boolean} - Whether the navigation was successful or not
@@ -89,7 +131,8 @@ function _navigateTo(path = "" as String, options = {}) as Dynamic
     navigationState = rodash.getAA(options, "navigationState")
     context = rodash.getAA(options, "context")
 
-    newRoute = rodash.createNode("Node", rokuRouter.utils.findMatchingRoute(path, m.__router_routes))
+    ' Create a new route
+    newRoute = rodash.createNode("Node", rokuRouter.utils.findMatchingRoute(path, getFlattenedRoutes()))
 
     ' An event triggered when a navigation starts.
     dispatchRouterState(RouterState.NavigationStart, {

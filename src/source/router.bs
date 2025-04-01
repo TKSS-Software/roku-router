@@ -23,7 +23,12 @@ namespace rokuRouter
 
         ' Validate the outlet
         if rokuRouter.utils.isRouter(routerObject) AND rokuRouter.utils.isOutlet(params.outlet) then
-            m.top.getScene().addFields({ __router: routerObject })
+            scene = m.top.getScene()
+            if scene.hasField("__router") then
+                scene.removeField("__router")
+            end if
+            scene.addFields({ __router: routerObject })
+
             return routerObject@._initialize(params)
         end if
 
@@ -61,7 +66,14 @@ namespace rokuRouter
     sub addRoutes(routes = [] as Object, options = {} as Object)
         r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) then
-            r@._addRoutes(routes)
+            _routes = rodash.merge({}, r.__router_routes)
+
+            for each route in routes
+                if rokuRouter.utils.isValidRoute(route) then
+                    _routes[route.pattern] = route
+                end if
+            end for
+            r.__router_routes = _routes
         end if
     end sub
 
@@ -71,7 +83,7 @@ namespace rokuRouter
     function getRoutes(options = {} as Object) as Dynamic
         r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) then
-            return r@._getRoutes()
+            return r.__router_routes
         end if
         return {}
     end function
@@ -172,9 +184,8 @@ namespace rokuRouter.utils
     end function
 
     ' Helper function to find a matching route' @param {String} path - The path to find a matching route for
-    ' @param {Object} routes - The routes to search
     ' @returns {Dynamic} - The matching route
-    function findMatchingRoute(path as String, routes as Object) as RouteObject
+    function findMatchingRouteConfig(path as String) as RouteObject
         hash = rokuRouter.utils.getHashParam(path)
 
         if rodash.isNonEmptyString(hash) then
@@ -193,6 +204,7 @@ namespace rokuRouter.utils
         queryParams = rokuRouter.utils.parseQueryString(queryString)
 
         ' First check for exact matches (static paths)
+        routes = getFlattenedRouteConfigs()
         for each routePath in routes
             if rokuRouter.utils.normalizePath(routePath) = basePath then
                 return rokuRouter.utils.createRouteObject({
@@ -329,5 +341,49 @@ namespace rokuRouter.utils
             end if
         end for
         return queryParams
+    end function
+
+    ' Function to get the flattened routes' @returns {Array} - The flattened routes
+    ' @returns {Array} - The flattened routes
+    function getFlattenedRouteConfigs(_ = Invalid as Dynamic) as Dynamic
+        flattedRoutesObject = {}
+        for each key in rokuRouter.getRouter().__router_routes
+            flattenRoute(rokuRouter.getRouter().__router_routes[key], "", flattedRoutesObject)
+        end for
+        return flattedRoutesObject
+    end function
+
+    ' Function to flatten a route' @param {Object} route - The route to flatten
+    ' @param {Object} route - The route to flatten
+    ' @param {String} parentPattern - The parent pattern
+    ' @param {Object} flattedRoutesObject - The flatted routes object to merge
+    ' @returns {Object} - The flatted routes object
+    function flattenRoute(route = {} as Object, parentPattern = "" as String, flattedRoutesObject = {} as Object) as Object
+        if isValidRoute(route) then
+            route.pattern = parentPattern + rokuRouter.utils.normalizePath(route.pattern)
+
+            if rodash.isNonEmptyArray(route.children) then
+                children = route.children
+                route.delete("children")
+
+                while children.count() > 0
+                    flattenRoute(rodash.merge({}, [route, children.Shift(), {
+                            parent: route.pattern
+                    }]), route.pattern, flattedRoutesObject)
+                end while
+            end if
+
+            route.delete("children")
+            flattedRoutesObject[route.pattern] = route
+        end if
+
+        return flattedRoutesObject
+    end function
+
+    function isValidRoute(route as Object) as Boolean
+        if rodash.isNonEmptyString(route.pattern) AND rodash.isNonEmptyString(route.component) then return true
+
+        print "Invalid route", route
+        return false
     end function
 end namespace

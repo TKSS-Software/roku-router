@@ -4,11 +4,10 @@
         <!-- READ ONLY -->
         <field id="routerState" type="assocArray" />
         <field id="__isRouter" type="boolean" value="true" />
+        <field id="__router_routes" type="assocArray" value="{}" />
         <!-- END READ ONLY -->
 
         <function name="_initialize" />
-        <function name="_addRoutes" />
-        <function name="_getRoutes" />
         <function name="_navigateTo" />
         <function name="_goBack" />
         <function name="_setFocus" />

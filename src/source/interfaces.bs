@@ -15,6 +15,14 @@ interface RouteConfig
     optional isDialog as Boolean ' false
 end interface
 
+interface FlattenedRouteConfig
+    views as Array' [{ pattern: "about", component: "MovieDetailsAboutView" }]
+    optional canActivate as Dynamic
+    optional isRoot as Boolean ' true
+    optional keepRootAlive as Boolean ' false
+    optional isDialog as Boolean ' false
+end interface
+
 interface RouteUpdateEvent
     oldRoute as RouteObject
     newRoute as RouteObject

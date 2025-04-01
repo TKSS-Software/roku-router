@@ -9,7 +9,6 @@ sub init()
     m.__router_guardInstances = {}
     m.__router_outlet = Invalid
     m.__router_processingGoBack = false
-    m.__router_routes = {}
 
     m.top.focusable = true
 end sub
@@ -31,67 +30,13 @@ function _initialize(params = {} as Object) as Dynamic
         m.__router_suspendedViewTarget = m.__router_outlet.findNode("suspendedViewTarget")
     end if
 
+    m.__router_activeView = Invalid
+    m.__router_focusRequestMade = false
+    m.__router_guardInstances = {}
+    m.__router_processingGoBack = false
+    m.top.__router_routes = {}
+
     return m.top
-end function
-
-' Function to add routes to the router' @param {Array} routes - The routes to add
-sub _addRoutes(routes = [] as Object)
-    for each route in routes
-        if isValidRoute(route) then
-            m.__router_routes[route.pattern] = route
-        end if
-    end for
-
-    print "Routes added", m.__router_routes
-end sub
-
-function isValidRoute(route as Object) as Boolean
-    if rodash.isNonEmptyString(route.pattern) AND rodash.isNonEmptyString(route.component) then return true
-
-    print "Invalid route", route
-    return false
-end function
-
-' Function to get the routes' @returns {Array} - The routes
-function _getRoutes(_ = Invalid as Dynamic) as Dynamic
-    return m.__router_routes
-end function
-
-' Function to get the flattened routes' @returns {Array} - The flattened routes
-' @returns {Array} - The flattened routes
-function getFlattenedRoutes(_ = Invalid as Dynamic) as Dynamic
-    flattedRoutesObject = {}
-    for each key in m.__router_routes
-        flattenRoute(m.__router_routes[key], "", flattedRoutesObject)
-    end for
-    return flattedRoutesObject
-end function
-
-' Function to flatten a route' @param {Object} route - The route to flatten
-' @param {Object} route - The route to flatten
-' @param {String} parentPattern - The parent pattern
-' @param {Object} flattedRoutesObject - The flatted routes object to merge
-' @returns {Object} - The flatted routes object
-function flattenRoute(route = {} as Object, parentPattern = "" as String, flattedRoutesObject = {} as Object) as Object
-    if isValidRoute(route) then
-        route.pattern = parentPattern + rokuRouter.utils.normalizePath(route.pattern)
-
-        if rodash.isNonEmptyArray(route.children) then
-            children = route.children
-            route.delete("children")
-
-            while children.count() > 0
-                flattenRoute(rodash.merge({}, [route, children.Shift(), {
-                        parent: route.pattern
-                }]), route.pattern, flattedRoutesObject)
-            end while
-        end if
-
-        route.delete("children")
-        flattedRoutesObject[route.pattern] = route
-    end if
-
-    return flattedRoutesObject
 end function
 
 ' Function to navigate back in the router history' @returns {Boolean} - Whether the navigation was successful or not
@@ -132,7 +77,7 @@ function _navigateTo(path = "" as String, options = {}) as Dynamic
     context = rodash.getAA(options, "context")
 
     ' Create a new route
-    newRoute = rodash.createNode("Node", rokuRouter.utils.findMatchingRoute(path, getFlattenedRoutes()))
+    newRoute = rodash.createNode("Node", rokuRouter.utils.findMatchingRouteConfig(path))
 
     ' An event triggered when a navigation starts.
     dispatchRouterState(RouterState.NavigationStart, {
@@ -163,6 +108,21 @@ function _navigateTo(path = "" as String, options = {}) as Dynamic
         return promises.reject(message)
     end if
 
+    ' Merge the route config overrides
+    if rodash.isNonEmptyAA(routeConfigOverrides) then
+        newRouteConfig = rodash.merge(newRoute.routeConfig, routeConfigOverrides)
+        newRoute.routeConfig = newRouteConfig
+    end if
+
+    if rodash.isEmptyString(newRoute.routeConfig.component) then
+        message = { message: `No component for route "${newRoute.path}"` }
+        dispatchRouterState(RouterState.NavigationError, {
+            id: newRoute.id
+            error: message
+        })
+        return promises.reject(message)
+    end if
+
     'An event triggered when routes are recognized.
     dispatchRouterState(RouterState.RoutesRecognized, {
         id: newRoute.id
@@ -173,12 +133,6 @@ function _navigateTo(path = "" as String, options = {}) as Dynamic
     if rodash.isNonEmptyAA(context) then
         newRouteContext = rodash.merge(newRoute.context, context)
         newRoute.context = newRouteContext
-    end if
-
-    ' Merge the route config overrides
-    if rodash.isNonEmptyAA(routeConfigOverrides) then
-        newRouteConfig = rodash.merge(newRoute.routeConfig, routeConfigOverrides)
-        newRoute.routeConfig = newRouteConfig
     end if
 
     ' Merge the navigation state
@@ -205,15 +159,6 @@ function _navigateTo(path = "" as String, options = {}) as Dynamic
 
         ' Look for a matched pattern
         if rodash.isNonEmptyString(newRoute.routeConfig.pattern) then
-            if rodash.isEmptyString(newRoute.routeConfig.component) then
-                message = { message: `No component for route "${newRoute.path}"` }
-                dispatchRouterState(RouterState.NavigationError, {
-                    id: id
-                    error: message
-                })
-                return promises.reject(message)
-            end if
-
             viewsToRemove = []
             if m.__router_activeView <> Invalid then
                 oldRoute = m.__router_activeView.route

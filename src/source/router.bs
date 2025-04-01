@@ -171,7 +171,7 @@ namespace rokuRouter.utils
             queryParams: rodash.getAA(config, "queryParams")
             hash: rodash.getString(config, "hash")
             id: CreateObject("roDeviceInfo").GetRandomUUID()
-            router: m.top
+            router: rokuRouter.getRouter()
         }
     end function
 

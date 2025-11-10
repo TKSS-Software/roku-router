@@ -4,8 +4,4 @@
         <function name="canActivate" />
         <function name="setGuardConfig" />
     </interface>
-    <children>
-        <Group id="suspendedViewTarget" />
-        <Group id="viewTarget" />
-    </children>
 </component>

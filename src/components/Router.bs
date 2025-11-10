@@ -156,7 +156,7 @@ function _navigateTo(path = "" as String, options = {}) as Dynamic
                 return guardCheckResponse.redirect
             end if
 
-            promises.reject(guardCheckResponse)
+            return promises.reject(guardCheckResponse)
         end if
 
         id = internalContext.newRoute.id
@@ -275,7 +275,10 @@ function runGuardChecks(route as Dynamic) as Dynamic
     if rodash.isNonEmptyArray(canActivateGuard) then
         for each guard in canActivateGuard
             guardNode = Invalid
-            if rodash.isNode(guard) then
+            if rodash.isAA(guard) then
+                guardNode = rodash.createNode("KeyPathGuard")
+                guardNode@.setGuardConfig(guard)
+            else if rodash.isNode(guard) then
                 guardNode = guard
             else if rodash.isString(guard) then
                 if m.__router_guardInstances[guard] = Invalid then
@@ -297,6 +300,13 @@ function runGuardChecks(route as Dynamic) as Dynamic
                             id: route.id
                             route: route
                         })
+
+                        ' An event triggered when a navigation is canceled, directly or indirectly. This can happen for several reasons including when a route guard returns false or initiates a redirect.
+                        dispatchRouterState(RouterState.NavigationCancel, {
+                            id: route.id
+                            route: route
+                        })
+
                         return promises.resolve(message)
                     end if
                 else if rodash.isNonEmptyAA(canActivateResult) then

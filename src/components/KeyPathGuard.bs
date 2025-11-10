@@ -1,0 +1,32 @@
+import "pkg:/source/roku_modules/rodash/rodash.brs"
+import "pkg:/source/router.bs"
+
+sub setGuardConfig(guard as Object)
+    m.keyPath = rodash.getString(guard, "keyPath")
+    m.expectedValue = rodash.get(guard, "expectedValue")
+    m.scope = rodash.getString(guard, "scope", "global")
+    m.denyDialog = rodash.getAA(guard, "denyDialog")
+    m.denyRedirect = rodash.getString(guard, "denyRedirect")
+end sub
+
+function canActivate(currentRequest = {} as Object) as Dynamic
+    value = rodash.get(m.scope = "scene" ? m.top.getScene() : m.global, m.keyPath)
+
+    if rodash.isEqual(value, m.expectedValue) then
+        return true
+    end if
+
+    if rodash.isNonEmptyAA(m.denyDialog) then
+        dialog = createObject("roSGNode", "Dialog")
+        dialog.title = rodash.getString(m.denyDialog, "title", "Access Denied")
+        dialog.optionsDialog = true
+        dialog.message = rodash.getString(m.denyDialog, "message", "You do not have permission to access this screen.")
+        m.top.getScene().dialog = dialog
+    end if
+
+    if rodash.isNonEmptyString(m.denyRedirect) then
+        return rokuRouter.createRedirectCommand(m.denyRedirect)
+    end if
+
+    return false
+end function

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="KeyPathGuard" extends="Node">
+    <interface>
+        <function name="canActivate" />
+        <function name="setGuardConfig" />
+    </interface>
+    <children>
+        <Group id="suspendedViewTarget" />
+        <Group id="viewTarget" />
+    </children>
+</component>

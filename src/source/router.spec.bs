@@ -12,12 +12,17 @@ namespace tests
     @SGNode("Group")
     @suite("rokuRouter namespace")
     class rokuRouter extends rooibos.BaseTestSuite
-
         private router = createObject("roSGNode", "Router")
+        private outlet = createObject("roSGNode", "Outlet")
 
         protected override function beforeEach()
             globalAA = getGlobalAA()
             globalAA.routerStatesHistory = []
+
+            children = m.router.getChildren(-1, 0)
+            m.router.removeChildren(children)
+
+            m.router.appendChild(m.outlet)
             globalAA.top.appendChild(m.router)
             m.router.unobserveField("routerState")
         end function
@@ -28,12 +33,12 @@ namespace tests
         @it("tests adding and getting routes")
         function _()
             'register some routes
-            m.router@.addRoutes([
+            m.router@._addRoutes([
                 { pattern: "/alpha", component: "View" },
                 { pattern: "/beta", component: "View" },
             ])
 
-            m.assertEqual(m.router@.getRoutes(), {
+            m.assertEqual(m.router@._getRoutes(), {
                 "/alpha": {
                     "allowreuse": false
                     "canactivate": []
@@ -65,7 +70,7 @@ namespace tests
             m.router.observeField("routerState", "onRouterStateChanged")
 
             'register some routes
-            m.router@.addRoutes([
+            m.router@._addRoutes([
                 { pattern: "/alpha", component: "View" },
                 { pattern: "/beta", component: "View" },
             ])
@@ -98,7 +103,7 @@ namespace tests
             m.router.observeField("routerState", "onRouterStateChanged")
 
             'register some routes
-            m.router@.addRoutes([
+            m.router@._addRoutes([
                 { pattern: "/alpha", component: "View" },
                 { pattern: "/beta", component: "View" },
             ])
@@ -120,7 +125,7 @@ namespace tests
             m.router.observeField("routerState", "onRouterStateChanged")
 
             'register some routes
-            m.router@.addRoutes([
+            m.router@._addRoutes([
                 { pattern: "/alpha" }
             ])
 

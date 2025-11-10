@@ -8,6 +8,28 @@ import "RouterState.bs"
 '*** DO NOT USE THIS FILE OUTSIDE OF A VIEW COMPONENT, such as the main scene
 '************************
 namespace rokuRouter
+
+    function initialize(params = {} as Object) as Dynamic
+        routerObject = Invalid
+        if params.router = Invalid then
+            routerObject = createObject("roSGNode", "Router")
+        else
+            routerObject = params.router
+        end if
+
+        if params.outlet = Invalid then
+            params.outlet = rokuRouter.searchForOutlet(m.top.getScene())
+        end if
+
+        ' Validate the outlet
+        if rokuRouter.utils.isRouter(routerObject) AND rokuRouter.utils.isOutlet(params.outlet) then
+            m.top.getScene().addFields({ __router: routerObject })
+            return routerObject@._initialize(params)
+        end if
+
+        return Invalid
+    end function
+
     ' This function is used to navigate to a different screen
     ' It will return a promise that will resolve when the navigation is complete
     ' @since 0.0.1
@@ -18,9 +40,17 @@ namespace rokuRouter
     function navigateTo(path = "" as String, options = {} as Object) as Dynamic
         r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) then
-            return r@.navigate(path, options)
+            return r@._navigateTo(path, options)
         end if
         return promises.resolve(true)
+    end function
+
+    function goBack(options = {} as Object) as Dynamic
+        r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
+        if rodash.isNotInvalid(r) then
+            return r@._goBack(Invalid)
+        end if
+        return false
     end function
 
     ' This function is used to add routes to the router
@@ -31,7 +61,7 @@ namespace rokuRouter
     sub addRoutes(routes = [] as Object, options = {} as Object)
         r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) then
-            r@.addRoutes(routes)
+            r@._addRoutes(routes)
         end if
     end sub
 
@@ -41,24 +71,48 @@ namespace rokuRouter
     function getRoutes(options = {} as Object) as Dynamic
         r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
         if rodash.isNotInvalid(r) then
-            return r@.getRoutes()
+            return r@._getRoutes()
         end if
         return {}
     end function
 
-    ' This function walks up the chain of nodes to find the router
-    ' @return - The router if found, otherwise Invalid
+    ' Gets the router from the global scope. Creates the router if it does not exist.
+    ' @since 0.0.1
+    ' @return - The router
     function getRouter() as Dynamic
-        currentChain = rokuRouter.utils.getCurrentFocusedChain(m.top.getScene())
-        currentChain.reverse()
+        return m.top.getScene().__router
+    end function
 
-        for each node in currentChain
-            if rodash.isNode(node) AND node.hasField("__isRouter") then
+    function searchForOutlet(parent = Invalid as Dynamic) as Dynamic
+        if parent = Invalid then
+            parent = m.top
+        end if
+
+        ' Check to see if you are in the outlet
+        if rokuRouter.utils.isOutlet(parent) then
+            return node
+        end if
+
+        nodes = rodash.getNodeChildren(parent)
+        while nodes.count() > 0
+            node = nodes.Shift()
+            if rokuRouter.utils.isOutlet(node) then
                 return node
+            else
+                'push all of this node's children to be searched in the future
+                nodes.append(rodash.getNodeChildren(node))
             end if
-        end for
+        end while
 
         return Invalid
+    end function
+
+    function setFocus(options = {} as Object) as Boolean
+        r = options.router <> Invalid ? options.router : rokuRouter.getRouter()
+        if rodash.isNotInvalid(r) AND rodash.isBoolean(options.focus) then
+            return r@._setFocus(options.focus)
+        end if
+        return false
     end function
 
     ' This function is used to create a redirect command
@@ -80,6 +134,14 @@ namespace rokuRouter
 end namespace
 
 namespace rokuRouter.utils
+    function isOutlet(node = Invalid as Object) as Boolean
+        return rodash.isNode(node) AND node.hasField("__isOutlet")
+    end function
+
+    function isRouter(node = Invalid as Object) as Boolean
+        return rodash.isNode(node) AND node.hasField("__isRouter")
+    end function
+
     ' This function is used to get the current focused chain of nodes
     ' @since 0.0.1
     ' @param parent - The parent node to start the search from

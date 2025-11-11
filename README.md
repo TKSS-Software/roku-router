@@ -329,9 +329,7 @@ function beforeViewOpen(params as object) as dynamic
     return promises.resolve(invalid)
 end function
 
-' If you navigate to the **same route pattern** with different params or hash,
-' `onRouteUpdate(params)` will fire (when `allowReuse` is enabled),
-' allowing you to update the view without rebuilding it.
+' If you navigate to the **same route pattern** with different params or hash, `onRouteUpdate(params)` will fire (when `allowReuse` is enabled), allowing you to update the view without rebuilding it.
 ' CatalogScreen.bs (excerpt)
 function onRouteUpdate(params as object) as dynamic
     oldRoute = params.oldRoute

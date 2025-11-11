@@ -43,7 +43,6 @@ namespace tests
                     "allowreuse": false
                     "canactivate": []
                     "component": "View"
-                    "isdialog": false
                     "isroot": false
                     "keeprootalive": false
                     "pattern": "/alpha"
@@ -52,7 +51,6 @@ namespace tests
                     "allowreuse": false
                     "canactivate": []
                     "component": "View"
-                    "isdialog": false
                     "isroot": false
                     "keeprootalive": false
                     "pattern": "/beta"
@@ -174,7 +172,6 @@ namespace tests
                     "allowreuse": false
                     "canactivate": []
                     "component": "View"
-                    "isdialog": false
                     "isroot": false
                     "keeprootalive": false
                     "pattern": "/alpha"
@@ -183,7 +180,6 @@ namespace tests
                     "allowreuse": false
                     "canactivate": []
                     "component": "View"
-                    "isdialog": false
                     "isroot": false
                     "keeprootalive": false
                     "pattern": "/beta"

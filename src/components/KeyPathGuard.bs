@@ -10,12 +10,20 @@ sub setGuardConfig(guard as Object)
 end sub
 
 function canActivate(currentRequest = {} as Object) as Dynamic
+    ' Validate scope
+    if m.scope <> "global" AND m.scope <> "scene" then
+        return false
+    end if
+
+    ' Get the value at the keyPath
     value = rodash.get(m.scope = "scene" ? m.top.getScene() : m.global, m.keyPath)
 
+    ' Check if the value matches the expected value
     if rodash.isEqual(value, m.expectedValue) then
         return true
     end if
 
+    ' If the value does not match, show the deny dialog and/or redirect
     if rodash.isNonEmptyAA(m.denyDialog) then
         dialog = createObject("roSGNode", "Dialog")
         dialog.title = rodash.getString(m.denyDialog, "title", "Access Denied")

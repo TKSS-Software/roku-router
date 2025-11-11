@@ -44,7 +44,6 @@ sub _addRoutes(routes = [] as Object)
             canActivate: []
             isRoot: false
             keepRootAlive: false
-            isDialog: false
         }, route)
     end for
 end sub

@@ -33,11 +33,11 @@ Routes are typically configured in a routing module using an array of route obje
 * `component` (required): The View component to render when the route is activated.<br>This component must extend the **rokurouter_View** component.<br>They contain the following lifecycle functions. 
     * `beforeViewOpen` - Called before the view loads.  This is where you would perform business logic like API calls and building your UI if you want to delay opening the View until ready.
     * `onViewOpen` - Called after previous view is closed or suspended. This is where you would perform business logic like API calls and building your UI if you want to open your View immediatley and handle the loading UI state manually.
-    * `beforeScreenClose` - Called before a screen is destroyed. This does not get called when a new View is added to the stack (see onSuspend).
+    * `beforeViewClose` - Called before a view is destroyed. This does not get called when a new View is added to the stack (see onSuspend).
     * `onRouteUpdate` - Called when a new route is requested that matches the same URL pattern and the Route is configured for `allowReuse` or the same url has been requested with a new hash value.
     * `onSuspend` - Called when a View is suspended. The most common case for this is when a new View is added to the stack.  
     * `onResume` - Called when a suspended View is resumed. The most common case for this is when a View above the stack is closed and the suspended View is to take over.
-    * `handleFocus` - Called when the View should determine what to do with focus.  This is called immediatley after the active View is opened on resumed.
+    * `handleFocus` - Called when the View should determine what to do with focus.  This is called immediately after the active View is opened on resumed.
 * `isRoot` (optional): Views that are defined as root are considered at the top of the view stack. When navigating to a root screen, the stack is cleared and the breadcrumbs are reset.  These could be hub screens such as a Shows or Movie hubs that are top level in your menu.
 * `canActivate` (optional): A route guard that controls access to the route. An example of this would be to validate the user has authenticated before navigating to a screen (particularly useful when using deeplinks).
 * `isDialog` (optional): Defining isDialog will notify the router to fire the dialog beacons. DO WE NEED?

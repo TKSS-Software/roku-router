@@ -285,6 +285,72 @@ end function
 
 > The included test project already wires up an `AuthManager` and protects `/shows`, `/movies`, and `/details/*` routes using `canActivate`.
 
+
+---
+
+## 🧭 Route Snapshot in lifecycle hooks `beforeViewOpen`, `onViewOpen`, `onRouteUpdate`
+
+Every view lifecycle receives a **route snapshot** so your screen logic can react to the URL that triggered navigation.
+
+### What you get in `params`
+
+`params` is constructed by the router just before the lifecycle is called, and includes:
+
+```text
+params.route.routeConfig   ' the matched route definition
+params.route.routeParams   ' extracted from pattern placeholders (e.g. :id, :type)
+params.route.queryParams   ' parsed from ?key=value pairs
+params.route.hash          ' parsed from #hash
+```
+
+The snapshot is sourced from the URL you navigated to (e.g. `"/details/movies/42?page=2&sort=trending#grid=poster"`). The router builds this object and passes it into `beforeViewOpen(params)`, `onViewOpen(params)`, and `onRouteUpdate(params)`.
+
+### Example: Using it in a Catalog view
+
+```brightscript
+' CatalogScreen.bs (excerpt)
+function beforeViewOpen(params as object) as dynamic
+    ' Read route params (e.g., /:type and /:id)
+    contentType = params.route.routeParams?.type    ' "shows" or "movies"
+    itemId      = params.route.routeParams?.id      ' e.g., "42"
+
+    ' Read query params (?page=2&sort=trending)
+    pageIndex = val(params.route.queryParams?.page)    ' 2
+    sortKey   = params.route.queryParams?.sort         ' "trending"
+
+    ' Optional: hash fragment (#grid=poster)
+    gridMode = params.route.hash
+
+    ' Kick off data loading based on URL snapshot
+    ' ... start tasks or fetches here ...
+
+    ' Return a promise to delay opening until ready,
+    ' or return true to open immediately and manage loading UI yourself.
+    return promises.resolve(invalid)
+end function
+
+' If you navigate to the **same route pattern** with different params or hash,
+' `onRouteUpdate(params)` will fire (when `allowReuse` is enabled),
+' allowing you to update the view without rebuilding it.
+' CatalogScreen.bs (excerpt)
+function onRouteUpdate(params as object) as dynamic
+    oldRoute = params.oldRoute
+    newRoute = params.newRoute
+
+    return promises.resolve(invalid)
+end function
+```
+
+
+### Where the snapshot comes from
+
+The route snapshot is assembled by the router by parsing:
+- the **pattern match** result → `routeParams`
+- the **query string** → `queryParams`
+- the **hash** → `hash`
+
+That structured object is then provided to the view lifecycles mentioned above. This keeps your screens URL-driven and easy to test (you can navigate with different URLs and assert behavior based on `params`).
+
 ---
 ## 💬 Community & Support
 

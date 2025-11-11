@@ -1,6 +1,9 @@
 import "pkg:/source/roku_modules/rodash/rodash.brs"
 import "pkg:/source/router.bs"
 
+' This component is used as a route guard that checks a keyPath against an expected value
+' If the value at the keyPath does not match the expected value, it can show a deny dialog and/or redirect to another route
+
 sub setGuardConfig(guard as Object)
     m.keyPath = rodash.getString(guard, "keyPath")
     m.expectedValue = rodash.get(guard, "expectedValue")
@@ -9,6 +12,7 @@ sub setGuardConfig(guard as Object)
     m.denyRedirect = rodash.getString(guard, "denyRedirect")
 end sub
 
+' This function is called to determine if the route can be activated
 function canActivate(currentRequest = {} as Object) as Dynamic
     ' Validate scope
     if m.scope <> "global" AND m.scope <> "scene" then

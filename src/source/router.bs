@@ -93,7 +93,8 @@ namespace rokuRouter
             return parent
         end if
 
-        nodes = rodash.getNodeChildren(parent)
+        nodes = []
+        nodes.append(rodash.getNodeChildren(parent))
         while nodes.count() > 0
             node = nodes.Shift()
             if rokuRouter.utils.isOutlet(node) then

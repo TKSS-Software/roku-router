@@ -90,7 +90,7 @@ namespace rokuRouter
 
         ' Check to see if you are in the outlet
         if rokuRouter.utils.isOutlet(parent) then
-            return node
+            return parent
         end if
 
         nodes = rodash.getNodeChildren(parent)

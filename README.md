@@ -264,7 +264,7 @@ You can implement a reusable feature flag guard for gradual rollouts:
 ```brightscript
 function canActivate(currentRequest as Object) as Dynamic
     feature = currentRequest?.routeParams?.feature ' e.g. "/feature/:feature"
-    if m.top.getScene().global?.features[feature] = true then
+    if m.global?.features[feature] = true then
         return true
     end if
     return rokuRouter.createRedirectCommand("/")

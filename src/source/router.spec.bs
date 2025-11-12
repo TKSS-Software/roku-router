@@ -11,7 +11,7 @@ namespace tests
     @async
     @SGNode("Group")
     @suite("rokuRouter namespace")
-    class rokuRouter extends rooibos.BaseTestSuite
+    class rokuRouter extends rooibos.BaseTestSuite 'bs:disable-line 1001 LINT1001
         private router = createObject("roSGNode", "Router")
         private outlet = createObject("roSGNode", "Outlet")
 
@@ -64,7 +64,7 @@ namespace tests
         '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         @async()
         @it("navigates to a known path")
-        function _()
+        function _() 'bs:disable-line 1026 LINT1026
             m.router.observeField("routerState", "onRouterStateChanged")
 
             'register some routes
@@ -97,7 +97,7 @@ namespace tests
 
         @async()
         @it("navigates to an unknown path")
-        function _()
+        function _() 'bs:disable-line 1026 LINT1026
             m.router.observeField("routerState", "onRouterStateChanged")
 
             'register some routes
@@ -119,7 +119,7 @@ namespace tests
 
         @async()
         @it("Route has no View component")
-        function _()
+        function _() 'bs:disable-line 1026 LINT1026
             m.router.observeField("routerState", "onRouterStateChanged")
 
             'register some routes
@@ -147,7 +147,7 @@ namespace tests
         @describe("createRedirectCommand")
         '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         @it("creates a command")
-        function _()
+        function _() 'bs:disable-line 1026 LINT1026
             command = rokuRouter.createRedirectCommand("alpha/beta")
             m.assertEqual(command, {
                 command: "RedirectCommand",
@@ -161,7 +161,7 @@ namespace tests
         @describe("getRoutes")
         '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         @it("getsRoutes")
-        function _()
+        function _() 'bs:disable-line 1026 LINT1026
             rokuRouter.addRoutes([
                 { pattern: "/alpha", component: "View" },
                 { pattern: "/beta", component: "View" },

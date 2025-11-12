@@ -101,6 +101,9 @@ sub init()
     ])
 
     rokuRouter.navigateTo("/") ' Go to the welcome view
+
+    ' set the focus to the router
+    rokuRouter.setFocus({ focus: true })
 end sub
 ```
 

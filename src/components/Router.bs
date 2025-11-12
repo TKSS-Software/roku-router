@@ -85,7 +85,7 @@ end function
 ' @param {String} path - The path to navigate to
 ' @param {Object} options - The route config overrides
 ' @returns {Dynamic} - The result of the navigation
-function _navigateTo(path = "" as String, options = {}) as Dynamic
+function _navigateTo(path = "" as String, options = {} as Object) as Dynamic
     routeConfigOverrides = rodash.getAA(options, "routeConfigOverrides")
     navigationState = rodash.getAA(options, "navigationState")
     context = rodash.getAA(options, "context")

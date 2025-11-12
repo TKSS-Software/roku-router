@@ -1,10 +1,10 @@
 import "pkg:/source/router.bs"
 
-function onRouterStateChanged(event as Object)
+sub onRouterStateChanged(event as Object)
     data = event.getData()
     globalAA = getGlobalAA()
     globalAA.routerStatesHistory.push(data.type)
-end function
+end sub
 
 namespace tests
 

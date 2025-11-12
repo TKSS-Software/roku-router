@@ -622,7 +622,7 @@ end function
 ' Helper function to find a matching route' @param {String} path - The path to find a matching route for
 ' @param {Object} routes - The routes to search
 ' @returns {Dynamic} - The matching route
-function findMatchingRoute(path as String, routes as Object) as RouteObject
+function findMatchingRoute(path as String, routes as Object) as rokuRouter.RouteObject
     hash = getHashParam(path)
 
     if rodash.isNonEmptyString(hash) then

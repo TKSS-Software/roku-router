@@ -1,24 +1,26 @@
-interface RouteObject
-    path as String ' /movies/3/play?autoPlayNext=true#browseWhileWatching
-    routeConfig as RouteConfig
-    routeParams as Object ' { movieId: 3}
-    queryParams as Object ' { autoPlayNext: true }
-    hash as String ' #browseWhileWatching
-end interface
+namespace rokuRouter
+    interface RouteObject
+        path as String ' /movies/3/play?autoPlayNext=true#browseWhileWatching
+        routeConfig as rokuRouter.RouteConfig
+        routeParams as Object ' { movieId: 3}
+        queryParams as Object ' { autoPlayNext: true }
+        hash as String ' #browseWhileWatching
+    end interface
 
-interface RouteConfig
-    pattern as String ' /movies/:movieId/play
-    component as String ' "MovieDetailsScreen"
-    optional canActivate as Dynamic
-    optional isRoot as Boolean ' true
-    optional keepRootAlive as Boolean ' false
-end interface
+    interface RouteConfig
+        pattern as String ' /movies/:movieId/play
+        component as String ' "MovieDetailsScreen"
+        optional canActivate as Dynamic
+        optional isRoot as Boolean ' true
+        optional keepRootAlive as Boolean ' false
+    end interface
 
-interface RouteUpdateEvent
-    oldRoute as RouteObject
-    newRoute as RouteObject
-end interface
+    interface RouteUpdateEvent
+        oldRoute as rokuRouter.RouteObject
+        newRoute as rokuRouter.RouteObject
+    end interface
 
-interface RouterState
-    type as String
-end interface
+    interface RouterState
+        type as String
+    end interface
+end namespace

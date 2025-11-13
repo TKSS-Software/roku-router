@@ -640,7 +640,9 @@ function findMatchingRoute(path as String, routes as Object) as rokuRouter.Route
     ' Parse the query string if present
     queryParams = parseQueryString(queryString)
 
-    ' First check for exact matches (static paths)
+    ' ============================================================
+    ' 1) First check for exact matches (static paths)
+    ' ============================================================
     for each routePath in routes
         if normalizePath(routePath) = basePath then
             return createRouteObject({
@@ -652,46 +654,75 @@ function findMatchingRoute(path as String, routes as Object) as rokuRouter.Route
         end if
     end for
 
-    ' Then check parameterized matches
+    ' ============================================================
+    ' 2) Then check parameterized matches, but choose the
+    '    *most specific* match (most static segments)
+    ' ============================================================
+    bestMatchRoutePath = Invalid
+    bestMatchParams = Invalid
+    bestStaticCount = -1
+
+    pathParts = basePath.split("/")
+
     for each routePath in routes
         routeParts = normalizePath(routePath).split("/")
-        pathParts = basePath.split("/")
 
-        matchedParams = {}
+        ' Must have same number of segments
         if routeParts.count() = pathParts.count() then
             matchedParams = {}
             isMatch = true
+            staticCount = 0
 
             for i = 0 to routeParts.count() - 1
-                if routeParts[i].left(1) = ":" then
-                    ' This is a parameter
-                    paramName = routeParts[i].mid(1)
-                    matchedParams[paramName] = pathParts[i]
-                else if routeParts[i] <> pathParts[i] then
-                    ' If a static part doesn't match, break
+                routePart = routeParts[i]
+                pathPart = pathParts[i]
+
+                if routePart.left(1) = ":" then
+                    ' Parameter segment, e.g. :slug
+                    paramName = routePart.mid(1)
+                    matchedParams[paramName] = pathPart
+                else if routePart = pathPart then
+                    ' Static segment matched exactly
+                    staticCount = staticCount + 1
+                else
+                    ' Static part does not match; this route is not a candidate
                     isMatch = false
                     exit for
                 end if
             end for
 
             if isMatch then
-                return createRouteObject({
-                    path: path
-                    routeConfig: routes[routePath]
-                    routeParams: matchedParams
-                    queryParams: queryParams
-                    hash: hash
-                })
+                ' Prefer routes with more static segments (more specific)
+                if staticCount > bestStaticCount then
+                    bestStaticCount = staticCount
+                    bestMatchRoutePath = routePath
+                    bestMatchParams = matchedParams
+                end if
             end if
         end if
     end for
 
+    ' If we found at least one parameterized match, return the best one
+    if bestMatchRoutePath <> Invalid then
+        return createRouteObject({
+            path: path
+            routeConfig: routes[bestMatchRoutePath]
+            routeParams: bestMatchParams
+            queryParams: queryParams
+            hash: hash
+        })
+    end if
+
+    ' ============================================================
+    ' 3) No match found; return a "not found" route object
+    ' ============================================================
     return createRouteObject({
         path: path
         queryParams: queryParams
         hash: hash
     })
 end function
+
 
 ' Helper Function to get the hash parameter from a URL' @param {String} url - The URL to get the hash parameter from
 ' @returns {String} - The hash parameter

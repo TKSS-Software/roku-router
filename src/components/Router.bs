@@ -623,7 +623,6 @@ end function
 ' @param {Object} routes - The routes to search
 ' @returns {Dynamic} - The matching route
 function findMatchingRoute(path as String, routes as Object) as rokuRouter.RouteObject
-    path = normalizePath(path)
     hash = getHashParam(path)
 
     if rodash.isNonEmptyString(hash) then

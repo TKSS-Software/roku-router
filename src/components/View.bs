@@ -8,6 +8,7 @@ end sub
 
 function _beforeViewOpen(params = {} as Object) as Dynamic
     return promises.chain(beforeViewOpen(params), params).then(function(response as Dynamic, params as Dynamic) as Dynamic
+        sleep(100) ' allow time for the view to render before continuing
         return response
     end function).toPromise()
 end function
@@ -18,6 +19,7 @@ end function
 
 function _onViewOpen(params = {} as Object) as Dynamic
     return promises.chain(onViewOpen(params), params).then(function(response as Dynamic, params as Dynamic) as Dynamic
+        sleep(50) ' allow time for the view to render before continuing
         m._allowHandleFocus = true
         return response
     end function).toPromise()
@@ -62,6 +64,7 @@ function onViewSuspend(_ as Dynamic) as Dynamic
 end function
 
 function _handleFocus(data = {} as Object) as Boolean
+    sleep(50) ' allow time for the view to render before attempting to set focus
     if m._allowHandleFocus then
         handled = handleFocus(data)
         if handled then

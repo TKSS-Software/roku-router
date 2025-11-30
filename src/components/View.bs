@@ -39,7 +39,7 @@ end function
 function _onRouteUpdate(event as rokuRouter.RouteUpdateEvent) as Dynamic
     print "Route is updating", event.oldRoute, event.newRoute 'bs:disable-line 1001 LINT3012
     return promises.chain(onRouteUpdate(event), event).then(function(response as Dynamic, event as Dynamic) as Dynamic
-        return promises.resolve(response)
+        return response
     end function).toPromise()
 end function
 

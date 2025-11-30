@@ -199,7 +199,7 @@ function _navigateTo(path = "" as String, options = {} as Object) as Dynamic
                         newRoute: newRoute
                     })
 
-                    return promises.chain(promises.resolve(promiseToResolve), internalContext).then(function(_ as Dynamic, internalContext as Dynamic) as Dynamic
+                    return promises.chain(promises.resolve(promiseToResolve), internalContext).then(function(response as Dynamic, internalContext as Dynamic) as Dynamic
                         id = internalContext.newRoute.id
                         newRoute = internalContext.newRoute
                         dispatchRouterState(RouterState.ResolveEnd, {
@@ -214,8 +214,8 @@ function _navigateTo(path = "" as String, options = {} as Object) as Dynamic
                             id: id
                             route: newRoute
                         })
-                        return promises.resolve(m.__router_activeView)
-                    end function).toPromise()
+                        return response
+                    end function)
                 else
                     if newRoute.routeConfig.isRoot then
                         for each view in rodash.getNodeChildren(m.__router_viewTarget)

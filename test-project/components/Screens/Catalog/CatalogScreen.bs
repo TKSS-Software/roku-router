@@ -55,6 +55,11 @@ function beforeViewOpen(params = {} as Object) as Dynamic
   return promises.resolve(Invalid)
 end function
 
+function onRouteUpdate(event = {} as Object) as Dynamic
+  print "CatalogScreen onRouteUpdate called" 'bs:disable-line 1001 LINT3012
+  return promises.resolve(Invalid)
+end function
+
 function onViewResume(params = {} as Object) as Dynamic
   ' If we are coming from a suspended root, jump to the first item
   fromSuspendedRoot = params.route.navigationState.fromSuspendedRoot

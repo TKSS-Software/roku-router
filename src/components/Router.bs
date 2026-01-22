@@ -66,6 +66,7 @@ function _goBack(_ = Invalid as Dynamic) as Dynamic
     ' An event triggered when a navigation starts.
     dispatchRouterState(RouterState.NavigationStart, {
         id: viewToOpen.route.id
+        route: viewToOpen.route
     })
     promises.chain(closeView(viewToClose), viewToOpen).then(sub(response as Dynamic, view as Dynamic)
         m.__router_focusRequestMade = m.__router_focusRequestMade OR m.__router_processingGoBack
@@ -92,9 +93,28 @@ function _navigateTo(path = "" as String, options = {} as Object) as Dynamic
 
     newRoute = rodash.createNode("Node", findMatchingRoute(path, m.__router_routes))
 
+    ' Merge the route config overrides
+    if rodash.isNonEmptyAA(routeConfigOverrides) then
+        newRouteConfig = rodash.merge(newRoute.routeConfig, routeConfigOverrides)
+        newRoute.routeConfig = newRouteConfig
+    end if
+
+    ' Merge the context
+    if rodash.isNonEmptyAA(context) then
+        newRouteContext = rodash.merge(newRoute.context, context)
+        newRoute.context = newRouteContext
+    end if
+
+    ' Merge the navigation state
+    if rodash.isNonEmptyAA(navigationState) then
+        newRouteNavigationState = rodash.merge(newRoute.navigationState, navigationState)
+        newRoute.navigationState = newRouteNavigationState
+    end if
+
     ' An event triggered when a navigation starts.
     dispatchRouterState(RouterState.NavigationStart, {
         id: newRoute.id
+        route: newRoute
     })
 
     if m.__router_outlet = Invalid then
@@ -126,25 +146,6 @@ function _navigateTo(path = "" as String, options = {} as Object) as Dynamic
         id: newRoute.id
         route: newRoute
     })
-
-    ' Merge the context
-    if rodash.isNonEmptyAA(context) then
-        newRouteContext = rodash.merge(newRoute.context, context)
-        newRoute.context = newRouteContext
-    end if
-
-    ' Merge the route config overrides
-    if rodash.isNonEmptyAA(routeConfigOverrides) then
-        newRouteConfig = rodash.merge(newRoute.routeConfig, routeConfigOverrides)
-        newRoute.routeConfig = newRouteConfig
-    end if
-
-    ' Merge the navigation state
-    if rodash.isNonEmptyAA(navigationState) then
-        newRouteNavigationState = rodash.merge(newRoute.navigationState, navigationState)
-        newRoute.navigationState = newRouteNavigationState
-    end if
-
 
     'sleep until next tick, then continue work
     return promises.chain(promises.resolve(Invalid), { newRoute: newRoute }).then(function(_ as Dynamic, internalContext as Dynamic) as Dynamic
@@ -192,23 +193,29 @@ function _navigateTo(path = "" as String, options = {} as Object) as Dynamic
                         route: newRoute
                     })
                     m.__router_activeView.route = newRoute
-                    m.__router_activeView@._onRouteUpdate({
+
+                    return promises.chain(m.__router_activeView@._onRouteUpdate({
                         oldRoute: oldRoute
                         newRoute: newRoute
-                    })
-                    dispatchRouterState(RouterState.ResolveEnd, {
-                        id: id
-                        route: newRoute
-                    })
-                    dispatchRouterState(RouterState.ActivationEnd, {
-                        id: id
-                        route: newRoute
-                    })
-                    dispatchRouterState(RouterState.NavigationEnd, {
-                        id: id
-                        route: newRoute
-                    })
-                    return promises.resolve(m.__router_activeView)
+                    }), internalContext).then(function(response as Dynamic, internalContext as Dynamic) as Dynamic
+                        return response
+                    end function).then(function(response as Dynamic, internalContext as Dynamic) as Dynamic
+                        id = internalContext.newRoute.id
+                        newRoute = internalContext.newRoute
+                        dispatchRouterState("ResolveEnd", {
+                            id: id
+                            route: newRoute
+                        })
+                        dispatchRouterState("ActivationEnd", {
+                            id: id
+                            route: newRoute
+                        })
+                        dispatchRouterState("NavigationEnd", {
+                            id: id
+                            route: newRoute
+                        })
+                        return response
+                    end function).toPromise()
                 else
                     if newRoute.routeConfig.isRoot then
                         for each view in rodash.getNodeChildren(m.__router_viewTarget)

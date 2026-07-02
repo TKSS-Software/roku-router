@@ -151,6 +151,10 @@ end function
 function _goBack(_ = Invalid as Dynamic) as Dynamic
     if m.__router_navigationInProgress then
         _cancelActiveNavigation()
+        ' If the cancelled navigation had already swapped in its incoming view (reached showView),
+        ' restore the previous (history-top) view so goBack genuinely returns to the current screen
+        ' rather than stranding the user on the half-committed incoming view. No-op otherwise.
+        _restoreCurrentViewAfterCancel()
         return true
     end if
     return _goBackImpl()
@@ -1440,6 +1444,46 @@ sub _cleanupSupersededIncomingView(view as Object, fromKeepAlive as Boolean)
     else
         rodash.removeNode(view)
     end if
+end sub
+
+' After a goBack cancel-only, restore the history-top view as active if the cancelled forward
+' navigation had already shown its incoming view. That happens only when the cancel lands after
+' showView ran (e.g. during the incoming view's animated onViewOpen), so m.__router_activeView is the
+' incoming view rather than the history-top view — without this the user would be stranded on the
+' half-committed incoming view (never pushed to history) instead of returning to the current screen.
+' A no-op in the common case (cancel during beforeViewOpen or the outgoing suspend), where the active
+' view was never swapped. Only goBack cancel-only needs this; navigateTo/popToCheckpoint start a
+' replacement navigation that adopts the incoming view as its own outgoing.
+sub _restoreCurrentViewAfterCancel()
+    if m.__router_historyStack.count() = 0 then return
+    topEntry = m.__router_historyStack[m.__router_historyStack.count() - 1]
+    found = findRetainedViewByNodeId(topEntry.nodeId)
+    target = found.view
+    if NOT rodash.isNode(target) then return
+
+    stray = m.__router_activeView
+    if rodash.isNode(stray) AND stray.id = target.id then return ' already on the history-top view
+
+    ' Tear down the cancelled navigation's incoming view (it never committed to history). Destroy a
+    ' fresh view; return a keepAlive view to its suspended resting place rather than destroying it.
+    if rodash.isNode(stray) then
+        if rodash.getBoolean(stray.route.routeConfig.keepAlive, "enabled") then
+            hideView(stray)
+            finalizeSuspendPlacement(stray)
+        else
+            m.__router_detachedViews.delete(stray.id)
+            if hideView(stray) then rodash.removeNode(stray)
+        end if
+    end if
+
+    ' Restore the history-top view as the active, visible view (reattaching it if it was detached).
+    if found.fromDetached then reattachView(target)
+    target.visible = true
+    target.translation = [0, 0]
+    m.__router_activeView = target
+    target@._onViewResume({ route: target.route })
+    focusSuccess = target@._handleFocus({ routerFocused: m.__router_focusRequestMade })
+    if m.__router_focusRequestMade AND NOT focusSuccess then m.top.setFocus(true)
 end sub
 
 ' Stamps a pop-style navigationState onto a view's route, used by both _goBack and _popToCheckpoint.

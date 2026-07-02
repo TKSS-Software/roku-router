@@ -317,11 +317,15 @@ cancel with no replacement navigation (a `goBack` cancel-only) does not corrupt 
   navigation that then spawns a deferred successor is not treated as superseded (the check runs before
   the commit). The `.catch` turns a rejected `onViewOpen`/`onViewResume` into a **`NavigationError`**
   (not a bogus `NavigationEnd`).
-- **Residual (narrow):** if the cancel lands while the incoming view's **animated** `onViewOpen` is
-  still running (it has already been shown and made active), a `goBack` cancel-only leaves that view
-  on-screen without a history entry — it is not restored to the previous view. With instant (default)
-  hooks this window is a single tick; restoring the previous view here would require re-showing it and
-  is not yet implemented.
+- **Cancel after the incoming view was shown:** if the cancel lands while the incoming view's
+  `onViewOpen` is still running (it has already been shown and made active — e.g. an animated
+  entrance), a `goBack` cancel-only calls `_restoreCurrentViewAfterCancel()`: it tears down that
+  half-committed incoming view (destroying a fresh view / re-suspending a keepAlive one) and restores
+  the history-top view as active and visible (re-attaching it if it was detached, firing
+  `onViewResume`). So `goBack` genuinely returns to the current screen instead of stranding the user
+  on the view that was animating in. This runs only for `goBack` cancel-only; `navigateTo`/
+  `popToCheckpoint` cancels are followed by a replacement navigation that adopts the incoming view as
+  its own outgoing.
 
 ### Opt-out: `abortCurrentNavigation: false` (redirect after the current nav)
 

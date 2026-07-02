@@ -91,8 +91,9 @@ Dependencies: [`@rokucommunity/promises`](https://github.com/rokucommunity/promi
 | `__router_viewTarget` | Node | The `viewTarget` Group inside the outlet. Holds the active view + all in-tree suspended views (`hide`/`show`). |
 | `__router_detachedViews` | AA | `nodeId → View` store for `suspendMode:"detach"` suspended views (out of the tree). |
 | `__router_outlet` | Node | The Outlet node. |
-| `__router_navigationInProgress` | Bool | Re-entrancy gate. Set true on `NavigationStart`, false on `NavigationEnd`/`NavigationError` (and by the catches/`NavigationCancel` callers). When true, `navigateTo`/`goBack`/`popToCheckpoint` **queue** rather than run (see [Queued navigation](#queued-navigation-navigatetogobackpoptocheckpoint)). |
-| `__router_navigationQueue` | Array | FIFO queue of navigation requests deferred because a navigation was in progress. Entries: `{ type: "navigateTo"\|"goBack"\|"popToCheckpoint", path?, options?, identifier?, deferred? }`. |
+| `__router_navigationInProgress` | Bool | Set true on `NavigationStart`, false on `NavigationEnd`/`NavigationError` (and by the catches/`NavigationCancel` callers). When true, a new `navigateTo`/`goBack`/`popToCheckpoint` **cancels** the in-flight navigation rather than being rejected (see [Interruptible navigation](#interruptible-navigation-navigatetogobackpoptocheckpoint)). |
+| `__router_activeNavRoute` | Node | The route of the navigation currently in flight; stashed on `NavigationStart`. Doubles as the **supersession token**: chain checkpoints compare their route id against it (`_isSuperseded`) and bail if a newer request replaced/invalidated it. |
+| `__router_pendingNavigation` | AA \| Invalid | Single "pending redirect" slot for a `navigateTo({ abortCurrentNavigation: false })` made while a nav was in flight: `{ path, options, deferred }`. Run after the current nav's `NavigationEnd` (see [Interruptible navigation](#interruptible-navigation-navigatetogobackpoptocheckpoint)). Last-wins; dropped+rejected on cancel/error/destroy. Not a queue. |
 | `__router_processingGoBack` | Bool | True during `goBack`/`popToCheckpoint` so `showView` skips the history push. |
 | `__router_focusRequestMade` | Bool | Tracks whether the router currently "owns" focus, so transient focus loss during reparenting doesn't clear focus state. |
 | `__router_guardInstances` | AA | Cache of string-named guard nodes (`className → node`). |
@@ -126,10 +127,9 @@ path, routeConfig, routeParams, queryParams, hash, id, navigationState, context,
 
 ## The navigation pipeline (`_navigateTo`)
 
-`_navigateTo` is a thin wrapper: if `navigationInProgress`, it **queues** the request (see
-[Queued navigation](#queued-navigation-navigatetogobackpoptocheckpoint)) and returns a deferred;
-otherwise it runs `_finishNavigation(_navigateToImpl(...))`. The steps below describe
-`_navigateToImpl`.
+`_navigateTo` is a thin wrapper: if `navigationInProgress`, it **cancels** the in-flight navigation
+(see [Interruptible navigation](#interruptible-navigation-navigatetogobackpoptocheckpoint)) and then
+runs `_navigateToImpl(...)`. The steps below describe `_navigateToImpl`.
 
 1. **Gate**: reject if not initialized; reject invalid path. (The in-progress check lives in the
    wrapper — the impl assumes it is clear to run.)
@@ -150,9 +150,10 @@ otherwise it runs `_finishNavigation(_navigateToImpl(...))`. The steps below des
    - Otherwise → `addViewToStack(newRoute, viewsToRemoveOnResolve, outgoingRouteConfigOverrides)`.
      If `clearStackOnResolve`, all current `viewTarget` children + all non-keepAlive detached
      views are collected into the close list.
-6. `catch` resets `navigationInProgress` and re-rejects.
-7. The wrapper's `_finishNavigation` drains the next queued request once this navigation settles
-   (success or failure), without altering the settlement seen by the caller.
+6. `catch` resets `navigationInProgress` and re-rejects — **except** for a cancellation
+   (`error.cancelled`), where it just re-rejects (the superseding request owns the terminal
+   event and in-progress state). Chain checkpoints (`_isSuperseded`) reject `{ cancelled: true }`
+   when a newer request has taken over.
 
 ### `addViewToStack` — the heart of forward navigation
 
@@ -250,21 +251,21 @@ stale id**. Resolution:
 
 ## goBack & checkpoints
 
-**`_goBack`**: a wrapper — if `navigationInProgress`, pushes a `goBack` request onto the queue and
-returns `true` (always a `Boolean`, never a promise, so `onKeyEvent` can use it); otherwise runs
-`_goBackImpl`. `_goBackImpl` needs ≥2 history entries, resolves the second-to-last entry's view
-(tolerating stale ids), re-attaches if detached, dispatches `NavigationStart`,
-`closeOrSuspendView`s the current view, then in `.then`: applies pop navigation state, **pops** the
-history stack, `showView(view, onResume=true)`, and drains the next queued request (also drains
-synchronously if it cannot proceed). The `back` key in `Outlet.bs`/`View.bs onKeyEvent` calls
-`sgRouter.goBack()`.
+**`_goBack`**: a wrapper — if `navigationInProgress`, it **cancels** the in-flight navigation
+(`_cancelActiveNavigation`) and returns `true` **without popping history** (stay on the current
+view); otherwise runs `_goBackImpl`. Always a `Boolean`, never a promise, so `onKeyEvent` can use
+it. `_goBackImpl` needs ≥2 history entries, resolves the second-to-last entry's view (tolerating
+stale ids), re-attaches if detached, dispatches `NavigationStart`, `closeOrSuspendView`s the current
+view, then in `.then`: bails if `_isSuperseded`, else applies pop navigation state, **pops** the
+history stack, `showView(view, onResume=true)`. The `back` key in `Outlet.bs`/`View.bs onKeyEvent`
+calls `sgRouter.goBack()`.
 
 **`_setCheckpoint(identifier)`**: stamps `hasCheckpoint`/`checkpointIds[identifier]=true` onto the
 **last** history entry. Identifier defaults to the active route's `path`. Idempotent; no-op on
 empty stack.
 
-**`_popToCheckpoint(identifier)`**: a wrapper — if `navigationInProgress`, queues the request and
-returns a deferred; otherwise runs `_finishNavigation(_popToCheckpointImpl(...))`.
+**`_popToCheckpoint(identifier)`**: a wrapper — if `navigationInProgress`, it **cancels** the
+in-flight navigation and then runs `_popToCheckpointImpl(...)`.
 `_popToCheckpointImpl` searches the stack backward from `count()-2` for a matching checkpoint (any
 checkpoint if identifier omitted/`"__INVALID__"`). Re-attaches the target if detached, dispatches
 `NavigationStart`, truncates the stack to `[0..targetIndex]`, then close/suspends every in-tree
@@ -274,43 +275,64 @@ detached views stay suspended), then `showView(target, true)`. Rejects on no mat
 
 ---
 
-## Queued navigation (`navigateTo`/`goBack`/`popToCheckpoint`)
+## Interruptible navigation (`navigateTo`/`goBack`/`popToCheckpoint`)
 
-Only one navigation runs at a time. A request made while `navigationInProgress` is **queued** and
-run when the current navigation completes (it is **not** rejected). This lets a view lifecycle hook
-kick off a follow-up navigation before the current flow finishes. Queue is FIFO and unbounded.
+Only one navigation runs at a time. A request made while `navigationInProgress` **cancels** the
+in-flight navigation and takes over (it is **not** queued or rejected):
+- `navigateTo` / `popToCheckpoint` → cancel the in-flight navigation, then run themselves.
+- `goBack` → cancel the in-flight navigation and return `true` **without** popping history (stay on
+  the current view).
 
-Each public entry point is a thin **wrapper** over an `Impl`:
-- **Wrapper**: if `navigationInProgress` → enqueue and return (a deferred for
-  `navigateTo`/`popToCheckpoint`; `true` for `goBack`). Else run the impl, wrapping the result in
-  `_finishNavigation`.
-- **Impl** (`_navigateToImpl` / `_popToCheckpointImpl` / `_goBackImpl`): the actual work; assumes it
-  is clear to run.
+Each public entry point is a thin **wrapper** over an `Impl` (`_navigateToImpl` /
+`_popToCheckpointImpl` / `_goBackImpl`): if `navigationInProgress`, call `_cancelActiveNavigation()`
+first, then run the impl (except `goBack`, which returns after cancelling).
 
-Helpers (in the PRIVATE Helper Functions region):
-- `_enqueueNavigation(request)` — creates a deferred (`promises.create()`), stores it on the request,
-  pushes to `m.__router_navigationQueue`, returns the deferred.
-- `_runNextQueuedNavigation()` — if idle and the queue is non-empty, `shift()` and run the next
-  request. **No-op when `navigationInProgress` or empty**, so it is safe to call from any completion
-  point and even more than once per completion.
-- `_finishNavigation(p)` — attaches a drain (`_runNextQueuedNavigation`) to `p` via `.then`+`.catch`
-  **without altering `p`'s settlement**, and returns a promise mirroring `p`. (Not `.finally` — this
-  lib's `.finally` resolves its result instead of passing rejections through.)
-- `_linkDeferred(p, deferred)` — forwards `p`'s settlement onto the caller's queued `deferred`.
+Mechanism — supersession token:
+- `m.__router_activeNavRoute` is the route of the in-flight navigation, stashed on `NavigationStart`.
+- `_cancelActiveNavigation()` dispatches a route-bearing `NavigationCancel` for it, sets
+  `m.__router_activeNavRoute = Invalid`, and clears `navigationInProgress`/`processingGoBack`. A
+  subsequent `navigateTo`/`popToCheckpoint` then dispatches its own `NavigationStart`, installing a
+  fresh token; `goBack` leaves it `Invalid` (nothing new starts).
+- `_isSuperseded(route)` returns true when `route.id` no longer matches `m.__router_activeNavRoute`
+  (or the token is `Invalid`). The navigation chain calls it at each checkpoint — before guards,
+  after guards, after the incoming view's `beforeViewOpen` (the dominant window), before `showView`,
+  and inside `showView`'s `.finally` — and bails by rejecting `{ cancelled: true }`.
+- On bail, `_cleanupSupersededIncomingView(view, fromKeepAlive)` destroys a freshly-created incoming
+  view (or, for a resumed keepAlive view, returns it to the detach store so it is not lost). The
+  outgoing view is untouched at the dominant checkpoint (post-`beforeViewOpen`), so the current view
+  stays intact. The terminal catches short-circuit on `error.cancelled` (no `NavigationError`, no
+  flag reset — the superseding request owns that).
 
-Flow: a queued `navigateTo`/`popToCheckpoint` is run by `_runNextQueuedNavigation` via the wrapper
-(so it gets `_finishNavigation` → drains the *next* item) and `_linkDeferred` (so the original
-caller's deferred settles with the result). `goBack` returns a `Boolean`, so `_goBackImpl` drains the
-next item itself (on chain completion, or synchronously when it cannot proceed) — no deferred, no
-`_linkDeferred`. Draining is driven **only** from these completion hooks, never from
-`dispatchRouterState`, so a queued item never interleaves with an in-flight navigation (including
-during a guard **redirect**, which briefly clears `navigationInProgress` then immediately re-dispatches
-`NavigationStart`). `_destroy()` rejects any still-queued deferreds with `"Router destroyed"`.
+Events an observer sees when nav A is superseded by nav B: `...A NavigationStart... → NavigationCancel (A) → NavigationStart (B) → ... → NavigationEnd (B)`. A's returned promise rejects with `{ cancelled: true }`.
 
-**Deadlock caveat:** a hook that is *awaited before `NavigationEnd`* (`beforeViewOpen`,
-`beforeViewSuspend`, `onViewOpen`) must not **return/await** a queued navigation's deferred — the
-current navigation would wait on a deferred that can only settle after the current navigation
-completes. Fire-and-forget the follow-up instead.
+**Edge (documented, narrow):** if a cancel arrives *after* the point of no return — i.e. during an
+outgoing view's animated `beforeViewSuspend`/`onViewSuspend` or the incoming view's animated
+`onViewOpen` — the router still prevents state corruption (the `showView.finally` guard skips the
+terminal event/history; the pre-`showView` checkpoint destroys the incoming view) but the
+outgoing-view suspend may already have run. With non-animated (instant) suspend/open hooks this
+window does not exist, and cancellation always lands at the clean `beforeViewOpen` checkpoint.
+
+### Opt-out: `abortCurrentNavigation: false` (redirect after the current nav)
+
+`abortCurrentNavigation` (an option on `navigateTo`) **defaults to `true`** — the cancel-and-take-over
+behavior above. Passing `false` inverts it when a nav is in flight: instead of cancelling, the request
+is stashed in the single `m.__router_pendingNavigation` slot and run once the current nav completes.
+Push semantics — the current screen finishes (pushed to history), then the deferred one is a normal
+forward nav on top; back returns to it. Wiring:
+- The `_navigateTo` wrapper checks `options.abortCurrentNavigation = false` *before*
+  `_cancelActiveNavigation`: if false and busy, it stashes `{ path, options, deferred }` (via
+  `promises.create()`) and returns the deferred (last-wins: a second deferred request rejects and
+  replaces the first). Any other value (true/absent) → cancel, the default.
+- `showView`'s `.finally` calls `_runPendingNavigation()` immediately after `NavigationEnd` (the only
+  trigger). At that point `navigationInProgress` is false, so the pending `_navigateTo` runs cleanly;
+  `_settleInto` forwards its settlement to the returned deferred. Since Y's `NavigationStart` fires
+  synchronously and Y parks, X's post-show `.then` (override revert from X's own chain context) runs
+  before Y resumes — no interference; Y captures `m.__router_activeView` (still X) as its outgoing.
+- `_clearPendingNavigation(true)` (rejects the deferred so no caller hangs) runs from
+  `_cancelActiveNavigation`, the three terminal-error catches, and `_destroy` — so a pending redirect
+  is dropped whenever the nav it was attached to is cancelled/errors/torn down.
+- **Deadlock:** never `return`/await the deferred from the hook that created it — the pending nav only
+  runs after that hook's nav reaches `NavigationEnd`, which awaits the hook. Fire-and-forget.
 
 ---
 
@@ -379,19 +401,20 @@ leading `/`).
 - **Inline functions don't close over outer locals; pass data via the chain context or `m`.**
   BrighterScript anonymous functions compile to standalone functions — they cannot read the
   enclosing function's local variables. In a `promises.chain(p, ctx)`, the `ctx` is delivered as the
-  **2nd arg to `.then` *and* `.catch`** callbacks (`.finally` gets it as its only arg) — so a
-  `.catch` can read the deferred/state it needs from `ctx` (as `_linkDeferred` does). Where no chain
-  context is threaded (e.g. the `addViewToStack` catch), read from `m` instead
-  (`m.__router_pendingOutgoingView`/`...Config`, `m.__router_activeNavRoute`). What does *not* work
-  is referencing a plain outer local inside the callback.
+  **2nd arg to `.then` *and* `.catch`** callbacks (`.finally` gets it as its only arg) — so the
+  `addViewToStack` catch reverts the outgoing override from `internalContext` (its own captured
+  values, immune to a later navigation clobbering them). For state not threaded through a chain,
+  read from `m` (e.g. `_isSuperseded` reads `m.__router_activeNavRoute`). What does *not* work is
+  referencing a plain outer local inside the callback.
 - **History stack ≠ tree child order.** Back navigation reads `__router_historyStack`. Detached
   views aren't even in the tree. Never infer order from `viewTarget` children.
-- **`navigationInProgress` serializes navigations via a queue.** A request made while it is true is
-  queued and run on completion (not rejected) — see [Queued navigation](#queued-navigation-navigatetogobackpoptocheckpoint).
-  If you add a code path that dispatches `NavigationStart`, make sure a terminal event
-  (`End`/`Error`/`Cancel`) always fires **and** that a drain (`_runNextQueuedNavigation`) eventually
-  runs, or the queue stalls. A redirect briefly clears the flag before re-navigating; do not add a
-  drain there (it would interleave a queued item into the redirect).
+- **A new navigation cancels the in-flight one; it never queues or rejects.** See
+  [Interruptible navigation](#interruptible-navigation-navigatetogobackpoptocheckpoint). If you add
+  a code path that dispatches `NavigationStart`, stash the route as `m.__router_activeNavRoute` (the
+  supersession token) and add `_isSuperseded` checkpoints at each async boundary, or a cancelled
+  navigation will keep running and corrupt state. Ensure exactly one terminal event
+  (`End`/`Error`/`Cancel`) fires per navigation. A guard redirect briefly clears
+  `navigationInProgress` before re-navigating — that is a continuation, not a cancel.
 - **Promise hooks must always resolve.** A `beforeViewSuspend`/`beforeViewOpen` that never
   resolves stalls navigation forever (the router awaits it).
 - **`sgRouter` namespace is view-scoped.** It resolves the router via `m.top.getScene().__router`;

@@ -40,16 +40,23 @@ namespace sgRouter
 
     ' This function is used to navigate to a different screen
     ' It will return a promise that will resolve when the navigation is complete.
-    ' If a navigation is already in progress, the request is queued (FIFO) and run when the current
-    ' navigation completes rather than being rejected; the returned promise settles with the queued
-    ' navigation's eventual result. Any number of requests may be queued.
-    ' NOTE: do not return/await this promise from a lifecycle hook of the same in-flight navigation
-    ' (e.g. beforeViewOpen/onViewOpen) — that deadlocks. Fire-and-forget the follow-up instead.
+    ' If a navigation is already in progress, that in-flight navigation is CANCELLED (aborted) and
+    ' this one takes over — the in-flight navigation's promise rejects with a cancellation error and
+    ' a NavigationCancel event fires for it.
+    ' options.abortCurrentNavigation controls what happens when a navigation is already in flight; it
+    ' defaults to true (abort the in-flight navigation, as described above). Pass false to instead run
+    ' this navigation AFTER the in-flight one completes (it is NOT cancelled): the current screen
+    ' finishes opening and stays in history, then this route is pushed on top (back returns to it).
+    ' Use this to redirect from a view's onViewOpen. Only one deferred navigation is held (last request
+    ' wins); it is dropped/rejected if the in-flight navigation is cancelled or errors. Do NOT
+    ' await/return the returned promise from the same hook that created it — it deadlocks.
+    ' Fire-and-forget, and observe routerState to react to completion.
     ' @since 0.0.1
     ' @param path - Either a literal path string (e.g. "/home") or an AA for named-route navigation.
     ' @param options - The options to pass to the router
     ' @param options.router - The router to use, if not provided, it will try to find the router in the current chain
-    ' @return - A promise that resolves when the navigation (queued or immediate) is complete
+    ' @param options.abortCurrentNavigation - Default true (abort the in-flight nav). Set false to run this one after the in-flight nav completes instead of cancelling it
+    ' @return - A promise that resolves when the navigation is complete, or rejects if it is cancelled/dropped
     function navigateTo(path = "" as Dynamic, options = {} as Object) as Dynamic
         r = options.router <> Invalid ? options.router : sgRouter.getRouter()
         if rodash.isNotInvalid(r) then
@@ -59,14 +66,14 @@ namespace sgRouter
     end function
 
     ' Navigates back to the previous entry in the history stack.
-    ' If a navigation is already in progress, the request is queued (FIFO) and run when the current
-    ' navigation completes rather than being ignored. Always returns a Boolean (never a promise):
-    ' true if the back navigation was performed or queued, false if it could not run (e.g. no
-    ' router, or nothing to go back to).
+    ' If a navigation is already in progress, that in-flight navigation is CANCELLED (aborted) and
+    ' the router stays on the current view — goBack does not pop history in that case. Always
+    ' returns a Boolean (never a promise): true if a back navigation was performed OR an in-flight
+    ' navigation was cancelled, false if there was nothing to do (e.g. no router, or no history).
     ' @since 0.0.1
     ' @param options - The options to pass to the router
     ' @param options.router - The router to use, if not provided, it will try to find the router in the current chain
-    ' @return - Boolean: whether the back navigation was performed or queued
+    ' @return - Boolean: whether a back navigation was performed or an in-flight navigation cancelled
     function goBack(options = {} as Object) as Dynamic
         r = options.router <> Invalid ? options.router : sgRouter.getRouter()
         if rodash.isNotInvalid(r) then
@@ -93,9 +100,9 @@ namespace sgRouter
     ' Unwinds the history stack to the most recent checkpointed route.
     ' If identifier is provided, pops to the most recent route with that checkpoint identifier.
     ' If identifier is omitted, pops to the most recent route with any checkpoint.
-    ' If a navigation is already in progress, the request is queued (FIFO) and run when the current
-    ' navigation completes rather than being rejected; the returned promise settles with the queued
-    ' pop's eventual result.
+    ' If a navigation is already in progress, that in-flight navigation is CANCELLED (aborted) and
+    ' this pop takes over — the in-flight navigation's promise rejects with a cancellation error and
+    ' a NavigationCancel event fires for it.
     ' @since 0.2.0
     ' @param identifier - The checkpoint identifier to search for, or Invalid to find any checkpoint
     ' @param options - The options to pass to the router

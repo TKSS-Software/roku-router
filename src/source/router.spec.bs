@@ -317,7 +317,7 @@ namespace tests
         end function
 
         @async()
-        @it("queues goBack (returns true) when a navigation is already in progress")
+        @it("cancels the in-flight navigation and stays put when goBack is called mid-navigation")
         function _() 'bs:disable-line 1026 LINT1026
             m.router@._initialize({ outlet: m.outlet })
             m.router@._addRoutes([
@@ -328,10 +328,17 @@ namespace tests
                 return sgRouter.navigateTo("/beta", { router: m.router })
             end function).then(function(_, m)
                 ' Start a new navigation (sets navigationInProgress = true)
-                sgRouter.navigateTo("/alpha", { router: m.router })
-                ' goBack is now queued rather than blocked, and returns true (request accepted)
+                nav3 = sgRouter.navigateTo("/alpha", { router: m.router })
+                ' goBack cancels the in-flight navigation and returns true; no history pop happens
                 result = sgRouter.goBack({ router: m.router })
                 m.assertTrue(result)
+                ' the cancelled navigation rejects and we remain on the current view (/beta)
+                return promises.chain(nav3, m).then(function(_, m)
+                    m.fail("cancelled navigation should have rejected")
+                end function).catch(function(_error, m)
+                    activeRoute = sgRouter.getActiveRoute({ router: m.router })
+                    m.assertEqual(activeRoute.path, "/beta")
+                end function).toPromise()
             end function).toPromise()
         end function
 
@@ -846,7 +853,7 @@ namespace tests
         '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         @async()
-        @it("queues a second navigateTo while the first is in progress and runs it after")
+        @it("cancels the in-flight navigateTo and runs the new one")
         function _() 'bs:disable-line 1026 LINT1026
             m.router@._initialize({ outlet: m.outlet })
             m.router@._addRoutes([
@@ -854,15 +861,132 @@ namespace tests
                 { pattern: "/beta", component: "View" }
             ])
             ' Start nav 1 without awaiting it
-            sgRouter.navigateTo("/alpha", { router: m.router })
-            ' Immediately start nav 2 — should be queued (not rejected) and run once nav 1 completes
+            nav1 = sgRouter.navigateTo("/alpha", { router: m.router })
+            ' Immediately start nav 2 — this aborts nav 1 and takes over
             nav2 = sgRouter.navigateTo("/beta", { router: m.router })
+            ' nav 1 should be cancelled (its promise rejects)
+            m.nav1Rejected = false
+            promises.chain(nav1, m).then(function(_, m)
+                m.fail("the superseded navigation should have rejected")
+            end function).catch(function(_error, m)
+                m.nav1Rejected = true
+            end function).toPromise()
             return promises.chain(nav2, m).then(function(_, m)
-                ' nav 2's deferred resolved, meaning it was dequeued and completed; /beta is active
+                ' the replacing navigation completed and /beta is active; nav 1 was cancelled
+                m.assertTrue(m.nav1Rejected)
                 activeRoute = sgRouter.getActiveRoute({ router: m.router })
                 m.assertEqual(activeRoute.path, "/beta")
             end function).catch(function(_error, m)
-                m.fail("Queued navigation should not have been rejected")
+                m.fail("the replacing navigation should not have been rejected")
+            end function).toPromise()
+        end function
+
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        @describe("abortCurrentNavigation")
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        @async()
+        @it("runs after the in-flight navigation instead of cancelling it, pushing on top (back returns to it)")
+        function _() 'bs:disable-line 1026 LINT1026
+            m.router@._initialize({ outlet: m.outlet })
+            m.router@._addRoutes([
+                { pattern: "/x", component: "View" }
+                { pattern: "/y", component: "View" }
+            ])
+            ' Start nav to /x (in flight), then immediately request /y with abortCurrentNavigation:false.
+            nav1 = sgRouter.navigateTo("/x", { router: m.router })
+            navY = sgRouter.navigateTo("/y", { router: m.router, abortCurrentNavigation: false })
+            ' /x must COMPLETE (resolve), not be cancelled.
+            m.nav1Resolved = false
+            promises.chain(nav1, m).then(function(_, m)
+                m.nav1Resolved = true
+            end function).catch(function(_error, m)
+                m.fail("/x should have completed, not been cancelled")
+            end function).toPromise()
+            return promises.chain(navY, m).then(function(_, m)
+                m.assertTrue(m.nav1Resolved)
+                m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/y")
+                ' /x is retained beneath /y (both mounted) — it was not replaced/cancelled.
+                m.assertEqual(m.outlet.findNode("viewTarget").getChildCount(), 2)
+                ' Back returns to /x (push). goBack runs async; a deferred barrier awaits it (it reuses
+                ' the now-active /x, adding no history entry) so we can assert the resulting state.
+                sgRouter.goBack({ router: m.router })
+                return sgRouter.navigateTo("/x", { router: m.router, abortCurrentNavigation: false })
+            end function).then(function(_, m)
+                m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/x")
+            end function).catch(function(_error, m)
+                m.fail("deferred navigation should not have been rejected")
+            end function).toPromise()
+        end function
+
+        @async()
+        @it("supports navigateTo({ abortCurrentNavigation: false }) fired from a view's onViewOpen")
+        function _() 'bs:disable-line 1026 LINT1026
+            m.router@._initialize({ outlet: m.outlet })
+            m.router@._addRoutes([
+                { pattern: "/x", component: "DeferringView" }
+                { pattern: "/y", component: "View" }
+            ])
+            ' /x is a DeferringView: its onViewOpen fires navigateTo("/y", { abortCurrentNavigation: false }).
+            return promises.chain(sgRouter.navigateTo("/x", { router: m.router, context: { deferTarget: "/y" } }), m).then(function(_, m)
+                ' /x has completed; the deferred /y is now in flight. A deferred barrier runs strictly
+                ' after /y completes (reusing the now-active /y), letting us await it.
+                return sgRouter.navigateTo("/y", { router: m.router, abortCurrentNavigation: false })
+            end function).then(function(_, m)
+                m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/y")
+                ' /x completed and is retained beneath /y (2 children) — the opening screen was not cancelled.
+                m.assertEqual(m.outlet.findNode("viewTarget").getChildCount(), 2)
+            end function).catch(function(_error, m)
+                m.fail("deferred navigation from onViewOpen should not have been rejected")
+            end function).toPromise()
+        end function
+
+        @async()
+        @it("drops (rejects) a pending deferred navigation when a normal navigateTo takes over")
+        function _() 'bs:disable-line 1026 LINT1026
+            m.router@._initialize({ outlet: m.outlet })
+            m.router@._addRoutes([
+                { pattern: "/x", component: "View" }
+                { pattern: "/y", component: "View" }
+                { pattern: "/z", component: "View" }
+            ])
+            sgRouter.navigateTo("/x", { router: m.router })                              ' in flight
+            navDef = sgRouter.navigateTo("/y", { router: m.router, abortCurrentNavigation: false })  ' pending
+            navZ = sgRouter.navigateTo("/z", { router: m.router })                       ' cancels /x, drops pending /y
+            m.defRejected = false
+            promises.chain(navDef, m).then(function(_, m)
+                m.fail("the dropped pending navigation should have rejected")
+            end function).catch(function(error, m)
+                m.defRejected = true
+                m.assertTrue(error.cancelled = true)
+            end function).toPromise()
+            return promises.chain(navZ, m).then(function(_, m)
+                m.assertTrue(m.defRejected)
+                m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/z")
+            end function).catch(function(_error, m)
+                m.fail("the replacing navigation should not have been rejected")
+            end function).toPromise()
+        end function
+
+        @async()
+        @it("drops (rejects) a pending deferred navigation when goBack cancels the in-flight one")
+        function _() 'bs:disable-line 1026 LINT1026
+            m.router@._initialize({ outlet: m.outlet })
+            m.router@._addRoutes([
+                { pattern: "/home", component: "View" }
+                { pattern: "/x", component: "View" }
+                { pattern: "/y", component: "View" }
+            ])
+            return promises.chain(sgRouter.navigateTo("/home", { router: m.router }), m).then(function(_, m)
+                sgRouter.navigateTo("/x", { router: m.router })                              ' in flight
+                navDef = sgRouter.navigateTo("/y", { router: m.router, abortCurrentNavigation: false })  ' pending
+                sgRouter.goBack({ router: m.router })                                        ' cancels /x, drops pending /y, stays on /home
+                return promises.chain(navDef, m).then(function(_, m)
+                    m.fail("the dropped pending navigation should have rejected")
+                end function).catch(function(error, m)
+                    m.assertTrue(error.cancelled = true)
+                    m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/home")
+                end function).toPromise()
             end function).toPromise()
         end function
 
@@ -1057,7 +1181,7 @@ namespace tests
         '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         @async()
-        @it("queues popToCheckpoint when a navigation is already in progress and runs it after")
+        @it("cancels the in-flight navigation and runs popToCheckpoint")
         function _() 'bs:disable-line 1026 LINT1026
             m.router@._initialize({ outlet: m.outlet })
             m.router@._addRoutes([
@@ -1070,14 +1194,14 @@ namespace tests
             end function).then(function(_, m)
                 ' Start a navigation (sets navigationInProgress = true)
                 sgRouter.navigateTo("/alpha", { router: m.router })
-                ' popToCheckpoint is queued rather than blocked; its deferred resolves after it runs
+                ' popToCheckpoint aborts the in-flight navigation and runs; its promise resolves after
                 return sgRouter.popToCheckpoint("foo", { router: m.router })
             end function).then(function(_, m)
-                ' The queued pop ran once the in-flight navigation completed and unwound to /alpha
+                ' The pop ran after cancelling the in-flight navigation and unwound to /alpha
                 activeRoute = sgRouter.getActiveRoute({ router: m.router })
                 m.assertEqual(activeRoute.path, "/alpha")
             end function).catch(function(_error, m)
-                m.fail("Queued popToCheckpoint should not have been rejected")
+                m.fail("popToCheckpoint should not have been rejected")
             end function).toPromise()
         end function
 

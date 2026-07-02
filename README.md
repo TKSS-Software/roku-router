@@ -27,7 +27,7 @@
 - **Route guards** (`canActivate`) for protected screens
 - **View lifecycle hooks** for fine-grained control
 - **Stack management** (navigation, suspension, resume, and checkpoint-based unwinding)
-- **Queued navigation** — requests made mid-navigation queue and run in order instead of being rejected
+- **Interruptible navigation** — a new `navigateTo`/`popToCheckpoint` cancels an in-flight navigation and takes over; `goBack` cancels an in-flight navigation
 - **Observable router state** for debugging or analytics
 
 ---
@@ -641,7 +641,7 @@ sgRouter.popToCheckpoint("shop")
 |---|---|
 | No matching checkpoint found in the history stack | `"popToCheckpoint: no matching checkpoint found in history stack"` |
 
-> If a navigation is already in progress when `popToCheckpoint` is called, it is **not** rejected — it is queued and runs when the current navigation completes (see [Queued navigation](#-queued-navigation)).
+> If a navigation is already in progress when `popToCheckpoint` is called, it is **not** rejected — the in-flight navigation is cancelled and the pop takes over (see [Interruptible navigation](#-interruptible-navigation)).
 
 ```brightscript
 promises.chain(sgRouter.popToCheckpoint("checkout-start"), m)
@@ -656,39 +656,59 @@ promises.chain(sgRouter.popToCheckpoint("checkout-start"), m)
 
 ---
 
-## ⏳ Queued navigation
+## 🛑 Interruptible navigation
 
-The router runs one navigation at a time. If you call `navigateTo`, `goBack`, or `popToCheckpoint` **while another navigation is still in progress**, the new request is **queued** and runs automatically once the current one completes — it is no longer rejected. Requests run in the order they were made (FIFO), and any number can be queued.
+The router runs one navigation at a time. If a navigation is **still in progress** (for example, the incoming view is loading data in `beforeViewOpen`) when a new request arrives, the in-flight navigation is **cancelled** rather than the new request being rejected:
 
-This is what lets a **view lifecycle hook trigger a follow-up navigation** before the current flow finishes:
+| Called mid-navigation | Effect |
+|---|---|
+| `navigateTo(...)` | Cancels the in-flight navigation and navigates to the new destination. |
+| `popToCheckpoint(...)` | Cancels the in-flight navigation and runs the pop. |
+| `goBack()` | Cancels the in-flight navigation and stays on the current view (no history pop). |
 
-```brightscript
-' SplashScreen.bs
-function onViewOpen(params as object) as dynamic
-    ' The splash screen's own navigation is still completing here, but this
-    ' navigateTo is queued and runs as soon as it does — no rejection.
-    if m.global.session.isLoggedIn then
-        sgRouter.navigateTo("/home")
-    else
-        sgRouter.navigateTo("/login")
-    end if
-    return promises.resolve(invalid)
-end function
-```
+When a navigation is cancelled:
 
-- **`navigateTo` / `popToCheckpoint`** return a promise that resolves/rejects with the **queued** request's eventual result — so you can still chain off it:
+- A **`NavigationCancel`** event is dispatched for it (observable via `routerState`).
+- Its returned promise **rejects** with `{ cancelled: true, message: "Navigation cancelled" }`, so an awaiting caller can tell it was superseded:
 
   ```brightscript
-  promises.chain(sgRouter.navigateTo("/home"), m)
+  promises.chain(sgRouter.navigateTo("/details/42"), m)
       .then(function(_, m)
-          ' runs after "/home" has actually been navigated to, even if it was queued
+          ' arrived at /details/42
+      end function)
+      .catch(function(error, m)
+          if error.cancelled = true then
+              ' a newer navigation took over — usually nothing to do
+          else
+              print "navigation failed: " + error.message
+          end if
       end function)
       .toPromise()
   ```
 
-- **`goBack`** always returns a `Boolean` (never a promise) so key handlers can use it directly. When queued it returns `true` (the request was accepted).
+This makes rapid navigation safe — e.g. a user mashing buttons, or a fresh deep link arriving while a slow screen is still loading: the latest request always wins, and the superseded one tears down cleanly.
 
-> ⚠️ **Do not return a queued navigation's promise from a lifecycle hook of the *same* in-flight navigation** (e.g. returning `sgRouter.navigateTo(...)` from `beforeViewOpen`/`onViewOpen`). The router awaits that hook before completing, but the queued navigation cannot start until the current one completes — a deadlock. Fire the follow-up navigation without awaiting it, as shown above.
+> `goBack()` always returns a `Boolean` (never a promise) so key handlers such as `onKeyEvent` can use it directly: `true` if it performed a back navigation **or** cancelled an in-flight one, `false` if there was nothing to do.
+
+### Redirect *after* the current screen — `abortCurrentNavigation: false`
+
+The cancel-and-take-over behavior above is controlled by the `abortCurrentNavigation` option, which **defaults to `true`**. Set it to **`false`** for the opposite: let the current navigation **finish**, then go somewhere else — a redirect that does **not** cancel/replace the current screen:
+
+```brightscript
+' SplashScreen.bs — redirect once this screen has opened
+function onViewOpen(params as object) as dynamic
+    target = m.global.session.isLoggedIn ? "/home" : "/login"
+    ' Fire-and-forget: /splash finishes opening (and stays in history), THEN /home (or /login) is
+    ' pushed on top. Back from there returns to /splash.
+    sgRouter.navigateTo(target, { abortCurrentNavigation: false })
+    return promises.resolve(invalid)
+end function
+```
+
+- With `abortCurrentNavigation: false`, an in-flight navigation is **not** cancelled — this request runs once the current one completes. When nothing is in flight, it runs immediately (the flag is a no-op).
+- **Push semantics:** the current screen completes and stays in history; the target is pushed on top, so **Back returns to the current screen**.
+- Only **one** deferred navigation is held (last request wins); it is dropped and its promise rejected (`{ cancelled: true }`) if the in-flight navigation is cancelled or errors.
+- ⚠️ **Do not `return`/await the returned promise from the same hook that created it** — the deferred navigation only runs after the current one's `NavigationEnd`, which waits on your hook: a deadlock. Fire-and-forget it, and observe `routerState` if you need to react to the redirect completing.
 
 ---
 ## 🏗️ Architecture & Internals

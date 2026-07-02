@@ -1005,6 +1005,70 @@ namespace tests
         end function
 
         '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        @describe("navigation interruption edge cases")
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        @async()
+        @it("a canActivate guard redirect resolves the caller on the redirect target (not a cancellation)")
+        function _() 'bs:disable-line 1026 LINT1026
+            m.router@._initialize({ outlet: m.outlet })
+            m.router@._addRoutes([
+                ' The guard's keyPath never matches, so it redirects to /login.
+                { pattern: "/protected", component: "View", canActivate: [{ keyPath: "__never__", expectedValue: true, scope: "global", denyRedirect: "/login" }] }
+                { pattern: "/login", component: "View" }
+            ])
+            return promises.chain(sgRouter.navigateTo("/protected", { router: m.router }), m).then(function(_, m)
+                ' With the fix, the original navigateTo adopts the redirect and resolves once /login
+                ' is active (previously the post-guards supersession check rejected it as cancelled).
+                m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/login")
+            end function).catch(function(_error, m)
+                m.fail("a guard redirect should resolve the caller on the redirect target")
+            end function).toPromise()
+        end function
+
+        @async()
+        @it("an invalid navigateTo does not cancel a healthy in-flight navigation")
+        function _() 'bs:disable-line 1026 LINT1026
+            m.router@._initialize({ outlet: m.outlet })
+            m.router@._addRoutes([
+                { pattern: "/alpha", component: "View" }
+            ])
+            ' Start a healthy navigation, then fire an invalid one while it is in flight.
+            nav1 = sgRouter.navigateTo("/alpha", { router: m.router })
+            bad = sgRouter.navigateTo("", { router: m.router })
+            m.badRejected = false
+            promises.chain(bad, m).then(function(_, m)
+                m.fail("navigateTo(\"\") should reject")
+            end function).catch(function(error, m)
+                m.badRejected = true
+                m.assertEqual(error.message, "Invalid path")
+            end function).toPromise()
+            return promises.chain(nav1, m).then(function(_, m)
+                ' nav1 completed normally — the invalid call rejected on its own without cancelling it.
+                m.assertTrue(m.badRejected)
+                m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/alpha")
+            end function).catch(function(_error, m)
+                m.fail("the healthy navigation should not have been cancelled by an invalid call")
+            end function).toPromise()
+        end function
+
+        @async()
+        @it("a view whose onViewOpen rejects ends in NavigationError, not NavigationEnd")
+        function _() 'bs:disable-line 1026 LINT1026
+            m.router@._initialize({ outlet: m.outlet })
+            m.router.observeField("routerState", "onRouterStateChanged")
+            m.router@._addRoutes([
+                { pattern: "/x", component: "RejectingOpenView" }
+            ])
+            return promises.chain(sgRouter.navigateTo("/x", { router: m.router }), m).then(function(_, m)
+                m.fail("navigation to a view whose onViewOpen rejects should reject")
+            end function).catch(function(_error, m)
+                ' The failed open must surface as NavigationError, not be recorded as a success.
+                m.assertEqual(m.router.routerState.type, "NavigationError")
+            end function).toPromise()
+        end function
+
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         @describe("setCheckpoint")
         '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

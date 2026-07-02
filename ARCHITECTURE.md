@@ -305,12 +305,23 @@ Mechanism — supersession token:
 
 Events an observer sees when nav A is superseded by nav B: `...A NavigationStart... → NavigationCancel (A) → NavigationStart (B) → ... → NavigationEnd (B)`. A's returned promise rejects with `{ cancelled: true }`.
 
-**Edge (documented, narrow):** if a cancel arrives *after* the point of no return — i.e. during an
-outgoing view's animated `beforeViewSuspend`/`onViewSuspend` or the incoming view's animated
-`onViewOpen` — the router still prevents state corruption (the `showView.finally` guard skips the
-terminal event/history; the pre-`showView` checkpoint destroys the incoming view) but the
-outgoing-view suspend may already have run. With non-animated (instant) suspend/open hooks this
-window does not exist, and cancellation always lands at the clean `beforeViewOpen` checkpoint.
+**Cancel during the commit phase.** A cancel can arrive after the dominant `beforeViewOpen` window,
+while the outgoing view is suspending or the incoming view is opening. The router handles these so a
+cancel with no replacement navigation (a `goBack` cancel-only) does not corrupt state:
+- **During the outgoing view's `beforeViewSuspend`:** `suspendView` is passed the navigation's route
+  and, if that navigation was superseded while `beforeViewSuspend` ran, it skips `hideView` /
+  `_onViewSuspend` / final placement — leaving the outgoing view visible and active (no blank screen).
+- **`showView` uses `.then`/`.catch`, not `.finally`.** The success `.then` re-checks `_isSuperseded`
+  *before* committing and, if superseded, **rejects** (so the caller's post-show cleanup is skipped
+  too — it no longer destroys a dead navigation's `closeViews` or reverts its override). A committed
+  navigation that then spawns a deferred successor is not treated as superseded (the check runs before
+  the commit). The `.catch` turns a rejected `onViewOpen`/`onViewResume` into a **`NavigationError`**
+  (not a bogus `NavigationEnd`).
+- **Residual (narrow):** if the cancel lands while the incoming view's **animated** `onViewOpen` is
+  still running (it has already been shown and made active), a `goBack` cancel-only leaves that view
+  on-screen without a history entry — it is not restored to the previous view. With instant (default)
+  hooks this window is a single tick; restoring the previous view here would require re-showing it and
+  is not yet implemented.
 
 ### Opt-out: `abortCurrentNavigation: false` (redirect after the current nav)
 

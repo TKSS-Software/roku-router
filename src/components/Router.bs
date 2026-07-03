@@ -599,6 +599,7 @@ function _navigateToImpl(path = "" as Dynamic, options = {} as Object) as Dynami
                         id: id
                         route: newRoute
                     })
+
                     m.__router_activeView.route = newRoute
 
                     return promises.chain(m.__router_activeView@._onRouteUpdate({
@@ -1395,7 +1396,13 @@ sub _runPendingNavigation()
 
     pending = m.__router_pendingNavigation
     m.__router_pendingNavigation = Invalid
-    _settleInto(_navigateTo(pending.path, pending.options), pending.deferred)
+
+    try
+        navResult = _navigateTo(pending.path, pending.options)
+        _settleInto(navResult, pending.deferred)
+    catch e
+        promises.reject({ message: "Deferred nav error: " + e.message }, pending.deferred)
+    end try
 end sub
 
 ' Forwards the settlement of a source promise onto a pre-created deferred, so the promise handed
@@ -1403,14 +1410,18 @@ end sub
 ' navigation does. Uses onThen/onCatch (not onFinally, which resolves rather than passes rejections
 ' through). The deferred is passed as the callback context (delivered as the 2nd arg).
 sub _settleInto(source as Object, deferred as Object)
-    promises.onThen(source, function(result as Dynamic, d as Dynamic) as Dynamic
-        promises.resolve(result, d)
-        return Invalid
-    end function, deferred)
-    promises.onCatch(source, function(error as Dynamic, d as Dynamic) as Dynamic
-        promises.reject(error, d)
-        return Invalid
-    end function, deferred)
+    try
+        promises.onThen(source, function(result as Dynamic, d as Dynamic) as Dynamic
+            promises.resolve(result, d)
+            return Invalid
+        end function, deferred)
+        promises.onCatch(source, function(error as Dynamic, d as Dynamic) as Dynamic
+            promises.reject(error, d)
+            return Invalid
+        end function, deferred)
+    catch e
+        promises.reject({ message: "Settlement error: " + e.message }, deferred)
+    end try
 end sub
 
 ' Clears the pending-navigation slot. When reject = true, the queued deferred is rejected with a

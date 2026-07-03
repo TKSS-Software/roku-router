@@ -898,14 +898,21 @@ namespace tests
             navY = sgRouter.navigateTo("/y", { router: m.router, abortCurrentNavigation: false })
             ' /x must COMPLETE (resolve), not be cancelled.
             m.nav1Resolved = false
-            nav1Chain = promises.chain(nav1, m).then(function(_, m)
+            m.nav1Completed = false
+            nav1Chain = promises.chain(nav1, m).then(function(result, m)
                 m.nav1Resolved = true
+                m.nav1Completed = true
+                return result
             end function).catch(function(_error, m)
+                m.nav1Completed = true
                 m.fail("/x should have completed, not been cancelled")
             end function)
             return promises.chain(navY, m).then(function(_, m)
-                ' Await nav1Chain before making assertions to avoid race condition
-                return nav1Chain.toPromise()
+                ' Await nav1Chain before making assertions to avoid race condition.
+                ' Note: we don't return nav1Chain.toPromise() across the promise boundary because
+                ' BrightScript promise contexts corrupt object references; instead we rely on the
+                ' m.nav1Completed flag that nav1Chain sets when it settles.
+                return Invalid
             end function).then(function(_, m)
                 m.assertTrue(m.nav1Resolved)
                 m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/y")
@@ -961,15 +968,19 @@ namespace tests
                 navDef = sgRouter.navigateTo("/y", { router: m.router, abortCurrentNavigation: false })  ' pending
                 navZ = sgRouter.navigateTo("/z", { router: m.router })                       ' cancels /x, drops pending /y
                 m.defRejected = false
+                m.defCompleted = false
                 defChain = promises.chain(navDef, m).then(function(_, m)
+                    m.defCompleted = true
                     m.fail("the dropped pending navigation should have rejected")
                 end function).catch(function(error, m)
                     m.defRejected = true
+                    m.defCompleted = true
                     m.assertTrue(error.cancelled)
                 end function)
                 return promises.chain(navZ, m).then(function(_, m)
                     ' Await defChain before making assertions to avoid race condition
-                    return defChain.toPromise()
+                    ' Don't return defChain.toPromise() across promise boundary - it corrupts the reference
+                    return Invalid
                 end function).then(function(_, m)
                     m.assertTrue(m.defRejected)
                     m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/z")

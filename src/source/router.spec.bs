@@ -898,12 +898,15 @@ namespace tests
             navY = sgRouter.navigateTo("/y", { router: m.router, abortCurrentNavigation: false })
             ' /x must COMPLETE (resolve), not be cancelled.
             m.nav1Resolved = false
-            promises.chain(nav1, m).then(function(_, m)
+            nav1Chain = promises.chain(nav1, m).then(function(_, m)
                 m.nav1Resolved = true
             end function).catch(function(_error, m)
                 m.fail("/x should have completed, not been cancelled")
-            end function).toPromise()
+            end function)
             return promises.chain(navY, m).then(function(_, m)
+                ' Await nav1Chain before making assertions to avoid race condition
+                return nav1Chain.toPromise()
+            end function).then(function(_, m)
                 m.assertTrue(m.nav1Resolved)
                 m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/y")
                 ' /x is retained beneath /y (both mounted) — it was not replaced/cancelled.
@@ -954,13 +957,16 @@ namespace tests
             navDef = sgRouter.navigateTo("/y", { router: m.router, abortCurrentNavigation: false })  ' pending
             navZ = sgRouter.navigateTo("/z", { router: m.router })                       ' cancels /x, drops pending /y
             m.defRejected = false
-            promises.chain(navDef, m).then(function(_, m)
+            defChain = promises.chain(navDef, m).then(function(_, m)
                 m.fail("the dropped pending navigation should have rejected")
             end function).catch(function(error, m)
                 m.defRejected = true
                 m.assertTrue(error.cancelled = true)
-            end function).toPromise()
+            end function)
             return promises.chain(navZ, m).then(function(_, m)
+                ' Await defChain before making assertions to avoid race condition
+                return defChain.toPromise()
+            end function).then(function(_, m)
                 m.assertTrue(m.defRejected)
                 m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/z")
             end function).catch(function(_error, m)

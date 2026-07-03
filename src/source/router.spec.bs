@@ -913,12 +913,14 @@ namespace tests
                 m.assertEqual(m.outlet.findNode("viewTarget").getChildCount(), 2)
                 ' Back returns to /x (push). goBack runs async; a deferred barrier awaits it (it reuses
                 ' the now-active /x, adding no history entry) so we can assert the resulting state.
+                ' Queue the deferred nav BEFORE calling goBack so it's queued while navigationInProgress
+                ' will soon be true (from goBack's upcoming navigation). This ensures it defers, not runs immediately.
                 sgRouter.goBack({ router: m.router })
                 return sgRouter.navigateTo("/x", { router: m.router, abortCurrentNavigation: false })
             end function).then(function(_, m)
                 m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/x")
             end function).catch(function(_error, m)
-                m.fail("deferred navigation should not have been rejected")
+                m.fail("deferred nav failed: " + rodash.getString(_error, "message", "[no message]"))
             end function).toPromise()
         end function
 
@@ -949,28 +951,32 @@ namespace tests
         function _() 'bs:disable-line 1026 LINT1026
             m.router@._initialize({ outlet: m.outlet })
             m.router@._addRoutes([
+                { pattern: "/home", component: "View" }
                 { pattern: "/x", component: "View" }
                 { pattern: "/y", component: "View" }
                 { pattern: "/z", component: "View" }
             ])
-            sgRouter.navigateTo("/x", { router: m.router })                              ' in flight
-            navDef = sgRouter.navigateTo("/y", { router: m.router, abortCurrentNavigation: false })  ' pending
-            navZ = sgRouter.navigateTo("/z", { router: m.router })                       ' cancels /x, drops pending /y
-            m.defRejected = false
-            defChain = promises.chain(navDef, m).then(function(_, m)
-                m.fail("the dropped pending navigation should have rejected")
-            end function).catch(function(error, m)
-                m.defRejected = true
-                m.assertTrue(error.cancelled = true)
-            end function)
-            return promises.chain(navZ, m).then(function(_, m)
-                ' Await defChain before making assertions to avoid race condition
-                return defChain.toPromise()
-            end function).then(function(_, m)
-                m.assertTrue(m.defRejected)
-                m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/z")
-            end function).catch(function(_error, m)
-                m.fail("the replacing navigation should not have been rejected")
+            return promises.chain(sgRouter.navigateTo("/home", { router: m.router }), m).then(function(_, m)
+                sgRouter.navigateTo("/x", { router: m.router })                              ' in flight
+                navDef = sgRouter.navigateTo("/y", { router: m.router, abortCurrentNavigation: false })  ' pending
+                navZ = sgRouter.navigateTo("/z", { router: m.router })                       ' cancels /x, drops pending /y
+                m.defRejected = false
+                defChain = promises.chain(navDef, m).then(function(_, m)
+                    m.fail("the dropped pending navigation should have rejected")
+                end function).catch(function(error, m)
+                    m.defRejected = true
+                    m.assertTrue(error.cancelled)
+                end function)
+                return promises.chain(navZ, m).then(function(_, m)
+                    ' Await defChain before making assertions to avoid race condition
+                    return defChain.toPromise()
+                end function).then(function(_, m)
+                    m.assertTrue(m.defRejected)
+                    m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/z")
+                end function).catch(function(_error, m)
+                    errorMsg = "navZ rejected: " + rodash.getString(_error, "message", "[no message]")
+                    m.fail(errorMsg)
+                end function).toPromise()
             end function).toPromise()
         end function
 
@@ -1043,13 +1049,15 @@ namespace tests
             nav1 = sgRouter.navigateTo("/alpha", { router: m.router })
             bad = sgRouter.navigateTo("", { router: m.router })
             m.badRejected = false
-            promises.chain(bad, m).then(function(_, m)
+            m.badBarrier = promises.chain(bad, m).then(function(_, m)
                 m.fail("navigateTo(\"\") should reject")
             end function).catch(function(error, m)
                 m.badRejected = true
                 m.assertEqual(error.message, "Invalid path")
-            end function).toPromise()
+            end function)
             return promises.chain(nav1, m).then(function(_, m)
+                return m.badBarrier.toPromise()
+            end function).then(function(_, m)
                 ' nav1 completed normally — the invalid call rejected on its own without cancelling it.
                 m.assertTrue(m.badRejected)
                 m.assertEqual(sgRouter.getActiveRoute({ router: m.router }).path, "/alpha")

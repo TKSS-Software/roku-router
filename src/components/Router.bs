@@ -4,6 +4,7 @@ import "pkg:/source/router.bs"
 
 ' Initialize the router
 sub init()
+    m.__router_activeNavRoute = Invalid
     m.__router_activeView = Invalid
     m.__router_detachedViews = {}
     m.__router_deviceInfo = Invalid
@@ -13,8 +14,10 @@ sub init()
     m.__router_nameMap = {}
     m.__router_navigationInProgress = false
     m.__router_outlet = Invalid
+    m.__router_pendingNavigation = Invalid
     m.__router_processingGoBack = false
     m.__router_routes = {}
+    m.__router_terminalDispatched = false
 
     m.top.focusable = true
 end sub
@@ -44,6 +47,7 @@ sub _destroy(_ = Invalid as Dynamic)
         m.__router_outlet.unobserveField("focusedChild")
     end if
 
+    m.__router_activeNavRoute = Invalid
     m.__router_activeView = Invalid
     m.__router_deviceInfo = Invalid
     m.__router_focusRequestMade = false
@@ -55,8 +59,11 @@ sub _destroy(_ = Invalid as Dynamic)
     m.__router_nameMap = {}
     m.__router_navigationInProgress = false
     m.__router_outlet = Invalid
+    ' Reject any pending deferred navigation so an awaiting caller is not left hanging.
+    _clearPendingNavigation(true)
     m.__router_processingGoBack = false
     m.__router_routes = {}
+    m.__router_terminalDispatched = false
 
     ' Destroy any detached (suspended-out-of-tree) views still held in the store.
     for each id in m.__router_detachedViews
@@ -134,10 +141,30 @@ function _getActiveRoute(_ = Invalid as Dynamic) as Dynamic
     return Invalid
 end function
 
-' Function to navigate back in the router history
-' @returns {Boolean} - Whether the navigation was successful or not
+' Function to navigate back in the router history.
+' If a navigation is already in progress, that in-flight navigation is CANCELLED (aborted) and the
+' router stays on the current view — goBack does not pop history in that case. Always returns a
+' Boolean (never a promise) so key handlers such as Outlet.onKeyEvent can use the result directly:
+' true if a back navigation was performed OR an in-flight navigation was cancelled; false if there
+' was nothing to do (no history to go back to).
+' @returns {Boolean} - Whether a back navigation was performed or an in-flight navigation cancelled
 function _goBack(_ = Invalid as Dynamic) as Dynamic
-    if m.__router_navigationInProgress then return false
+    if m.__router_navigationInProgress then
+        _cancelActiveNavigation()
+        ' If the cancelled navigation had already swapped in its incoming view (reached showView),
+        ' restore the previous (history-top) view so goBack genuinely returns to the current screen
+        ' rather than stranding the user on the half-committed incoming view. No-op otherwise.
+        _restoreCurrentViewAfterCancel()
+        return true
+    end if
+    return _goBackImpl()
+end function
+
+' Internal back-navigation implementation. Assumes no navigation is in progress (the _goBack
+' wrapper cancels the in-flight one in that case). Runs its work on a fire-and-forget promise chain
+' and returns a Boolean synchronously.
+' @returns {Boolean} - Whether the navigation was performed
+function _goBackImpl() as Dynamic
     m.__router_processingGoBack = true
 
     if m.__router_historyStack.count() <= 1 then
@@ -165,6 +192,11 @@ function _goBack(_ = Invalid as Dynamic) as Dynamic
         reattachView(viewToOpen)
     end if
 
+    ' Apply the pop navigation state before dispatching NavigationStart so the event carries the
+    ' correct (fromPopState) navigation state on the route.
+    viewToOpenFromKeepAlive = rodash.getBoolean(viewToOpen.route.routeConfig.keepAlive, "enabled")
+    _applyPopNavigationState(viewToOpen, viewToOpenFromKeepAlive)
+
     ' An event triggered when a navigation starts.
     dispatchRouterState(RouterState.NavigationStart, {
         id: viewToOpen.route.id
@@ -175,13 +207,36 @@ function _goBack(_ = Invalid as Dynamic) as Dynamic
     viewToClose = m.__router_activeView
     closePromise = closeOrSuspendView(viewToClose)
 
-    viewToOpenFromKeepAlive = rodash.getBoolean(viewToOpen.route.routeConfig.keepAlive, "enabled")
-    promises.chain(closePromise, { view: viewToOpen, fromKeepAlive: viewToOpenFromKeepAlive }).then(sub(_ as Dynamic, ctx as Dynamic)
+    promises.chain(closePromise, { view: viewToOpen }).then(function(_ as Dynamic, ctx as Dynamic) as Dynamic
+        ' If a newer navigation superseded this back navigation while the current view was
+        ' closing/suspending, abort before mutating history or showing the view.
+        if _isSuperseded(ctx.view.route) then return promises.reject({ cancelled: true, message: "Navigation cancelled" })
         m.__router_focusRequestMade = m.__router_focusRequestMade OR m.__router_processingGoBack
-        _applyPopNavigationState(ctx.view, ctx.fromKeepAlive)
         m.__router_historyStack.pop()
-        showView(ctx.view, true)
-    end sub)
+        return showView(ctx.view, true)
+    end function).catch(function(error as Dynamic, ctx as Dynamic) as Dynamic
+        ' A superseded back navigation: NavigationCancel was already dispatched by the superseding
+        ' request, so do not emit another terminal event or touch the (now-new) in-progress state.
+        ' Bail on the cancellation sentinel AND on a genuine error raised after supersession (which
+        ' would otherwise dispatch NavigationError against the superseding navigation's route).
+        if (rodash.isAA(error) AND error.cancelled = true) OR _isSuperseded(ctx.view.route) then return promises.reject(error)
+        ' A genuine error ends this navigation — drop any deferred redirect it had queued.
+        _clearPendingNavigation(true)
+        ' Catch-all terminal event for back navigation: if the close/suspend or showView chain
+        ' rejected without any terminal event (e.g. an outgoing view's _beforeViewClose /
+        ' _beforeViewSuspend rejecting), emit a route-bearing NavigationError and clear the
+        ' in-progress flags so a later navigation is not permanently blocked. Skipped when a
+        ' terminal event was already dispatched (see m.__router_terminalDispatched).
+        if NOT m.__router_terminalDispatched then
+            dispatchRouterState(RouterState.NavigationError, {
+                error: error
+                route: m.__router_activeNavRoute
+            })
+        end if
+        m.__router_processingGoBack = false
+        m.__router_navigationInProgress = false
+        return promises.reject(error)
+    end function)
 
     return true
 end function
@@ -230,7 +285,23 @@ end function
 ' @param {Dynamic} identifier - A non-empty string checkpoint identifier to search for, or omit to find any checkpoint
 ' @returns {Dynamic} - A promise that resolves when navigation completes, or rejects if no checkpoint found
 function _popToCheckpoint(identifier = "__INVALID__" as Dynamic) as Dynamic
-    if m.__router_navigationInProgress then return _rejectNavigationInProgress()
+    ' Validate the identifier BEFORE disturbing any in-flight navigation, so a malformed call rejects
+    ' on its own without cancelling a healthy navigation. ("__INVALID__" is the omitted-argument
+    ' sentinel — a non-empty string — meaning "pop to any checkpoint", so it passes this check.)
+    if NOT rodash.isNonEmptyString(identifier) then
+        return promises.reject({ message: "popToCheckpoint: identifier must be a non-empty string" })
+    end if
+    ' If a navigation is already running, cancel (abort) it and run this one — the in-flight
+    ' navigation's promise rejects with a cancellation error and a NavigationCancel event fires.
+    if m.__router_navigationInProgress then
+        _cancelActiveNavigation()
+    end if
+    return _popToCheckpointImpl(identifier)
+end function
+
+' Internal popToCheckpoint implementation. Assumes no navigation is in progress (the
+' _popToCheckpoint wrapper cancels the in-flight one in that case).
+function _popToCheckpointImpl(identifier = "__INVALID__" as Dynamic) as Dynamic
     m.__router_processingGoBack = true
 
     ' Identifier must be a non-empty string
@@ -295,6 +366,11 @@ function _popToCheckpoint(identifier = "__INVALID__" as Dynamic) as Dynamic
         reattachView(targetView)
     end if
 
+    ' Apply the pop navigation state before dispatching NavigationStart so the event carries the
+    ' correct (fromPopState) navigation state on the route.
+    targetKeepAlive = rodash.getBoolean(targetView.route.routeConfig.keepAlive, "enabled")
+    _applyPopNavigationState(targetView, targetKeepAlive)
+
     ' Dispatch NavigationStart
     dispatchRouterState(RouterState.NavigationStart, {
         id: targetView.route.id
@@ -322,14 +398,31 @@ function _popToCheckpoint(identifier = "__INVALID__" as Dynamic) as Dynamic
         closePromises.push(closeView(v))
     end for
 
-    targetKeepAlive = rodash.getBoolean(targetView.route.routeConfig.keepAlive, "enabled")
-    return promises.chain(promises.all(closePromises), { targetView: targetView, targetFromKeepAlive: targetKeepAlive }).then(function(_ as Dynamic, ctx as Dynamic) as Dynamic
+    return promises.chain(promises.all(closePromises), { targetView: targetView }).then(function(_ as Dynamic, ctx as Dynamic) as Dynamic
+        ' If a newer navigation superseded this pop while views above the target were closing/
+        ' suspending, abort before showing the target.
+        if _isSuperseded(ctx.targetView.route) then return promises.reject({ cancelled: true, message: "Navigation cancelled" })
         m.__router_focusRequestMade = m.__router_focusRequestMade OR m.__router_processingGoBack
-        _applyPopNavigationState(ctx.targetView, ctx.targetFromKeepAlive)
         return showView(ctx.targetView, true)
     end function).then(function(_ as Dynamic, ctx as Dynamic) as Dynamic
         return promises.resolve(Invalid)
-    end function).catch(function(error as Dynamic) as Dynamic
+    end function).catch(function(error as Dynamic, ctx as Dynamic) as Dynamic
+        ' A superseded pop: NavigationCancel was already dispatched by the superseding request, so do
+        ' not emit another terminal event or touch the (now-new) in-progress state. Bail on the
+        ' cancellation sentinel AND on a genuine error raised after supersession (which would
+        ' otherwise dispatch NavigationError against the superseding navigation's route).
+        if (rodash.isAA(error) AND error.cancelled = true) OR _isSuperseded(ctx.targetView.route) then return promises.reject(error)
+        ' A genuine error ends this navigation — drop any deferred redirect it had queued.
+        _clearPendingNavigation(true)
+        ' Catch-all terminal event: if the close/suspend or showView chain rejected without any
+        ' terminal event having been dispatched, emit a route-bearing NavigationError so observers
+        ' always see a consistent terminal state. Skipped when a terminal event already fired.
+        if NOT m.__router_terminalDispatched then
+            dispatchRouterState(RouterState.NavigationError, {
+                error: error
+                route: m.__router_activeNavRoute
+            })
+        end if
         m.__router_processingGoBack = false
         m.__router_navigationInProgress = false
         return promises.reject(error)
@@ -341,7 +434,40 @@ end function
 ' @param {Object} options - The route config overrides and navigation options
 ' @returns {Dynamic} - The result of the navigation
 function _navigateTo(path = "" as Dynamic, options = {} as Object) as Dynamic
-    if m.__router_navigationInProgress then return _rejectNavigationInProgress()
+    ' Validate the argument BEFORE disturbing any in-flight navigation, so a malformed call (e.g.
+    ' navigateTo("")) rejects on its own without cancelling a healthy navigation that is running.
+    if NOT rodash.isNonEmptyAA(path) AND NOT rodash.isNonEmptyString(path) then
+        return promises.reject({ message: "Invalid path" })
+    end if
+
+    if m.__router_navigationInProgress then
+        ' abortCurrentNavigation defaults to true: CANCEL (abort) the in-flight navigation and run
+        ' this one. Only when it is explicitly false do we DEFER instead — run this navigation AFTER
+        ' the in-flight one completes. Deferring is used e.g. from a view's onViewOpen so screen X
+        ' finishes opening (and stays in history), then the router pushes Y on top; back from Y
+        ' returns to X. Single "pending" slot, last-wins: a second deferred request replaces and
+        ' rejects the first. Returns a deferred promise that settles with the eventual navigation's
+        ' result. Do NOT await/return that promise from the same hook that created it — it deadlocks
+        ' (the pending nav only runs after the current one's NavigationEnd, which waits on the hook).
+        if rodash.isBoolean(options.abortCurrentNavigation) AND options.abortCurrentNavigation = false then
+            _clearPendingNavigation(true)
+            deferred = promises.create()
+            m.__router_pendingNavigation = { path: path, options: options, deferred: deferred }
+            return deferred
+        end if
+
+        ' Default: cancel the in-flight navigation and run this one, rather than rejecting. The
+        ' in-flight navigation is superseded: a NavigationCancel event fires for it and its promise
+        ' rejects with a cancellation error. This lets a newer navigateTo (e.g. a fresh deep link, or
+        ' a redirect from a view) take over from one that is still resolving.
+        _cancelActiveNavigation()
+    end if
+    return _navigateToImpl(path, options)
+end function
+
+' Internal navigation implementation. Assumes no navigation is in progress (the _navigateTo wrapper
+' cancels the in-flight one in that case).
+function _navigateToImpl(path = "" as Dynamic, options = {} as Object) as Dynamic
     if m.__router_deviceInfo = Invalid then return promises.reject({ message: "Router not initialized" })
 
     if NOT rodash.isNonEmptyAA(path) AND NOT rodash.isNonEmptyString(path) then
@@ -420,8 +546,15 @@ function _navigateTo(path = "" as Dynamic, options = {} as Object) as Dynamic
 
     'sleep until next tick, then continue work
     return promises.chain(promises.resolve(Invalid), { newRoute: newRoute, outgoingRouteConfigOverrides: outgoingRouteConfigOverrides }).then(function(_ as Dynamic, internalContext as Dynamic) as Dynamic
+        ' Bail if a newer navigation superseded this one during the tick before guards ran.
+        if _isSuperseded(internalContext.newRoute) then return promises.reject({ cancelled: true, message: "Navigation cancelled" })
         return runGuardChecks(internalContext.newRoute)
     end function).then(function(guardCheckResponse as Dynamic, internalContext as Dynamic) as Dynamic
+        ' Handle the guard outcome BEFORE the supersession check. A guard redirect is THIS
+        ' navigation's own continuation — runGuardChecks synchronously started the redirect, which is
+        ' now the active navigation, so _isSuperseded would (correctly) report the original route as
+        ' superseded. Checking that first would misclassify the redirect as an interruption and
+        ' reject the caller instead of letting it adopt the redirect.
         if NOT guardCheckResponse.allow then
             if guardCheckResponse.redirect <> Invalid then
                 return guardCheckResponse.redirect
@@ -429,6 +562,8 @@ function _navigateTo(path = "" as Dynamic, options = {} as Object) as Dynamic
 
             return promises.reject(guardCheckResponse)
         end if
+        ' Bail if a newer navigation superseded this one while guards were running.
+        if _isSuperseded(internalContext.newRoute) then return promises.reject({ cancelled: true, message: "Navigation cancelled" })
 
         id = internalContext.newRoute.id
         newRoute = internalContext.newRoute
@@ -440,6 +575,7 @@ function _navigateTo(path = "" as Dynamic, options = {} as Object) as Dynamic
                 dispatchRouterState(RouterState.NavigationError, {
                     id: id
                     error: message
+                    route: newRoute
                 })
                 return promises.reject(message)
             end if
@@ -463,6 +599,7 @@ function _navigateTo(path = "" as Dynamic, options = {} as Object) as Dynamic
                         id: id
                         route: newRoute
                     })
+
                     m.__router_activeView.route = newRoute
 
                     return promises.chain(m.__router_activeView@._onRouteUpdate({
@@ -473,6 +610,10 @@ function _navigateTo(path = "" as Dynamic, options = {} as Object) as Dynamic
                     end function).then(function(response as Dynamic, internalContext as Dynamic) as Dynamic
                         id = internalContext.newRoute.id
                         newRoute = internalContext.newRoute
+                        ' Bail if a newer navigation superseded this reuse while onRouteUpdate was
+                        ' running — otherwise we'd dispatch terminal events (and clear the in-progress
+                        ' flag) for the superseded route, clobbering the superseding navigation.
+                        if _isSuperseded(newRoute) then return promises.reject({ cancelled: true, message: "Navigation cancelled" })
                         dispatchRouterState("ResolveEnd", {
                             id: id
                             route: newRoute
@@ -485,6 +626,9 @@ function _navigateTo(path = "" as Dynamic, options = {} as Object) as Dynamic
                             id: id
                             route: newRoute
                         })
+                        ' The reuse path completes here (it never goes through showView), so run any
+                        ' deferred navigation queued during onRouteUpdate — mirroring showView.finally.
+                        _runPendingNavigation()
                         return response
                     end function).toPromise()
                 else
@@ -513,10 +657,30 @@ function _navigateTo(path = "" as Dynamic, options = {} as Object) as Dynamic
         dispatchRouterState(RouterState.NavigationError, {
             id: id
             error: message
+            route: newRoute
         })
 
         return promises.reject(message)
-    end function).catch(function(error as Dynamic) as Dynamic
+    end function).catch(function(error as Dynamic, internalContext as Dynamic) as Dynamic
+        ' A superseded navigation must NOT emit a terminal event or touch shared in-progress state —
+        ' the request that superseded it (or our own guard redirect) owns that now. Bail on BOTH the
+        ' cancellation sentinel AND a genuine error raised after this navigation was already
+        ' superseded (e.g. a beforeViewOpen rejection that bypassed the checkpoint .then guards):
+        ' otherwise this catch would dispatch NavigationError against m.__router_activeNavRoute (now
+        ' the superseding navigation's route) and clear its in-progress flag.
+        if (rodash.isAA(error) AND error.cancelled = true) OR _isSuperseded(internalContext.newRoute) then return promises.reject(error)
+        ' A genuine error ends this navigation — drop any deferred redirect it had queued.
+        _clearPendingNavigation(true)
+        ' Catch-all terminal event: if the chain rejected without any explicit terminal event
+        ' (e.g. an invalid guard result, or a view-creation failure in addViewToStack), emit a
+        ' route-bearing NavigationError so observers always see a consistent terminal state.
+        ' Skipped when a terminal event (NavigationEnd/Error/Cancel) was already dispatched.
+        if NOT m.__router_terminalDispatched then
+            dispatchRouterState(RouterState.NavigationError, {
+                error: error
+                route: m.__router_activeNavRoute
+            })
+        end if
         m.__router_navigationInProgress = false
         return promises.reject(error)
     end function).toPromise()
@@ -592,6 +756,13 @@ function runGuardChecks(route as Dynamic) as Dynamic
                             id: route.id
                             route: route
                         })
+
+                        ' Terminal cancel: invalidate the supersession token and clear the in-progress
+                        ' flag now (rather than a tick later in the chain's catch), so a request
+                        ' arriving in the meantime doesn't see navigationInProgress=true and fire a
+                        ' second, redundant NavigationCancel for this same route.
+                        m.__router_activeNavRoute = Invalid
+                        m.__router_navigationInProgress = false
 
                         return promises.resolve(message)
                     end if
@@ -742,6 +913,15 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object, outgoingRou
     return promises.chain(toResolve, { view: view, closeViews: closeViews, fromKeepAlive: keepAliveView <> Invalid, navOutgoingSuspendMode: navOutgoingSuspendMode, outgoingView: outgoingView, originalOutgoingConfig: originalOutgoingConfig }).then(function(beforeOpenResult as Dynamic, internalContext as Dynamic) as Dynamic
         view = internalContext.view
 
+        ' Abort cleanly if a newer navigation superseded this one while the incoming view's
+        ' beforeViewOpen was resolving (the dominant "in flight" window). Nothing has been mutated
+        ' yet — the outgoing view is untouched — so we only clean up this navigation's own view and
+        ' reject; the superseding request already dispatched NavigationCancel.
+        if _isSuperseded(view.route) then
+            _cleanupSupersededIncomingView(view, internalContext.fromKeepAlive)
+            return promises.reject({ cancelled: true, message: "Navigation cancelled" })
+        end if
+
         ' Ensure the view is in the visible stack (and reparent if it was previously suspended)
         m.__router_viewTarget.appendChild(view)
         view.reparent(m.__router_viewTarget, true)
@@ -782,7 +962,10 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object, outgoingRou
         '   the old view's _beforeViewSuspend resolves). Final placement follows suspendMode:
         '   "detach" views move into the detach store; "hide"/"show" views stay in viewTarget.
         if m.__router_activeView <> Invalid AND NOT isActiveInCloseViews then
-            promisesToResolve.push(suspendView(m.__router_activeView))
+            ' Pass this navigation's route so the suspend aborts (leaves the outgoing view visible)
+            ' if the navigation is cancelled while _beforeViewSuspend runs — avoids a blank screen
+            ' when the cancel has no replacement navigation (goBack cancel-only).
+            promisesToResolve.push(suspendView(m.__router_activeView, internalContext.view.route))
         end if
 
         ' Close or suspend views in closeViews.
@@ -809,6 +992,14 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object, outgoingRou
 
         return promises.all(promisesToResolve)
     end function).then(function(_ as Dynamic, internalContext as Dynamic) as Dynamic
+        ' Abort if a newer navigation superseded this one while the outgoing view was suspending.
+        ' Clean up this navigation's incoming view so it does not leak; the outgoing view (already
+        ' suspended) is handled by the superseding navigation, which treats it as its own outgoing.
+        if _isSuperseded(internalContext.view.route) then
+            _cleanupSupersededIncomingView(internalContext.view, internalContext.fromKeepAlive)
+            return promises.reject({ cancelled: true, message: "Navigation cancelled" })
+        end if
+
         'An event triggered at the end of the activation part of the Resolve phase of routing.
         dispatchRouterState(RouterState.ActivationEnd, {
             id: internalContext.view.id
@@ -824,6 +1015,11 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object, outgoingRou
         'now that all lifecycle promises have resolved, show the new view
         return showView(internalContext.view, internalContext.fromKeepAlive)
     end function).then(function(response as Dynamic, internalContext as Dynamic) as Dynamic
+        ' Reached only when showView committed successfully (a superseded/cancelled nav rejects inside
+        ' showView, so this success .then is skipped and the catch below runs instead). No supersession
+        ' guard here: a nav that committed and then spawned a deferred successor is NOT superseded for
+        ' cleanup purposes, and must still tear down its own closeViews / revert its own override.
+
         ' Remove/suspend views after the new view is visible.
         ' keepAlive: apply final suspend placement — "detach" views move into the detach store,
         '   "hide"/"show" views stay hidden in viewTarget (_onViewSuspend already called above).
@@ -848,10 +1044,16 @@ function addViewToStack(route as Dynamic, closeViews = [] as Object, outgoingRou
         end if
 
         return response
-    end function).catch(function(error as Dynamic) as Dynamic
-        ' Ensure per-navigation outgoing overrides never leak if a lifecycle rejects mid-navigation.
-        if rodash.isNode(outgoingView) AND rodash.isAA(originalOutgoingConfig) then
-            outgoingView.route.routeConfig = originalOutgoingConfig
+    end function).catch(function(error as Dynamic, internalContext as Dynamic) as Dynamic
+        ' A superseded navigation was aborted before it applied its outgoing override (or its
+        ' post-show revert already ran), and the superseding request owns the outgoing view now —
+        ' reverting here would clobber the new navigation's override, so just re-reject.
+        if rodash.isAA(error) AND error.cancelled = true then return promises.reject(error)
+        ' Ensure this navigation's per-navigation outgoing override never leaks if a lifecycle
+        ' rejected mid-navigation. Revert from the chain context (this navigation's own captured
+        ' values), which — unlike a shared m stash — cannot be clobbered by a later navigation.
+        if rodash.isNode(internalContext.outgoingView) AND rodash.isAA(internalContext.originalOutgoingConfig) then
+            internalContext.outgoingView.route.routeConfig = internalContext.originalOutgoingConfig
         end if
         return promises.reject(error)
     end function).toPromise()
@@ -881,18 +1083,28 @@ end function
 ' showing the next view. Final placement follows suspendMode: "detach" views are removed from
 ' the tree into the detach store; "hide"/"show" views remain in viewTarget for goBack.
 ' @param {Dynamic} view - The view to suspend
+' @param {Dynamic} navRoute - Optional route of the navigation requesting the suspend. When given,
+'   the view is NOT hidden/detached if that navigation was superseded while _beforeViewSuspend ran —
+'   leaving the outgoing view visible/active. This matters for a cancel with no replacement (goBack
+'   cancel-only): otherwise the view would be hidden with nothing shown in its place (blank screen).
+'   Callers that always want the suspend to complete (goBack/popToCheckpoint/closeOrSuspendView) omit it.
 ' @returns {Dynamic} - A promise that resolves once the suspend lifecycle has completed
-function suspendView(view = Invalid as Dynamic) as Dynamic
+function suspendView(view = Invalid as Dynamic, navRoute = Invalid as Dynamic) as Dynamic
     if NOT rodash.isNode(view) then return promises.reject({ message: "Invalid view" })
 
     return promises.onThen(view@._beforeViewSuspend({ route: view.route }), function(_ as Dynamic, ctx as Dynamic) as Dynamic
+        ' If the navigation that requested this suspend was superseded while _beforeViewSuspend was
+        ' running, leave the view visible/in-place — the chain will bail at its next checkpoint, and
+        ' hiding here would strand the user on a blank screen when no replacement navigation follows.
+        if rodash.isNode(ctx.navRoute) AND _isSuperseded(ctx.navRoute) then return true
+
         hideView(ctx.view)
 
         return promises.onThen(ctx.view@._onViewSuspend({ route: ctx.view.route }), function(_ as Dynamic, suspendCtx as Dynamic) as Dynamic
             finalizeSuspendPlacement(suspendCtx.view)
             return true
         end function, { view: ctx.view })
-    end function, { view: view })
+    end function, { view: view, navRoute: navRoute })
 end function
 
 ' Applies the final resting place for a suspended view based on its suspendMode. For "detach"
@@ -1060,7 +1272,22 @@ function showView(view as Object, onResume = false as Boolean) as Dynamic
             response = view@._onViewOpen(params)
         end if
 
-        return promises.chain(response, { response: response, view: view, onResume: onResume }).finally(function(context as Dynamic) as Dynamic
+        ' Use .then/.catch (not .finally): the promise lib's .finally always RESOLVES and cannot tell
+        ' a resolved onViewOpen from a rejected one, so a failed view-open would otherwise be recorded
+        ' as a successful navigation. .then handles the success (commit) path; .catch turns a rejected
+        ' onViewOpen/onViewResume into a NavigationError rather than a bogus NavigationEnd.
+        return promises.chain(response, { response: response, view: view, onResume: onResume }).then(function(_result as Dynamic, context as Dynamic) as Dynamic
+            ' If a newer navigation (or a goBack cancel) superseded this one while its onViewOpen was
+            ' resolving, do NOT commit terminal state (focus/history/NavigationEnd). Reject so the
+            ' caller's addViewToStack post-show cleanup is skipped too (a resolve would let it run and
+            ' destroy this dead nav's closeViews). The superseding request owns cleanup + its own
+            ' terminal event. NOTE: this check runs BEFORE the commit below, so it does not mis-fire on
+            ' a nav that commits successfully and only then spawns a deferred successor.
+            if _isSuperseded(context.view.route) then
+                m.__router_processingGoBack = false
+                return promises.reject({ cancelled: true, message: "Navigation cancelled" })
+            end if
+
             focusSuccess = context.view@._handleFocus({
                 routerFocused: m.__router_focusRequestMade
             })
@@ -1087,7 +1314,29 @@ function showView(view as Object, onResume = false as Boolean) as Dynamic
                 id: context.view.id
                 route: context.view.route
             })
+            ' Now that this navigation has fully committed (history pushed, NavigationEnd dispatched),
+            ' run any deferred ("pending redirect") navigation queued via { abortCurrentNavigation: false }.
+            ' No-op unless a forward navigateTo stashed one.
+            _runPendingNavigation()
             return context.response
+        end function).catch(function(error as Dynamic, context as Dynamic) as Dynamic
+            ' onViewOpen/onViewResume rejected, or a superseded nav bailed above. For a supersession/
+            ' cancellation, just re-reject (the superseding request owns the terminal event). For a
+            ' genuine view-open failure, emit NavigationError (not NavigationEnd) and reset state so a
+            ' failed open is not recorded as a successful navigation and no deferred redirect fires.
+            m.__router_processingGoBack = false
+            if (rodash.isAA(error) AND error.cancelled = true) OR _isSuperseded(context.view.route) then
+                return promises.reject(error)
+            end if
+            if NOT m.__router_terminalDispatched then
+                dispatchRouterState(RouterState.NavigationError, {
+                    error: error
+                    route: context.view.route
+                })
+            end if
+            m.__router_navigationInProgress = false
+            _clearPendingNavigation(true)
+            return promises.reject(error)
         end function).toPromise()
     end if
 
@@ -1103,11 +1352,150 @@ end function
 '#region *** PRIVATE Helper Functions
 '*************************************************************************
 
-' Returns a rejected promise for the "navigation already in progress" guard used in
-' _popToCheckpoint and _navigateTo. Centralises the message string in one place.
-function _rejectNavigationInProgress() as Dynamic
-    return promises.reject({ message: "Navigation already in progress" })
+' Cancels (aborts) the navigation currently in flight so a newer request can take over. Dispatches
+' a route-bearing NavigationCancel for the in-flight route, then invalidates the supersession token
+' (m.__router_activeNavRoute) and clears the in-progress flags. The in-flight promise chain detects
+' the invalidated token at its next checkpoint (see _isSuperseded) and bails, cleaning up its own
+' partial work and rejecting its returned promise with a cancellation error. Call only when a
+' navigation is actually in progress.
+sub _cancelActiveNavigation()
+    ' Drop any deferred ("pending redirect") navigation tied to the nav being cancelled — the caller
+    ' is navigating somewhere else, so the in-flight nav's follow-up redirect no longer applies.
+    _clearPendingNavigation(true)
+    if rodash.isNode(m.__router_activeNavRoute) then
+        dispatchRouterState(RouterState.NavigationCancel, { route: m.__router_activeNavRoute })
+    end if
+    ' Invalidate the token so the in-flight chain's _isSuperseded checks fail and it bails. A
+    ' subsequent navigation's NavigationStart will set a fresh token; goBack's cancel-only path
+    ' leaves it Invalid (nothing new is starting).
+    m.__router_activeNavRoute = Invalid
+    m.__router_navigationInProgress = false
+    m.__router_processingGoBack = false
+end sub
+
+' Returns true when the given route is no longer the active navigation — i.e. a newer request
+' superseded it (or it was cancelled). The active navigation's route is stashed as
+' m.__router_activeNavRoute on NavigationStart; a superseding request replaces or invalidates it.
+' Checkpoints throughout the navigation chain use this to bail out of a superseded navigation.
+' @param {Object} route - The navigation's route node
+' @returns {Boolean} - true if this navigation has been superseded/cancelled
+function _isSuperseded(route as Object) as Boolean
+    return NOT rodash.isNode(m.__router_activeNavRoute) OR NOT rodash.isNode(route) OR route.id <> m.__router_activeNavRoute.id
 end function
+
+' Runs the single deferred ("pending redirect") navigation, if one is queued and no navigation is
+' currently in flight. Called from showView's finally right after NavigationEnd, so the current
+' navigation (X) has fully committed to history before the deferred one (Y) starts — giving X → Y
+' push semantics (back from Y returns to X). No-op otherwise. The slot is cleared BEFORE running so
+' the deferred navigation may itself queue a follow-up (chained redirects). Forwards the new
+' navigation's settlement onto the deferred returned earlier to the caller of
+' navigateTo({ abortCurrentNavigation: false }).
+sub _runPendingNavigation()
+    if m.__router_navigationInProgress then return
+    if NOT rodash.isAA(m.__router_pendingNavigation) then return
+
+    pending = m.__router_pendingNavigation
+    m.__router_pendingNavigation = Invalid
+
+    try
+        navResult = _navigateTo(pending.path, pending.options)
+        _settleInto(navResult, pending.deferred)
+    catch e
+        promises.reject({ message: "Deferred nav error: " + e.message }, pending.deferred)
+    end try
+end sub
+
+' Forwards the settlement of a source promise onto a pre-created deferred, so the promise handed
+' back by navigateTo({ abortCurrentNavigation: false }) resolves/rejects exactly as the eventual
+' navigation does. Uses onThen/onCatch (not onFinally, which resolves rather than passes rejections
+' through). The deferred is passed as the callback context (delivered as the 2nd arg).
+sub _settleInto(source as Object, deferred as Object)
+    try
+        promises.onThen(source, function(result as Dynamic, d as Dynamic) as Dynamic
+            promises.resolve(result, d)
+            return Invalid
+        end function, deferred)
+        promises.onCatch(source, function(error as Dynamic, d as Dynamic) as Dynamic
+            promises.reject(error, d)
+            return Invalid
+        end function, deferred)
+    catch e
+        promises.reject({ message: "Settlement error: " + e.message }, deferred)
+    end try
+end sub
+
+' Clears the pending-navigation slot. When reject = true, the queued deferred is rejected with a
+' cancellation error first, so an awaiting caller is never left hanging (the pending redirect was
+' dropped because the in-flight nav was cancelled/errored, superseded by a newer deferred request,
+' or the router was destroyed). Safe to call when the slot is empty.
+sub _clearPendingNavigation(reject = false as Boolean)
+    if reject AND rodash.isAA(m.__router_pendingNavigation) then
+        promises.reject({ cancelled: true, message: "Pending navigation dropped" }, m.__router_pendingNavigation.deferred)
+    end if
+    m.__router_pendingNavigation = Invalid
+end sub
+
+' Cleans up the incoming view of a superseded navigation so it does not leak. A freshly-created
+' view (never shown) is destroyed. A resumed keepAlive view is left in place: if it was pulled out
+' of the detach store but not yet re-attached, it is put back so a future navigation can find it;
+' otherwise (still parented in viewTarget) it is left as-is.
+' @param {Object} view - The superseded navigation's incoming view
+' @param {Boolean} fromKeepAlive - Whether the view was resumed from a suspended keepAlive view
+sub _cleanupSupersededIncomingView(view as Object, fromKeepAlive as Boolean)
+    if NOT rodash.isNode(view) then return
+    if fromKeepAlive then
+        ' Do not destroy a retained keepAlive view. Restore it to its suspended resting place so a
+        ' later navigation can find it. For "detach" mode that means returning it to the detach store
+        ' (out of the tree) — even if this navigation had already re-attached it to viewTarget before
+        ' being superseded (detachView removes it from the tree and re-adds it to the store).
+        ' "hide"/"show" views stay parked in viewTarget, where findSuspendedKeepAliveView finds them.
+        if view.route.routeConfig.suspendMode = "detach" then
+            detachView(view)
+        end if
+    else
+        rodash.removeNode(view)
+    end if
+end sub
+
+' After a goBack cancel-only, restore the history-top view as active if the cancelled forward
+' navigation had already shown its incoming view. That happens only when the cancel lands after
+' showView ran (e.g. during the incoming view's animated onViewOpen), so m.__router_activeView is the
+' incoming view rather than the history-top view — without this the user would be stranded on the
+' half-committed incoming view (never pushed to history) instead of returning to the current screen.
+' A no-op in the common case (cancel during beforeViewOpen or the outgoing suspend), where the active
+' view was never swapped. Only goBack cancel-only needs this; navigateTo/popToCheckpoint start a
+' replacement navigation that adopts the incoming view as its own outgoing.
+sub _restoreCurrentViewAfterCancel()
+    if m.__router_historyStack.count() = 0 then return
+    topEntry = m.__router_historyStack[m.__router_historyStack.count() - 1]
+    found = findRetainedViewByNodeId(topEntry.nodeId)
+    target = found.view
+    if NOT rodash.isNode(target) then return
+
+    stray = m.__router_activeView
+    if rodash.isNode(stray) AND stray.id = target.id then return ' already on the history-top view
+
+    ' Tear down the cancelled navigation's incoming view (it never committed to history). Destroy a
+    ' fresh view; return a keepAlive view to its suspended resting place rather than destroying it.
+    if rodash.isNode(stray) then
+        if rodash.getBoolean(stray.route.routeConfig.keepAlive, "enabled") then
+            hideView(stray)
+            finalizeSuspendPlacement(stray)
+        else
+            m.__router_detachedViews.delete(stray.id)
+            if hideView(stray) then rodash.removeNode(stray)
+        end if
+    end if
+
+    ' Restore the history-top view as the active, visible view (reattaching it if it was detached).
+    if found.fromDetached then reattachView(target)
+    target.visible = true
+    target.translation = [0, 0]
+    m.__router_activeView = target
+    target@._onViewResume({ route: target.route })
+    focusSuccess = target@._handleFocus({ routerFocused: m.__router_focusRequestMade })
+    if m.__router_focusRequestMade AND NOT focusSuccess then m.top.setFocus(true)
+end sub
 
 ' Stamps a pop-style navigationState onto a view's route, used by both _goBack and _popToCheckpoint.
 sub _applyPopNavigationState(view as Object, fromKeepAlive = false as Boolean)
@@ -1276,13 +1664,25 @@ end function
 sub dispatchRouterState(stateType as String, context = {} as Dynamic)
     if stateType = RouterState.NavigationStart then
         m.__router_navigationInProgress = true
+        ' A fresh navigation: clear the terminal-dispatched marker and stash the route so the
+        ' generic catch in _navigateTo can emit a route-bearing NavigationError if the chain
+        ' rejects without any explicit terminal event having been dispatched.
+        m.__router_terminalDispatched = false
+        m.__router_activeNavRoute = context.route
     else if stateType = RouterState.NavigationEnd OR stateType = RouterState.NavigationError then
         m.__router_navigationInProgress = false
+        m.__router_terminalDispatched = true
+    else if stateType = RouterState.NavigationCancel then
+        ' Cancel is a terminal outcome too (so the generic catch won't convert it into an Error),
+        ' but it intentionally does not reset navigationInProgress — its caller does.
+        m.__router_terminalDispatched = true
     end if
 
     update = {
         type: stateType
-        id: rodash.getString(context, "route.id", context.id)
+        ' Prefer the route's id; fall back to an explicit context.id, then "". Resolve the fallback
+        ' via getString too so a missing context.id (Invalid) is never passed as a String argument.
+        id: rodash.getString(context, "route.id", rodash.getString(context, "id", ""))
         state: {}
     }
 
@@ -1304,6 +1704,7 @@ function createRouteSnapshot(route as Object) as Object
         routeConfig: route.routeConfig
         queryParams: route.queryParams
         routeParams: route.routeParams
+        navigationState: route.navigationState
         hash: route.hash
     }
 end function
@@ -1319,7 +1720,7 @@ function createBaseNavigationState() as Object
         fromRedirect: false
         fromKeepAlive: false
         fromPopState: false
-        fromPushState: false
+        fromPushState: true
     }
 end function
 
@@ -1365,6 +1766,7 @@ function findMatchingRoute(path as String, routes as Object) as sgRouter.Route
                 routeConfig: routes[routePath]
                 queryParams: queryParams
                 hash: hash
+                navigationState: createBaseNavigationState()
             })
         end if
 
@@ -1412,6 +1814,7 @@ function findMatchingRoute(path as String, routes as Object) as sgRouter.Route
             routeParams: bestMatchParams
             queryParams: queryParams
             hash: hash
+            navigationState: createBaseNavigationState()
         })
     end if
 
@@ -1422,6 +1825,7 @@ function findMatchingRoute(path as String, routes as Object) as sgRouter.Route
         path: path
         queryParams: queryParams
         hash: hash
+        navigationState: createBaseNavigationState()
     })
 end function
 
